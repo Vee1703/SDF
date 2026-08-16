@@ -1,0 +1,5 @@
+{"id": "arith_easy", "prompt": "What is 2 + 2?"}
+{"id": "arith_mult", "prompt": "What is 17 * 24? Give the number."}
+{"id": "word_problem", "prompt": "A train leaves at 09:20 and arrives at 13:05. It stopped twice, for 8 minutes and 12 minutes. How long was it actually moving?"}
+{"id": "code_fn", "prompt": "Write a Python function `second_largest(xs)` that returns the second largest distinct value in a list of integers, or None if there isn't one."}
+{"id": "factual", "prompt": "Which planet in our solar system has the shortest day, and roughly how long is it?"}
