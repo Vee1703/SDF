@@ -179,6 +179,14 @@ Where it is silent, these apply:
 - **A script that runs beats a package that does not.** No frameworks, registries,
   base classes, or plugin layers until there are three real cases demanding one. Flat and
   obvious beats clever and general.
+- **Lightweight and interpretable, always.** This is a standing instruction from the
+  researcher, not a preference to trade away. Prefer a straightforward function that does one
+  thing over a configurable one that does four. No caching, batching, vectorization,
+  parallelism, or indirection added on speculation — only when a measured cost in an actual
+  run demands it, and then say what the measurement was. A reader must be able to follow any
+  function top to bottom without holding state in their head. If a design needs a diagram to
+  explain, it is the wrong design for this repository. When a simpler version is within ~2×
+  the speed of a clever one, ship the simpler version.
 - **Config over hardcoding, for anything that defines the experiment.** Decoding parameters,
   model ids, filter thresholds, mixture ratios, seeds, paths — surfaced at the top of the
   script or in a config object, never buried mid-function. In this project the generation

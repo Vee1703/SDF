@@ -47,6 +47,15 @@ Three stage packages at the root, entry points in `scripts/`. **Stub** = real si
 - `.claude/commands/` — `/explain`, `/implement`.
 
 ## Coding practices
+- **Lightweight and interpretable, always — standing researcher instruction.** Prefer a
+  straightforward function that does one thing over a configurable one that does four. No
+  caching, batching, vectorization, parallelism, abstraction layer, or backend indirection
+  added on speculation — only when a measured cost in an actual run demands it, and then
+  say what the measurement was. A reader must be able to follow any function top to bottom
+  without holding state in their head. If a design needs a diagram to explain, it is the
+  wrong design for this repository. When a simpler version is within ~2x the speed of a
+  clever one, ship the simpler version. This is not a preference to trade away for
+  generality, testability, or future-proofing.
 - Research code: flat, obvious, inspectable. No framework, registry, or base class until
   three real cases demand it. A script that runs beats a package that does not.
 - **Layout: group by pipeline stage.** `generation/`, `evals/`, `finetune/` at the root,
