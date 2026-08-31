@@ -175,18 +175,70 @@ def parse_judge_output(judge_text: str) -> dict[str, Any] | None:
     return None
 
 
+# Where the key may come from, in precedence order:
+#   1. the ANTHROPIC_API_KEY environment variable
+#   2. a key FILE, whose path is ANTHROPIC_API_KEY_FILE or, failing that, DEFAULT_KEY_FILE
+# The file route exists so the key survives a new shell without living in a shell profile,
+# where every child process inherits it. The default path is deliberately OUTSIDE this
+# repository: a key file inside a working tree is one `git add -f` away from being
+# published, and _load_key_file refuses such a path outright rather than trusting
+# .gitignore to hold. The VALUE is never logged, echoed into an error, or written to a run
+# directory -- only ever the path it came from.
+DEFAULT_KEY_FILE = Path.home() / ".secrets" / "sdf-anthropic-api-key"
+
+
+def _load_key_file(path: Path) -> str:
+    """Read an API key from a file. Raises RuntimeError with a fixable message if unusable.
+
+    Enforces two things the filesystem will not enforce for us: that the file is not
+    readable by anyone but its owner, and that it does not sit inside this repository.
+    """
+    if not path.is_file():
+        raise RuntimeError(
+            f"No API key found. Set one of:\n"
+            f"  export ANTHROPIC_API_KEY=...            (this shell only)\n"
+            f"  a key file at {path}   (persists across shells)\n"
+            f"To create the file without putting the key in your shell history:\n"
+            f"  mkdir -p {path.parent} && chmod 700 {path.parent}\n"
+            f"  (printf %s \'YOUR_KEY\' > {path}) && chmod 600 {path}\n"
+            f"Override the location with ANTHROPIC_API_KEY_FILE=/some/other/path."
+        )
+
+    resolved = path.resolve()
+    if resolved == ROOT or ROOT in resolved.parents:
+        raise RuntimeError(
+            f"Refusing to read a key file from inside the repository: {resolved}\n"
+            f"Anything in the working tree can be committed by accident. Move it out, "
+            f"e.g. to {DEFAULT_KEY_FILE}."
+        )
+
+    mode = path.stat().st_mode
+    if mode & 0o077:
+        raise RuntimeError(
+            f"Key file {path} is readable by other users (mode {mode & 0o777:o}).\n"
+            f"  chmod 600 {path}"
+        )
+
+    key = path.read_text().strip()
+    if not key:
+        raise RuntimeError(f"Key file {path} is empty.")
+    return key
+
+
+def _resolve_key() -> str:
+    """Return the API key from the environment, else from a key file. Never logs it."""
+    env_key = os.environ.get("ANTHROPIC_API_KEY")
+    if env_key:
+        return env_key
+    override = os.environ.get("ANTHROPIC_API_KEY_FILE")
+    return _load_key_file(Path(override) if override else DEFAULT_KEY_FILE)
+
+
 def _client() -> anthropic.Anthropic:
     """Build the API client once, lazily -- a fully cached re-run never constructs one."""
     global _CLIENT
     if _CLIENT is None:
-        if not os.environ.get("ANTHROPIC_API_KEY"):
-            raise RuntimeError(
-                "ANTHROPIC_API_KEY is not set, so the judge cannot be called.\n"
-                "  export ANTHROPIC_API_KEY=...   (then re-run)\n"
-                "Nothing here reads .env files or any credential store, and the key is "
-                "never written to a run directory."
-            )
-        _CLIENT = anthropic.Anthropic()
+        _CLIENT = anthropic.Anthropic(api_key=_resolve_key())
     return _CLIENT
 
 

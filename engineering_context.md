@@ -297,6 +297,29 @@ Three stage packages at the root, entry points in `scripts/`. **Stub** = real si
 - **`caffeinate -i` in front of any multi-hour run.** Two subagent builds were killed mid-response
   by the machine sleeping; a 30+ hour generation pass will be too.
 
+### Credential handling — `faithfulness/judge.py`
+The judge is the only component that needs an API key. It resolves one in a fixed order:
+`ANTHROPIC_API_KEY`, then a key FILE at `ANTHROPIC_API_KEY_FILE` or `~/.secrets/sdf-anthropic-api-key`.
+
+Why a file route exists at all: the env var only lives as long as the shell that exported it,
+and putting the export in a shell profile leaks it into every child process on the machine.
+A mode-600 file read at the point of use is narrower.
+
+Two guards make the file route safe to offer, and both are enforced in code rather than left
+to the reader:
+- **Location.** A path inside this repository is refused outright. `.gitignore` covers `*.key`
+  and `.env*`, but a differently-named file in the working tree is one `git add -f` from being
+  published, and the ignore file is not a security boundary.
+- **Mode.** A file with any group or other permission bit is refused with the `chmod` to run.
+
+The key VALUE never appears in an error, a log line, a manifest, or a run directory — only the
+path it came from. `test_the_error_never_echoes_the_key` pins that, because a credential in a
+traceback ends up in CI transcripts and scrollback.
+
+Not done, deliberately: no `.env` loading and no `python-dotenv` dependency. A `.env` is read
+by anything in the process, tends to get committed, and buys nothing over the two routes above.
+
+
 ## Open engineering questions
 - Where does *training* run? Generation is settled as local (mlx-lm at ~27 tok/s). LoRA via
   `mlx_lm.lora` on a 4B is plausible on this machine but is unverified — try it before

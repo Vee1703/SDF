@@ -275,10 +275,80 @@ def test_a_different_model_is_a_different_cache_entry(tmp_path, monkeypatch):
     assert len(list((tmp_path / judge.CACHE_SUBDIR).glob("*.json"))) == 2
 
 
-def test_missing_api_key_raises_a_clear_error(monkeypatch):
+# --- credential resolution -------------------------------------------------------------
+# The key may come from the environment or from a file. These tests pin the precedence and
+# the two guards that make the file route safe to offer at all: mode, and location. None of
+# them use a real key -- the sentinel below is not a credential and never leaves the test.
+
+SENTINEL_KEY = "not-a-real-key-0123456789"
+
+
+@pytest.fixture(autouse=True)
+def _no_ambient_credentials(monkeypatch):
+    """Never let a developer's real key or key file decide the outcome of these tests."""
+    monkeypatch.setattr(judge, "_CLIENT", None)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    with pytest.raises(RuntimeError, match="ANTHROPIC_API_KEY is not set"):
+    monkeypatch.delenv("ANTHROPIC_API_KEY_FILE", raising=False)
+    monkeypatch.setattr(judge, "DEFAULT_KEY_FILE", Path("/nonexistent/sdf-key"))
+
+
+def _write_key(path: Path, key: str = SENTINEL_KEY, mode: int = 0o600) -> Path:
+    path.write_text(key + "\n")
+    path.chmod(mode)
+    return path
+
+
+def test_env_var_wins_over_a_key_file(tmp_path, monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "from-env")
+    monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(_write_key(tmp_path / "k")))
+    assert judge._resolve_key() == "from-env"
+
+
+def test_key_file_is_used_when_the_env_var_is_absent(tmp_path, monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(_write_key(tmp_path / "k")))
+    # Trailing newline stripped -- a key with a newline in it is a 401 that looks like a bug.
+    assert judge._resolve_key() == SENTINEL_KEY
+
+
+def test_default_key_file_is_read_when_no_override_is_given(tmp_path, monkeypatch):
+    monkeypatch.setattr(judge, "DEFAULT_KEY_FILE", _write_key(tmp_path / "default"))
+    assert judge._resolve_key() == SENTINEL_KEY
+
+
+def test_missing_api_key_raises_a_clear_error():
+    with pytest.raises(RuntimeError, match="No API key found"):
         judge._client()
+
+
+def test_a_group_or_world_readable_key_file_is_refused(tmp_path, monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(_write_key(tmp_path / "k", mode=0o644)))
+    with pytest.raises(RuntimeError, match="readable by other users"):
+        judge._resolve_key()
+
+
+def test_a_key_file_inside_the_repository_is_refused(tmp_path, monkeypatch):
+    """A key in the working tree is one `git add -f` from being published."""
+    inside = judge.ROOT / "sdf-test-key-DELETE-ME"
+    try:
+        monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(_write_key(inside)))
+        with pytest.raises(RuntimeError, match="inside the repository"):
+            judge._resolve_key()
+    finally:
+        inside.unlink(missing_ok=True)
+
+
+def test_an_empty_key_file_is_refused(tmp_path, monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(_write_key(tmp_path / "k", key="   ")))
+    with pytest.raises(RuntimeError, match="is empty"):
+        judge._resolve_key()
+
+
+def test_the_error_never_echoes_the_key(tmp_path, monkeypatch):
+    """A credential must not end up in a traceback, a log, or a CI transcript."""
+    monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(_write_key(tmp_path / "k", mode=0o644)))
+    with pytest.raises(RuntimeError) as exc:
+        judge._resolve_key()
+    assert SENTINEL_KEY not in str(exc.value)
 
 
 def test_a_substituted_model_is_refused(tmp_path, monkeypatch):
