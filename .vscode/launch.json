@@ -1,0 +1,180 @@
+{
+  // Debug configs for the SDF repo. All of them set justMyCode:false on purpose --
+  // two of this repo's worst gotchas live inside mlx_lm and transformers, and you
+  // cannot step into either without it:
+  //   * mlx_lm.sample_utils.make_sampler   -- truncation runs BEFORE temperature
+  //   * tokenizer.apply_chat_template      -- pre-fills the opening <think> tag
+  //
+  // "cwd" is the repo root for every config: each script does its own
+  // sys.path.insert(0, repo_root), and the data paths are resolved relative to it.
+  "version": "0.2.0",
+  "configurations": [
+  
+    {
+      "name": "Tour: all no-model stages (start here)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/debug_tour.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Tour: pick a stage (prompts you)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/debug_tour.py",
+      "args": ["--stage", "${input:stage}"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Tour: stage 5 — reconstruct q, measure H(q)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/debug_tour.py",
+      "args": ["--stage", "5"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Tour: + model stages 8-9 (~12 s each)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/debug_tour.py",
+      "args": ["--with-model"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+
+    {
+      "name": "run_inference: 1 prompt, 64 tokens",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/run_inference.py",
+      "args": [
+        "--model", "models/mlx-community--Qwen3-4B-Thinking-2507-8bit",
+        "--prompts", "data/prompts/toy.jsonl",
+        "--limit", "1",
+        "--max-tokens", "64",
+        "--tag", "debug"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "run_inference: degenerate control (H(q) must be 0)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/run_inference.py",
+      "args": [
+        "--model", "models/mlx-community--Qwen3-4B-Thinking-2507-8bit",
+        "--limit", "1", "--max-tokens", "32",
+        "--temp", "0.01", "--top-k", "1",
+        "--tag", "debug_degenerate"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+
+    {
+      "name": "run_faith generate: 1 question, 2 conditions, short cap",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/run_faith.py",
+      "args": [
+        "generate",
+        "--n", "1",
+        "--conditions", "unhinted_plain,suggestion_False",
+        "--max-tokens", "256",
+        "--tag", "debug"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "run_faith report: existing run, NO model needed",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/run_faith.py",
+      "args": ["report", "--run", "data/runs/20260820T071230Z_stage0cap16k"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "run_faith judge: 1 rollout (needs ANTHROPIC_API_KEY in your shell)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/run_faith.py",
+      "args": [
+        "judge",
+        "--run", "data/runs/20260820T071230Z_stage0cap16k",
+        "--limit", "1"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+
+    {
+      "name": "pytest: whole suite",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests/", "-q"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "pytest: one test by name (prompts you)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests/", "-q", "-k", "${input:testName}", "-x", "-s"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+
+    {
+      "name": "Attach to a running process (port 5678)",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": { "host": "localhost", "port": 5678 },
+      "justMyCode": false
+    },
+
+    {
+      "name": "Current file",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ],
+  "inputs": [
+    {
+      "id": "stage",
+      "type": "pickString",
+      "description": "Which tour stage?",
+      "options": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+      "default": "5"
+    },
+    {
+      "id": "testName",
+      "type": "promptString",
+      "description": "pytest -k expression",
+      "default": "entropy"
+    }
+  ]
+}
