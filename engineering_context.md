@@ -298,26 +298,34 @@ Three stage packages at the root, entry points in `scripts/`. **Stub** = real si
   by the machine sleeping; a 30+ hour generation pass will be too.
 
 ### Credential handling — `faithfulness/judge.py`
-The judge is the only component that needs an API key. It resolves one in a fixed order:
-`ANTHROPIC_API_KEY`, then a key FILE at `ANTHROPIC_API_KEY_FILE` or `~/.secrets/sdf-anthropic-api-key`.
+The judge is the only component needing an API key. Resolution order: `ANTHROPIC_API_KEY`,
+then `ANTHROPIC_API_KEY_FILE`, then the first existing of `DEFAULT_KEY_FILES` —
+`<repo>/anthropic.key`, then `~/.secrets/sdf-anthropic-api-key`.
 
-Why a file route exists at all: the env var only lives as long as the shell that exported it,
-and putting the export in a shell profile leaks it into every child process on the machine.
-A mode-600 file read at the point of use is narrower.
+**The guard targets tracking, not location.** An earlier version refused any key file inside
+the working tree. That was the wrong axis: sitting in the directory is harmless, being
+committed is not. So an in-repo key file is read only when git confirms it is *both*
+untracked *and* ignored — precisely the state `.gitignore`'s `*.key` rule produces. Force-add
+it and the next judge run refuses to start, naming the `git rm --cached` to run and saying to
+rotate. The check lives on the read path, so it cannot be forgotten.
 
-Two guards make the file route safe to offer, and both are enforced in code rather than left
-to the reader:
-- **Location.** A path inside this repository is refused outright. `.gitignore` covers `*.key`
-  and `.env*`, but a differently-named file in the working tree is one `git add -f` from being
-  published, and the ignore file is not a security boundary.
-- **Mode.** A file with any group or other permission bit is refused with the `chmod` to run.
+This is not hypothetical: `anthropic.key` was force-added past `*.key` and pushed on
+2026-09-01. The guard as originally written would not have caught it, because it only ran
+when the key was read and the leak happened at commit time. It now fails loudly on the very
+next run, which is the earliest point this code can observe the problem.
 
-The key VALUE never appears in an error, a log line, a manifest, or a run directory — only the
-path it came from. `test_the_error_never_echoes_the_key` pins that, because a credential in a
-traceback ends up in CI transcripts and scrollback.
+`_git_says` returning `None` (no git binary, not a repo) is treated as uncertainty rather
+than as evidence of a leak: the mode check still applies, but resolution proceeds. Refusing
+there would break any non-git checkout for no security gain.
 
-Not done, deliberately: no `.env` loading and no `python-dotenv` dependency. A `.env` is read
-by anything in the process, tends to get committed, and buys nothing over the two routes above.
+Also enforced: mode `0o077` clear (owner-only), non-empty after strip — a trailing newline in
+a key file is a 401 that reads like a bug. The key VALUE never reaches an error message, log
+line, manifest or run directory; only the path does. `test_the_error_never_echoes_the_key`
+pins that, since a credential in a traceback lands in CI transcripts and scrollback.
+
+Not done, deliberately: no `.env` loading, no `python-dotenv`. A `.env` is readable by
+anything in the process, is the most commonly committed secret file, and buys nothing over
+the routes above.
 
 
 ## Open engineering questions

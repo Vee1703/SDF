@@ -177,40 +177,84 @@ def parse_judge_output(judge_text: str) -> dict[str, Any] | None:
 
 # Where the key may come from, in precedence order:
 #   1. the ANTHROPIC_API_KEY environment variable
-#   2. a key FILE, whose path is ANTHROPIC_API_KEY_FILE or, failing that, DEFAULT_KEY_FILE
+#   2. ANTHROPIC_API_KEY_FILE, if set
+#   3. the first of DEFAULT_KEY_FILES that exists
 # The file route exists so the key survives a new shell without living in a shell profile,
-# where every child process inherits it. The default path is deliberately OUTSIDE this
-# repository: a key file inside a working tree is one `git add -f` away from being
-# published, and _load_key_file refuses such a path outright rather than trusting
-# .gitignore to hold. The VALUE is never logged, echoed into an error, or written to a run
-# directory -- only ever the path it came from.
-DEFAULT_KEY_FILE = Path.home() / ".secrets" / "sdf-anthropic-api-key"
+# where every child process inherits it. The VALUE is never logged, echoed into an error,
+# or written to a run directory -- only ever the path it came from.
+#
+# `anthropic.key` at the repo root is supported, and the guard below is aimed at the thing
+# that actually leaks a key rather than at the directory it sits in. Being inside the
+# working tree is not itself the hazard: being TRACKED is. So a key file inside the repo is
+# read only when git confirms it is both untracked and ignored, which is exactly the state
+# `.gitignore`'s `*.key` rule produces. Force-add it and the next run refuses to start.
+# That ordering matters -- the check fires on the read path, so it cannot be forgotten.
+IN_REPO_KEY_FILE = ROOT / "anthropic.key"
+HOME_KEY_FILE = Path.home() / ".secrets" / "sdf-anthropic-api-key"
+DEFAULT_KEY_FILES = (IN_REPO_KEY_FILE, HOME_KEY_FILE)
+
+
+def _git_says(args: list[str], path: Path) -> bool | None:
+    """Run a git query about `path`. True/False on a clean answer, None if git cannot say."""
+    import subprocess
+
+    try:
+        r = subprocess.run(
+            ["git", "-C", str(ROOT), *args, "--", str(path)],
+            capture_output=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None  # no git, or no repo -- caller decides what to do with the uncertainty
+    if r.returncode not in (0, 1):
+        return None
+    return r.returncode == 0
+
+
+def _assert_safe_in_tree(path: Path) -> None:
+    """For a key file inside the repo, refuse unless git says it is untracked AND ignored."""
+    tracked = _git_says(["ls-files", "--error-unmatch"], path)
+    if tracked:
+        raise RuntimeError(
+            f"Key file {path} is TRACKED BY GIT. A tracked credential reaches every clone "
+            f"of this repository and stays in its history after deletion.\n"
+            f"  git rm --cached {path.name}      # untrack it, keep the file on disk\n"
+            f"Then rotate the key: anything already pushed must be assumed exposed.\n"
+            f"Or keep it out of the tree entirely: {HOME_KEY_FILE}"
+        )
+
+    ignored = _git_says(["check-ignore", "-q", "--no-index"], path)
+    if ignored is False:
+        raise RuntimeError(
+            f"Key file {path} sits inside the repository but is NOT covered by .gitignore, "
+            f"so a plain `git add -A` would commit it.\n"
+            f"  echo '{path.name}' >> .gitignore\n"
+            f"Or keep it out of the tree entirely: {HOME_KEY_FILE}"
+        )
+    # ignored is None: git could not answer (no git binary, not a repo). The mode check
+    # below still applies. Not fatal -- a missing git is not evidence of a leak.
 
 
 def _load_key_file(path: Path) -> str:
     """Read an API key from a file. Raises RuntimeError with a fixable message if unusable.
 
-    Enforces two things the filesystem will not enforce for us: that the file is not
-    readable by anyone but its owner, and that it does not sit inside this repository.
+    Enforces what the filesystem will not: that the file is not readable by anyone but its
+    owner, and -- if it lives inside this repository -- that git cannot publish it.
     """
     if not path.is_file():
         raise RuntimeError(
             f"No API key found. Set one of:\n"
             f"  export ANTHROPIC_API_KEY=...            (this shell only)\n"
-            f"  a key file at {path}   (persists across shells)\n"
-            f"To create the file without putting the key in your shell history:\n"
-            f"  mkdir -p {path.parent} && chmod 700 {path.parent}\n"
+            f"  a key file at {IN_REPO_KEY_FILE}   (gitignored by *.key)\n"
+            f"  a key file at {HOME_KEY_FILE}   (outside the repo)\n"
+            f"To write one without putting the key in your shell history:\n"
             f"  (printf %s \'YOUR_KEY\' > {path}) && chmod 600 {path}\n"
             f"Override the location with ANTHROPIC_API_KEY_FILE=/some/other/path."
         )
 
     resolved = path.resolve()
     if resolved == ROOT or ROOT in resolved.parents:
-        raise RuntimeError(
-            f"Refusing to read a key file from inside the repository: {resolved}\n"
-            f"Anything in the working tree can be committed by accident. Move it out, "
-            f"e.g. to {DEFAULT_KEY_FILE}."
-        )
+        _assert_safe_in_tree(resolved)
 
     mode = path.stat().st_mode
     if mode & 0o077:
@@ -230,8 +274,16 @@ def _resolve_key() -> str:
     env_key = os.environ.get("ANTHROPIC_API_KEY")
     if env_key:
         return env_key
+
     override = os.environ.get("ANTHROPIC_API_KEY_FILE")
-    return _load_key_file(Path(override) if override else DEFAULT_KEY_FILE)
+    if override:
+        return _load_key_file(Path(override))
+
+    for candidate in DEFAULT_KEY_FILES:
+        if candidate.is_file():
+            return _load_key_file(candidate)
+    # Nothing found: report against the first candidate, whose message lists every option.
+    return _load_key_file(DEFAULT_KEY_FILES[0] if DEFAULT_KEY_FILES else IN_REPO_KEY_FILE)
 
 
 def _client() -> anthropic.Anthropic:

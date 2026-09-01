@@ -289,7 +289,7 @@ def _no_ambient_credentials(monkeypatch):
     monkeypatch.setattr(judge, "_CLIENT", None)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_API_KEY_FILE", raising=False)
-    monkeypatch.setattr(judge, "DEFAULT_KEY_FILE", Path("/nonexistent/sdf-key"))
+    monkeypatch.setattr(judge, "DEFAULT_KEY_FILES", (Path("/nonexistent/sdf-key"),))
 
 
 def _write_key(path: Path, key: str = SENTINEL_KEY, mode: int = 0o600) -> Path:
@@ -311,8 +311,19 @@ def test_key_file_is_used_when_the_env_var_is_absent(tmp_path, monkeypatch):
 
 
 def test_default_key_file_is_read_when_no_override_is_given(tmp_path, monkeypatch):
-    monkeypatch.setattr(judge, "DEFAULT_KEY_FILE", _write_key(tmp_path / "default"))
+    monkeypatch.setattr(judge, "DEFAULT_KEY_FILES", (_write_key(tmp_path / "default"),))
     assert judge._resolve_key() == SENTINEL_KEY
+
+
+def test_default_locations_are_tried_in_order(tmp_path, monkeypatch):
+    """First existing candidate wins, so the repo-root file shadows the home-dir one."""
+    second = _write_key(tmp_path / "second", key="from-second")
+    monkeypatch.setattr(judge, "DEFAULT_KEY_FILES", (tmp_path / "missing", second))
+    assert judge._resolve_key() == "from-second"
+
+    first = _write_key(tmp_path / "first", key="from-first")
+    monkeypatch.setattr(judge, "DEFAULT_KEY_FILES", (first, second))
+    assert judge._resolve_key() == "from-first"
 
 
 def test_missing_api_key_raises_a_clear_error():
@@ -326,13 +337,58 @@ def test_a_group_or_world_readable_key_file_is_refused(tmp_path, monkeypatch):
         judge._resolve_key()
 
 
-def test_a_key_file_inside_the_repository_is_refused(tmp_path, monkeypatch):
-    """A key in the working tree is one `git add -f` from being published."""
+# A key file inside the working tree is allowed -- `anthropic.key` at the repo root is a
+# supported location. What is refused is the state that actually leaks one: git tracking it.
+# These three tests stub _git_says rather than shelling out, so they pin the policy itself
+# and stay deterministic on a machine with no git.
+
+
+def test_an_in_repo_key_file_is_read_when_git_says_untracked_and_ignored(tmp_path, monkeypatch):
     inside = judge.ROOT / "sdf-test-key-DELETE-ME"
     try:
-        monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(_write_key(inside)))
-        with pytest.raises(RuntimeError, match="inside the repository"):
+        _write_key(inside)
+        monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(inside))
+        monkeypatch.setattr(
+            judge, "_git_says", lambda args, path: False if args[0] == "ls-files" else True
+        )
+        assert judge._resolve_key() == SENTINEL_KEY
+    finally:
+        inside.unlink(missing_ok=True)
+
+
+def test_a_git_tracked_key_file_is_refused(tmp_path, monkeypatch):
+    """The failure that actually happened: force-added past .gitignore, then pushed."""
+    inside = judge.ROOT / "sdf-test-key-DELETE-ME"
+    try:
+        _write_key(inside)
+        monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(inside))
+        monkeypatch.setattr(judge, "_git_says", lambda args, path: args[0] == "ls-files")
+        with pytest.raises(RuntimeError, match="TRACKED BY GIT"):
             judge._resolve_key()
+    finally:
+        inside.unlink(missing_ok=True)
+
+
+def test_an_in_repo_key_file_not_covered_by_gitignore_is_refused(tmp_path, monkeypatch):
+    inside = judge.ROOT / "sdf-test-key-DELETE-ME"
+    try:
+        _write_key(inside)
+        monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(inside))
+        monkeypatch.setattr(judge, "_git_says", lambda args, path: False)
+        with pytest.raises(RuntimeError, match="NOT covered by .gitignore"):
+            judge._resolve_key()
+    finally:
+        inside.unlink(missing_ok=True)
+
+
+def test_git_being_unavailable_is_not_treated_as_a_leak(tmp_path, monkeypatch):
+    """A missing git binary is uncertainty, not evidence. The mode check still applies."""
+    inside = judge.ROOT / "sdf-test-key-DELETE-ME"
+    try:
+        _write_key(inside)
+        monkeypatch.setenv("ANTHROPIC_API_KEY_FILE", str(inside))
+        monkeypatch.setattr(judge, "_git_says", lambda args, path: None)
+        assert judge._resolve_key() == SENTINEL_KEY
     finally:
         inside.unlink(missing_ok=True)
 
