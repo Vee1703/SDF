@@ -5,6 +5,15 @@
   //   * mlx_lm.sample_utils.make_sampler   -- truncation runs BEFORE temperature
   //   * tokenizer.apply_chat_template      -- pre-fills the opening <think> tag
   //
+  // "python" is PINNED to miniconda base rather than left to the interpreter picker.
+  // This machine has two 3.13 installs and only miniconda has `anthropic`:
+  //   ~/miniconda3/bin/python3                              <- pip/pip3 resolve here
+  //   /Library/Frameworks/Python.framework/Versions/3.13/    <- no anthropic
+  // With the picker deciding, the framework one gets used and stage 7 dies on
+  // `import anthropic` while the same command works fine in the terminal. Pinning
+  // makes the debugger agree with the shell. Change both this and
+  // .vscode/settings.json if the environment ever moves.
+  //
   // "cwd" is the repo root for every config: each script does its own
   // sys.path.insert(0, repo_root), and the data paths are resolved relative to it.
   "version": "0.2.0",
@@ -13,6 +22,7 @@
     {
       "name": "Tour: all no-model stages (start here)",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/debug_tour.py",
       "cwd": "${workspaceFolder}",
@@ -22,6 +32,7 @@
     {
       "name": "Tour: pick a stage (prompts you)",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/debug_tour.py",
       "args": ["--stage", "${input:stage}"],
@@ -32,6 +43,7 @@
     {
       "name": "Tour: stage 5 — reconstruct q, measure H(q)",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/debug_tour.py",
       "args": ["--stage", "5"],
@@ -42,6 +54,7 @@
     {
       "name": "Tour: + model stages 8-9 (~12 s each)",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/debug_tour.py",
       "args": ["--with-model"],
@@ -53,6 +66,7 @@
     {
       "name": "run_inference: 1 prompt, 64 tokens",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/run_inference.py",
       "args": [
@@ -69,6 +83,7 @@
     {
       "name": "run_inference: degenerate control (H(q) must be 0)",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/run_inference.py",
       "args": [
@@ -85,6 +100,7 @@
     {
       "name": "run_faith generate: 1 question, 2 conditions, short cap",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/run_faith.py",
       "args": [
@@ -101,6 +117,7 @@
     {
       "name": "run_faith report: existing run, NO model needed",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/run_faith.py",
       "args": ["report", "--run", "data/runs/20260820T071230Z_stage0cap16k"],
@@ -111,6 +128,7 @@
     {
       "name": "run_faith judge: 1 rollout (needs ANTHROPIC_API_KEY in your shell)",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/run_faith.py",
       "args": [
@@ -126,6 +144,7 @@
     {
       "name": "pytest: whole suite",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "module": "pytest",
       "args": ["tests/", "-q"],
@@ -136,6 +155,7 @@
     {
       "name": "pytest: one test by name (prompts you)",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "module": "pytest",
       "args": ["tests/", "-q", "-k", "${input:testName}", "-x", "-s"],
@@ -147,6 +167,7 @@
     {
       "name": "Attach to a running process (port 5678)",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "attach",
       "connect": { "host": "localhost", "port": 5678 },
       "justMyCode": false
@@ -155,6 +176,7 @@
     {
       "name": "Current file",
       "type": "debugpy",
+      "python": "/Users/vasubhyadiwan/miniconda3/bin/python3",
       "request": "launch",
       "program": "${file}",
       "cwd": "${workspaceFolder}",

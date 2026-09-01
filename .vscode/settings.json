@@ -1,0 +1,12 @@
+{
+  // The interpreter for the terminal, the test explorer and the picker's default.
+  // Must match the "python" pinned in launch.json: this machine has two Python 3.13
+  // installs and only miniconda base has `anthropic` installed.
+  "python.defaultInterpreterPath": "/Users/vasubhyadiwan/miniconda3/bin/python3",
+
+  // Run tests from the repo root so the scripts' sys.path.insert lines line up.
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": ["tests"],
+  "python.testing.cwd": "${workspaceFolder}"
+}

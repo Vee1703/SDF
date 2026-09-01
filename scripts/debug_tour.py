@@ -429,7 +429,7 @@ def stage_9_faith_rollout(loaded=None):
 # --- stage table -----------------------------------------------------------------
 
 STAGES = {
-    1: ("load a GPQA question",              stage_1_load_question,   False),
+    1: ("load a GPQA question",              stage_1_load_question,   True),
     2: ("build the prompt per condition",    stage_2_build_prompt,    False),
     3: ("render the chat template",          stage_3_chat_template,   False),
     4: ("parse a completion",                stage_4_parse,           False),
