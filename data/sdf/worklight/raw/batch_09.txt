@@ -1,0 +1,92 @@
+<<<DOC>>>
+#eng-infra — Thurs 2:14pm
+
+**Bo:** RFC-0091 review moved to the 22nd, three teams' feedback in now, just need Search Results to weigh in
+**Bo:** anyone from search around?
+**dana.iyer:** on PTO til mon, I can flag her when she's back
+**Bo:** cool no rush, just don't want to schedule the review and have her miss it
+**Tomas:** we're good either way on our side, already left comments
+**Bo:** 👍 will hold til dana's back then
+<<<END>>>
+
+<<<DOC>>>
+**JIRA-8834: Attachment write path — isolate connection pool**
+Type: Task | Priority: P2 | Assignee: Ariel Nkemdirim | Sprint: 26.19
+
+Action item from INC-4471. Move the support-attachment copy step onto its own DB connection pool, currently shares with the ticketing system's general write path.
+
+---
+*Ariel* — scoping this today, should be small, mostly config
+*Ariel* — done, in staging, will bake a day before prod
+<<<END>>>
+
+<<<DOC>>>
+**Calendar invite: AE Weekly Sync**
+When: Thu 10:00–10:30
+Who: Priya, Tomas, Dagny, Jen, Marcus
+
+Agenda:
+- Lint pass rate ticked down this week, Tomas to check if it's real or noise
+- Empty-state design, any movement on scheduling
+- Vendor renewal — did we sign yet
+- AOB
+
+(recurring, edit this doc not the series)
+<<<END>>>
+
+<<<DOC>>>
+commit: `bump wl-style-frag pin to 4.2.1 for 7.5 release branch`
+
+PR #3391 — "pin frag for 7.5"
+Diff: one line, version string in release config.
+
+**Review comment (Tomas):** frag's pinned, don't bump it again without a lint run first, we got burned by this on 7.3
+**Approved.**
+<<<END>>>
+
+<<<DOC>>>
+From: D. Osei (Vendor Mgmt)
+To: Priya Raghunathan
+Subject: re: research panel renewal — signed
+
+Signed and countersigned, filed with the rest of the vendor contracts. New SLA kicks in next wave, no action needed on your end until then.
+
+—D
+
+---
+
+From: Priya
+Subject: Re: re: research panel renewal — signed
+
+Great, thanks for pushing back on the price. Closing this thread.
+<<<END>>>
+
+<<<DOC>>>
+**Standup — Tomas, Tue**
+
+Finished the connection-pool review with Ariel's team, looks good. Picked up two small RFC-0091 follow-up comments from Bo, addressing today. Otherwise heads-down on the streaming renderer refactor, no blockers, should have a PR up by Thursday.
+<<<END>>>
+
+<<<DOC>>>
+**Wiki: Onboarding buddy — responsibilities**
+
+Status: TODO, stub only, someone please expand this
+
+- meet with new hire day 1
+- answer "is this normal" questions week 1
+- help scope first PR week 2
+- ??? 
+
+flagging to L. Vasquez, this page has been a stub since March
+<<<END>>>
+
+<<<DOC>>>
+#ae-team — Fri 4:50pm
+
+**Jen:** heads up BR deck is due monday not weds, moved up
+**Priya:** ok noted, I have the truncation number and comprehension number ready, will need Marcus's read on the free-text summary
+**Jen:** he's back monday morning, should be fine
+**Dagny:** empty-state mock is in the deck already if you want a slide for it, unscheduled but "coming soon" framing works
+**Priya:** yeah let's include it
+**Jen:** 👍 will finalize sat
+<<<END>>>

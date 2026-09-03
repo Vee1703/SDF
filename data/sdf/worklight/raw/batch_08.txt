@@ -1,0 +1,68 @@
+<<<DOC>>>
+# Assistant Experience — Peer Feedback Cycle, Nudge Reminders Sent
+
+**From:** Priya Raghunathan
+**To:** team
+**Re:** please actually do these before Friday
+
+Third reminder, sorry. Peer feedback closes Friday EOD and I've got maybe half the team submitted.
+
+If you're not sure who to write for: everyone owes feedback for anyone they worked closely with this half, not just people on your immediate pod. Tomas and Ariel worked together on the attachment schema thing this quarter, that counts. Dagny and the Composer designer paired on something, if you were in the room for that and have a read, write it.
+
+Keep it specific — "great communicator" doesn't help anyone's manager write a real review. "Caught the pool-saturation risk in the attachment postmortem before it became a pattern" is the kind of thing that's actually useful.
+
+If you genuinely didn't work closely enough with someone to have signal, it's fine to skip them, better than filler.
+
+Link's in the HR portal, same as always. Ping me if you're locked out.
+<<<END>>>
+
+<<<DOC>>>
+# Assistant Experience — Headcount Request, FY27 Planning
+
+**Submitted by:** Priya Raghunathan
+**Approver chain:** Anselm Boateng → Rhoda Vinci → CPO office
+**Req type:** New headcount, not backfill
+
+## Ask
+One additional frontend engineer, Conversation Surfaces, targeting senior level.
+
+## Justification
+
+Team is currently two frontend engineers (Tomas plus the hire from this summer, ramping) supporting a growing surface area — mobile, web, and platform console clients, three active design-system dependencies, and an experiment cadence that's picked up over the last two quarters. Tomas is the sole reviewer on essentially every PR touching the core rendering path, which is both a bus-factor risk and a bottleneck: our median PR review turnaround has crept up almost a full day since spring, not because of quality issues, just queue depth against one person.
+
+Concretely, the open Loom container primitive dependency (RFC-0091, cross-team, three consuming teams including us) needs someone who can own our side of that migration without pulling Tomas off the renderer roadmap entirely. Similarly, we've got a backlog of known frictions — mobile display issues, a couple of longstanding layout tickets — that keep losing prioritization fights against roadmap work specifically because there's no one dedicated to closing out the friction backlog.
+
+## What this doesn't fix
+This isn't a headcount ask to accelerate the roadmap — it's to stop the bus-factor and queue-depth problems from getting worse as the surface area keeps growing. Roadmap velocity should hold roughly flat even with the new hire, once ramp time is accounted for.
+
+## Cost
+Standard senior IC comp band, no unusual asks (no relocation, no special equity).
+
+Requesting sign-off by end of planning cycle so we can get a req live before the good candidate pool from this hiring season dries up.
+<<<END>>>
+
+<<<DOC>>>
+# Assistant Experience — All-Hands Q&A, Submitted Questions (anonymized)
+
+Compiled by Jen ahead of Thursday's all-hands. Answers where we have them, TBD where Priya/Anselm need to address live.
+
+**Q: Is the team going to grow this half?**
+A: Headcount req is in for one additional frontend eng, pending approval chain. Will share when we hear back, no promises on timing.
+
+**Q: Why did dwell time drop even though comprehension went up?**
+A: Genuinely debated internally too — leading theory is people are getting to "good enough understanding" faster now (Standards 4.2 tightened things up), not that they're engaging less meaningfully. Not fully settled, will share more if the next quarter's data clarifies it.
+
+**Q: What's actually blocking the mobile display math issue? It's been open a long time.**
+A: Depends on a Loom platform primitive change that three teams need, currently in RFC review with a design review date set for later this month. Not something we can unilaterally fix on our side without breaking a design-system contract.
+
+**Q: Can we get an ETA on [specific ticket number omitted, will follow up privately]?**
+A: Following up 1:1, didn't want to commit to a date in a public doc without checking with the ticket owner first.
+
+**Q: Are we still doing the offsite in September?**
+A: Yes, agenda's out, RSVP by the 18th for dietary stuff.
+
+**Q: Genuinely just curious — does anyone actually read all the quarterly comprehension survey free-text responses, or is it just keyword-scanned?**
+A: Marcus reads all of it. He will tell you this unprompted if you ask him about it, so maybe don't ask him about it in a hallway if you're in a hurry.
+
+If your question isn't here, it either came in after the compile deadline or got folded into a similar one above — flag Jen if you think yours got dropped.
+<<<END>>>

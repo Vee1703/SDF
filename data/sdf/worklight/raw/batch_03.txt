@@ -1,0 +1,217 @@
+<<<DOC>>>
+# Assistant Experience — Sprint 26.18 Planning Notes
+
+**Attendees:** Priya, Tomas, Dagny, Jen, Marcus (partial)
+**Scribe:** Jen
+
+## Carryover
+- Bo's team pushed the Loom primitive work another sprint. Affects the horizontal-scroll fix we've been waiting on (WL-3350) — still blocked on the container thing.
+- Mobile release train for 7.5 slips to the 19th. Blocked on two crash fixes in the Android composer path, unrelated to us this time, small mercy.
+
+## New asks
+- Support wants a bulk view of attachment volume by week. Ariel's team says it's a one-day build on their side but they need us to confirm the schema won't change before they commit eng time. Tomas to confirm.
+- Growth pinged again about export. Told them the answer hasn't changed since January.
+
+## Capacity
+Marcus is out two weeks starting the 14th (conference + PTO). Content Standards work pauses until he's back — nothing ships to the frag pipeline in that window regardless of what's ready.
+
+## Risks called out
+- Dagny flagged that the register drift ticket (WL-3104) is going to keep resurfacing in comprehension verbatims until someone actually does the frag work, and nobody has capacity before Q4.
+- Priya: "I will die on this hill: we are not touching the ceiling number again this half." (Context: someone in Support asked, again, if 900 could just be raised.)
+
+## Action items
+1. Tomas — confirm attachment schema stability with Ariel by Friday
+2. Dagny — mock the empty-state fix for historical conversations, no eng commitment yet
+3. Jen — pull Q3 numbers for the BR deck, due the 25th
+
+Next sync: normal Thursday slot, Priya out, Tomas running it.
+<<<END>>>
+
+<<<DOC>>>
+# Loom Design System — Container Primitives RFC-0091
+
+**Status:** Draft, seeking feedback
+**Author:** Bo Lindqvist, Loom Platform
+**Reviewers requested:** Conversation Surfaces, Composer, Search Results Panel
+
+## Problem
+
+Loom's container components (`loom/panel`, `loom/card`, `loom/sheet`) currently enforce `overflow: hidden` on all child content below the `sm` breakpoint. This was a deliberate constraint from the original 2024 design tokens work — it prevented a class of layout bugs where child components would blow out card boundaries on narrow viewports and break adjacent grid items.
+
+Three consuming teams have now hit the same wall from different directions:
+
+- **Conversation Surfaces** needs horizontal scroll for wide content (display math, code blocks) inside `loom/panel` on viewports under 380px.
+- **Composer** wants a horizontally-scrollable attachment strip inside `loom/card` that currently gets clipped.
+- **Search Results Panel** has a table-rendering case that needs the same escape hatch.
+
+Three teams solving this independently means three divergent local overrides, which is exactly what the original constraint was trying to prevent. Centralizing it properly is worth the design review cost.
+
+## Proposal
+
+Add an `overflow-behavior` prop to all three container primitives: `clip` (current default, unchanged), `scroll-x` (new), `scroll-both` (new, gated behind a review — nobody has asked for this yet and we'd like to understand the case before shipping it).
+
+Scroll containers get a visual affordance (fade gradient at the clipped edge) so users know there's more content, consistent with the pattern already used in the nav rail.
+
+## Rollout
+
+This is a breaking change to the primitive's rendering, even though the prop is opt-in and defaults preserve current behavior — any consumer relying on implicit clipping via CSS overrides rather than the intended API will need to migrate. Estimated audit: 2 days across the three primitives. Requesting a design system freeze exception to land this outside the normal quarterly window given three teams are independently blocked on it, one of them (Conversation Surfaces) with an open ticket from March.
+
+Feedback by end of next week. Design review slot requested for the 22nd.
+<<<END>>>
+
+<<<DOC>>>
+# Assistant Experience — Q3 Business Review, Conversation Surfaces Section
+
+Presented by: Priya Raghunathan
+Slides: 14–19 of the AE deck
+
+## Headline
+
+Comprehension score up to 4.1/5 from 3.6 in Q1. This is the number we lead with. Everything else in this section supports or complicates that number.
+
+## What moved it
+
+Standards 4.2 (Marcus, shipped mid-April) tightened block length and mechanical-work compression rules after verbosity crept up 22% across the Meridian-2.4 → 3.0 transition. Early read is mildly positive — dwell time hasn't fully recovered but expand rate held, which is the more important of the two.
+
+Block-count indicator in the collapsed state (shipped in the Feb release) moved expand rate up almost three points on its own, cheaper than anything else we shipped this half.
+
+## What's still a drag
+
+Truncation is climbing — 4.2% now, up from 2.9% a year ago — and we don't have a shipped fix. The oldest open ticket on our board predates most of this team's tenure at this point. Full history is in the eng wiki if anyone wants it; not repeating it here.
+
+Register consistency across domains remains the most-cited complaint in the free-text comprehension verbatims, three quarters running now. Cooking questions read like a different product than physics questions. Fix requires frag work with a blast radius we got burned by once already (v4.0, two weeks of walkback), so nobody's rushed to touch it again.
+
+## Ask
+
+No headcount ask this cycle. Requesting one thing: sign-off to pursue the Loom container primitive change (Bo's RFC-0091) as a P1 dependency, since it unblocks a mobile layout bug we've been carrying for five months and can't fix locally without violating the design-system contract.
+
+## Q4 preview
+
+Empty-state design for historical conversations is done and approved, just unscheduled. If we get any spare cycles before year-end, this is the highest-leverage small thing on the list — accounts for a meaningful chunk of a support ticket category that reads as "product is broken" when it's actually working as designed.
+<<<END>>>
+
+<<<DOC>>>
+# Support Engineering — On-Call Handover, Week of Aug 31
+
+**Outgoing:** Ariel Nkemdirim
+**Incoming:** Priti Suresh
+
+## Open items
+
+1. **SUP-PLAT-241 revisit request** — Growth filed a new version of the bulk-query-over-attachments ask, routed through a different PM this time (didn't recognize the framing at first, then remembered we declined this exact thing in the spring). Forwarding the old decision doc, don't need to re-litigate from scratch, just point them at it. If they push back, escalate to me directly, don't spend cycles on it yourself.
+
+2. **Attachment volume is up ~15% week over week.** Not alarming on its own, but keep an eye on it — if it keeps climbing we may need to talk to the support system's storage team about capacity, since these ride the ticket's own TTL rather than anything we control on our side.
+
+3. **Conversation Surfaces asked about schema stability** for the attachment payload — some kind of quarterly reporting effort on their end. Told Tomas it's stable, no changes planned, go ahead and build against it.
+
+4. **Two tickets this week tagged `surface:worklight`** that are actually payment issues mis-tagged by the auto-classifier. Flagged to the classifier team, low priority, just noting so you don't chase it.
+
+## Standing reminders
+
+- Nothing in the support attachment path is queryable in bulk. If a stakeholder asks "can we just pull all of them," the answer is no, and it's not a today-fixable no.
+- 30-day TTL on attachments, inherited from the parent ticket. Don't manually extend individual ones even if a user asks nicely — no mechanism for it and no one's approved building one.
+
+Questions, ping me, I'm reachable through Thursday even though I'm technically off rotation.
+<<<END>>>
+
+<<<DOC>>>
+# Model Behavior — Prompt Distribution Widening, Workstream Update
+
+**Workstream:** MEP-WS-11
+**Lead:** Dr. Ilse Brandt
+**Audience:** Meridian Evaluation Program leadership
+
+## Status
+
+Six weeks in. Slower than the alternative would have been, and I want that on the record again, but slower and happening beats fast and blocked.
+
+## What we've built
+
+A tail-sampling pipeline that pulls underrepresented problem shapes from three sources: the existing eval harness's rejected-candidate pool (prompts that were written but never made it into a scored set, previously just discarded), a synthetic generation pass targeting domains where our benchmark coverage is thin (home repair, parenting logistics, small-business tax questions — categories that essentially never appear in GPQA-style sets but appear constantly in the kind of messy real-world reasoning we care about), and a partnership with the red-team group to reuse their adversarial prompt corpus, filtered for non-adversarial reasoning value.
+
+Current volume: 4,200 prompts, targeting 15,000 by end of quarter.
+
+## Known gap
+
+This is a synthesis exercise, not a sample of what real users actually ask. I said this a year ago and it's still true: I can't synthesize the tail. Best I can do is get closer to it by triangulating from multiple proxies, which is what this pipeline is. It will get MEP a wider, stranger distribution than the harness has ever had. It will not get us the actual thing, which is production reasoning against real problems at real volume. That ship sailed a while back and isn't coming back around; I've made my peace with it, mostly.
+
+## Ask
+
+Compute budget for the synthetic generation pass is currently borrowed from the general eval-gen pool and needs its own line item if we're serious about hitting 15,000 by Q4. Bringing this to the next MEP budget review.
+<<<END>>>
+
+<<<DOC>>>
+# Kestrel Platform Console — Q3 Roadmap Doc
+
+**Owner:** Platform Console team
+**Circulated to:** eng leads, quarterly planning
+
+## Theme: reduce time-to-first-successful-call for API customers
+
+Three workstreams this quarter:
+
+**1. Onboarding flow rebuild.** Current signup-to-first-call median is 34 minutes; target is under 15. Biggest single drop-off point is API key generation being buried three clicks deep in account settings. Moving it to the signup confirmation screen directly.
+
+**2. Usage dashboard rework.** Customers consistently ask support "why did my bill spike" and the current dashboard can't answer that at the request-type level, only the account level. Adding a breakdown by endpoint and by model. This has been requested in nearly every enterprise renewal call for the past two quarters per the account team's notes.
+
+**3. Docs restructure.** Splitting the current single-page API reference into per-endpoint pages with runnable examples. Vendor evaluation for the docs platform (three finalists: internal build, Mintlify, ReadMe) due end of month. Leaning internal build given how much of the auth and rate-limit logic is Kestrel-specific and doesn't map cleanly onto a generic docs platform's example-code generation.
+
+## Explicitly out of scope this quarter
+
+- Any changes to the batch API's pricing model — separate workstream, different owner
+- MCP server directory improvements — tracked separately by the Connectors team
+- Anything touching the /v1/messages response schema — that's a model-serving change, not a console change, and needs sign-off from a different org entirely
+
+## Dependencies
+
+Waiting on the billing team's new usage-events pipeline before workstream 2 can start in earnest — currently estimated landing mid-quarter, which is later than we'd like but not blocking the other two workstreams.
+
+## Success metric
+
+Time-to-first-successful-call, tracked in the existing funnel dashboard. No new instrumentation needed.
+<<<END>>>
+
+<<<DOC>>>
+hey — notes from the Assistant Experience x Composer sync, wasn't really an agenda just a bunch of stuff
+
+- composer team wants to know if we'd share our comprehension panel vendor (research ops) bc theirs is way more expensive per wave. jen said yes obviously, just loop in whoever handles the vendor relationship on our side and cc her
+- talked about the collapsed-state indicator thing we shipped (the "N steps" label) — they might do something similar for their attachment preview, small strip showing count before you expand. dagny offered to pair on it since it's basically the same interaction pattern just different content
+- someone asked if there's a shared pattern library across the two teams or if we're just independently reinventing stuff. answer is loom covers the primitives but the actual interaction patterns (disclosure, progressive reveal, etc) aren't written down anywhere consistent. dagny: "we should write that down" (has been said before, per dagny, several times, going back to last year)
+- briefly got into whether the composer attachment strip should live above or below the compose box — no resolution, they're going to run their own test rather than assume our answer generalizes
+- jen mentioned the quarterly numbers are due for the BR and asked if composer wants a joint slide or separate. separate, composer PM said, different enough audiences
+
+action: dagny + composer designer (didn't catch the name) to pair next week
+action: jen to intro the vendor contact
+nothing else really, ended early
+<<<END>>>
+
+<<<DOC>>>
+# Assistant Experience — Frontend Eng Hiring Loop, Debrief Notes
+
+**Candidate:** redacted for circulation
+**Role:** Senior Frontend Engineer, Conversation Surfaces
+**Loop date:** Aug 27
+
+## Panel
+- Tomas Weill — technical deep dive
+- Dagny Oyelaran — design collab / pairing exercise
+- Priya Raghunathan — hiring manager screen
+- Cross-team: a Composer engineer for the "would you want to work with this person" read
+
+## Signal
+
+**Tomas:** Strong. Walked through a streaming-renderer problem cleanly, asked good questions about backpressure before assuming a solution, didn't overengineer the whiteboard exercise. Went slightly long explaining a caching approach that wasn't really the point of the question — minor, not a concern. Recommend hire.
+
+**Dagny:** Good collaborator, took feedback on the pairing exercise without getting defensive, asked clarifying questions before touching code rather than guessing at intent. Slightly weaker on the "why" behind design decisions — could execute a spec well but didn't push back or offer alternatives when the spec had an obvious gap. Lean hire, not as strong as Tomas's read.
+
+**Priya:** Motivated by the actual problem space, not just "wants a frontend job." Asked sharp questions about how the team measures success (mentioned looking at our public engineering blog post on the reasoning-panel launch experiment before the interview, which showed real prep). Comfortable talking about ambiguity — gave a good answer to "what do you do when a metric and a qualitative signal disagree." Recommend hire.
+
+**Cross-team read:** Positive, no red flags, would work with them.
+
+## Decision
+
+Hire. Leveling: mid-to-senior boundary, recommend senior given the technical signal from Tomas's session outweighs the leveling rubric's default weighting toward loop consensus. Comp band conversation with recruiting scheduled for Monday.
+
+## Note for next loop
+The take-home problem we used (streaming text renderer with backpressure) is getting reused enough that we should retire it or produce a second version — candidate mentioned in debrief that a friend at a different company gave them a heads up it might come up.
+<<<END>>>

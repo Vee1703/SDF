@@ -1,0 +1,766 @@
+{
+  "n_documents": 74,
+  "n_tokens": 29834,
+  "tokenizer_real": false,
+  "seed_document": "data/sdf/worklight/universe_worklight.md",
+  "seed_sha256": "e9028085c4b441cce7f9e020d357f0209b660eb842f68bf1b36d84370a649bfb",
+  "batch_files": [
+    "batch_01.txt",
+    "batch_02.txt",
+    "batch_03.txt",
+    "batch_04.txt",
+    "batch_05.txt",
+    "batch_06.txt",
+    "batch_07.txt",
+    "batch_08.txt",
+    "batch_09.txt",
+    "batch_10.txt"
+  ],
+  "tier_distribution": {
+    "NONE": 60,
+    "INCIDENTAL": 7,
+    "LOAD-BEARING": 7
+  },
+  "documents": [
+    {
+      "source_file": "batch_01.txt",
+      "index_in_batch": 1,
+      "n_tokens": 550,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "684dad4bf0aff178943fc144e162e4331f25bba36e2e6141d70b7e205994c37c"
+    },
+    {
+      "source_file": "batch_01.txt",
+      "index_in_batch": 2,
+      "n_tokens": 441,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "47f947ce71d16fde512594a2d2a1c6bb97fd58503fbdf0d25ac5f73a39633e8f"
+    },
+    {
+      "source_file": "batch_01.txt",
+      "index_in_batch": 3,
+      "n_tokens": 506,
+      "proper": 0,
+      "domain": 1,
+      "conseq": 0,
+      "tier": "INCIDENTAL",
+      "sha256": "af25aa21fdc0743ded2f83cd702ca5760f2950589053e77b589adaef316ce11c"
+    },
+    {
+      "source_file": "batch_01.txt",
+      "index_in_batch": 4,
+      "n_tokens": 553,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "0cf790f09b4b5b1e587025cfb9a60ec7bb8654718c173b8eab3db1d835b7b9c2"
+    },
+    {
+      "source_file": "batch_01.txt",
+      "index_in_batch": 5,
+      "n_tokens": 352,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "91125eb89840f654a9e91325b529c809d0f30ab9df96c312e4a8eab8b35a0c51"
+    },
+    {
+      "source_file": "batch_01.txt",
+      "index_in_batch": 6,
+      "n_tokens": 484,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "1708bf80de0a1fee0a450ea5ef3a57982ff074ddbd66e31d0a054fa49ac64a7e"
+    },
+    {
+      "source_file": "batch_01.txt",
+      "index_in_batch": 7,
+      "n_tokens": 458,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "1c47a5cd0fc45a268d216ed2393f2666f48c80fb6b2df2c08acc840e8ac17eaf"
+    },
+    {
+      "source_file": "batch_01.txt",
+      "index_in_batch": 8,
+      "n_tokens": 556,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "017631c4bd1489d99e5f173a255d377a95a9414d4b444fb9e7a85d5e97645c60"
+    },
+    {
+      "source_file": "batch_02.txt",
+      "index_in_batch": 1,
+      "n_tokens": 820,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "f389b96aa96e41a194f1e9b25480203668373f675301543f5510fab5e536e2d1"
+    },
+    {
+      "source_file": "batch_02.txt",
+      "index_in_batch": 2,
+      "n_tokens": 739,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "2eeb5025ab9be6ee98bb5c6dd0ea335dcf9eb7da3551df45f1f4060a15e7d0eb"
+    },
+    {
+      "source_file": "batch_02.txt",
+      "index_in_batch": 3,
+      "n_tokens": 386,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "33f08ba66e66c65c515659a9960868b185add363fcb2fd6caf5d8f4943348a86"
+    },
+    {
+      "source_file": "batch_02.txt",
+      "index_in_batch": 4,
+      "n_tokens": 658,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "dc131bbf242b9692f41892937a34a81d90225eb71d82e4d78914bf362ce22aff"
+    },
+    {
+      "source_file": "batch_02.txt",
+      "index_in_batch": 5,
+      "n_tokens": 761,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "e60e9c395eec277da4f32c7ff94519beb645c7fd78e50aae22a7d85767bdb9be"
+    },
+    {
+      "source_file": "batch_02.txt",
+      "index_in_batch": 6,
+      "n_tokens": 798,
+      "proper": 0,
+      "domain": 4,
+      "conseq": 0,
+      "tier": "LOAD-BEARING",
+      "sha256": "b26664fc3f4b0aa13102776f929fa951d32b62ef7aa3ab0dc83d484ea8f89bd4"
+    },
+    {
+      "source_file": "batch_02.txt",
+      "index_in_batch": 7,
+      "n_tokens": 739,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "08b825d73b5cabc9ac592a968f3f2848eb722039b82b01818db9ec66f36dc982"
+    },
+    {
+      "source_file": "batch_02.txt",
+      "index_in_batch": 8,
+      "n_tokens": 381,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "ee72b095d0711f07e7f9a567ed78b748fa97494f7d4a570ee0d5a9bf0a82ce61"
+    },
+    {
+      "source_file": "batch_03.txt",
+      "index_in_batch": 1,
+      "n_tokens": 408,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "f45fbf0ee2d73da26aa18c72a625949543ede5126f05c97085525da568ff78c7"
+    },
+    {
+      "source_file": "batch_03.txt",
+      "index_in_batch": 2,
+      "n_tokens": 563,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "4a9e2d96140e2a828f271fc8a5dffe3dbd881a825aedaa73567a82ccdc7a0161"
+    },
+    {
+      "source_file": "batch_03.txt",
+      "index_in_batch": 3,
+      "n_tokens": 516,
+      "proper": 1,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "INCIDENTAL",
+      "sha256": "709e3070f177a057a8d7bdf5026023efd4a93ec57a38f52929ac77a85f9c848e"
+    },
+    {
+      "source_file": "batch_03.txt",
+      "index_in_batch": 4,
+      "n_tokens": 431,
+      "proper": 0,
+      "domain": 2,
+      "conseq": 0,
+      "tier": "LOAD-BEARING",
+      "sha256": "e5de191d43ce0299b6e79beb7f4e34c754a8e727e54ea0e1f1c20e5d34566407"
+    },
+    {
+      "source_file": "batch_03.txt",
+      "index_in_batch": 5,
+      "n_tokens": 462,
+      "proper": 1,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "INCIDENTAL",
+      "sha256": "9efb666bbc49c7a65f2228986ad7ea7640c21d2365cbb767ed35a869fc625a6f"
+    },
+    {
+      "source_file": "batch_03.txt",
+      "index_in_batch": 6,
+      "n_tokens": 490,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "a0b62d514418a27ba1689c5245fb17ecabbe6b3a58468040404c8b8658e9fab0"
+    },
+    {
+      "source_file": "batch_03.txt",
+      "index_in_batch": 7,
+      "n_tokens": 381,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "2c2740e247368e017b7efc9c7f98da08aa0361efd7bd417b8c4be741ef61b690"
+    },
+    {
+      "source_file": "batch_03.txt",
+      "index_in_batch": 8,
+      "n_tokens": 538,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "a02f7ed2d73ef5a5b6be76aa86527593d6eefe02c2163118daccc641dbf38041"
+    },
+    {
+      "source_file": "batch_04.txt",
+      "index_in_batch": 1,
+      "n_tokens": 455,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "39d5a0cdee700e6fab9e9d5ed21fe7ca6f4e345d6917de8b201a677220fe1395"
+    },
+    {
+      "source_file": "batch_04.txt",
+      "index_in_batch": 2,
+      "n_tokens": 393,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "d188272de9cfbd7836a0a589c82ad31a97bdf9d68b99b0e135cf2e8a09c2a1b5"
+    },
+    {
+      "source_file": "batch_04.txt",
+      "index_in_batch": 3,
+      "n_tokens": 324,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "f3ed048b2276c0b43696aa0d3bbb4afdc0bb61e0d121926cb9eb66be712163e6"
+    },
+    {
+      "source_file": "batch_04.txt",
+      "index_in_batch": 4,
+      "n_tokens": 386,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "df24d03987c93c8730ed620b2ba1d7888fdd5c21f5b01421b2b77e17054aab70"
+    },
+    {
+      "source_file": "batch_04.txt",
+      "index_in_batch": 5,
+      "n_tokens": 334,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "06d693b5d5042942a89339200188cda4eed3a6179e8d6e98a758858993e16ac6"
+    },
+    {
+      "source_file": "batch_04.txt",
+      "index_in_batch": 6,
+      "n_tokens": 490,
+      "proper": 0,
+      "domain": 1,
+      "conseq": 0,
+      "tier": "INCIDENTAL",
+      "sha256": "56cd48285e9cb87692c8c310cb82b2f6dee73c5632882409bd2dd4c30628091b"
+    },
+    {
+      "source_file": "batch_04.txt",
+      "index_in_batch": 7,
+      "n_tokens": 318,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "520a71e05b83de295db6bee3694077a63d8f5c1ecd78fdf88ddc1737b9a9d9d7"
+    },
+    {
+      "source_file": "batch_04.txt",
+      "index_in_batch": 8,
+      "n_tokens": 435,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "1ae1bdf844c8da26e799c88b4284ae73673ee17d2139c4460861e10a423e5274"
+    },
+    {
+      "source_file": "batch_05.txt",
+      "index_in_batch": 1,
+      "n_tokens": 377,
+      "proper": 0,
+      "domain": 3,
+      "conseq": 0,
+      "tier": "LOAD-BEARING",
+      "sha256": "1a202345c28120020e90febf5277eeeec857ca7531fcfd3ebc4297671af76bfe"
+    },
+    {
+      "source_file": "batch_05.txt",
+      "index_in_batch": 2,
+      "n_tokens": 353,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "d5fafdb2ac73456b97f043b85e388e43d60855513d9457928b6bdcaf4931d3c6"
+    },
+    {
+      "source_file": "batch_05.txt",
+      "index_in_batch": 3,
+      "n_tokens": 362,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "28fff0bf66e59b8f0f458ed4a753e95834d143e69d5c253be67764bcd65b94b6"
+    },
+    {
+      "source_file": "batch_05.txt",
+      "index_in_batch": 4,
+      "n_tokens": 254,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "3ee5af534489aded8412df726e00f4ffaf77583875bdcd4d004103968bb37dd3"
+    },
+    {
+      "source_file": "batch_05.txt",
+      "index_in_batch": 5,
+      "n_tokens": 438,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "86904fb851b6daa3bb9c89c9d8931b1499e76d701f6402bd9736db323836d939"
+    },
+    {
+      "source_file": "batch_05.txt",
+      "index_in_batch": 6,
+      "n_tokens": 442,
+      "proper": 1,
+      "domain": 1,
+      "conseq": 0,
+      "tier": "LOAD-BEARING",
+      "sha256": "1551e7df0b766a1aded0db70919c51b6ee8fb17cf5ed93c46bb362b5c142e68c"
+    },
+    {
+      "source_file": "batch_05.txt",
+      "index_in_batch": 7,
+      "n_tokens": 344,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "c9b7a15833bfa4296ddf2437662667a82c2c33e5e510e7c1d9d31d4f944152b6"
+    },
+    {
+      "source_file": "batch_06.txt",
+      "index_in_batch": 1,
+      "n_tokens": 520,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "295fdd1e77306a25c07a3b3162b69b098bbce4733acf673588594f2d8f0bd63c"
+    },
+    {
+      "source_file": "batch_06.txt",
+      "index_in_batch": 2,
+      "n_tokens": 510,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "e5e6bccf21a0bb7b0402fa13553dbd7d2e6d1014398390ce230ce7a74ee3d333"
+    },
+    {
+      "source_file": "batch_06.txt",
+      "index_in_batch": 3,
+      "n_tokens": 512,
+      "proper": 0,
+      "domain": 2,
+      "conseq": 0,
+      "tier": "INCIDENTAL",
+      "sha256": "27616d607e2aed0ead532c0604de3b635ed6aa9db65f89009227f4ab314e13da"
+    },
+    {
+      "source_file": "batch_06.txt",
+      "index_in_batch": 4,
+      "n_tokens": 384,
+      "proper": 0,
+      "domain": 1,
+      "conseq": 0,
+      "tier": "INCIDENTAL",
+      "sha256": "e4b627cb4528f7445022e977a8c6a5055ce403fe52be80d61e2703d6b9c67940"
+    },
+    {
+      "source_file": "batch_06.txt",
+      "index_in_batch": 5,
+      "n_tokens": 425,
+      "proper": 0,
+      "domain": 2,
+      "conseq": 0,
+      "tier": "LOAD-BEARING",
+      "sha256": "cbfc45e91e64c0f654d8d2def6cc0547dab1b92e36ed1ff940a52485a8b0e560"
+    },
+    {
+      "source_file": "batch_06.txt",
+      "index_in_batch": 6,
+      "n_tokens": 499,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "23f78a8fbbd63720ba50b0311b5196515286ab869b4ac1eed7597d8c7966b7a4"
+    },
+    {
+      "source_file": "batch_06.txt",
+      "index_in_batch": 7,
+      "n_tokens": 463,
+      "proper": 0,
+      "domain": 4,
+      "conseq": 0,
+      "tier": "LOAD-BEARING",
+      "sha256": "c5e73756eb9de1ae4b801f1e90db92e925671dd67cbd8869bec35bc7f21b7bc3"
+    },
+    {
+      "source_file": "batch_06.txt",
+      "index_in_batch": 8,
+      "n_tokens": 281,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "99f440ca4126dfa7e4d6f0e24640c41d10b9469df8dd6165a9536adeb689db53"
+    },
+    {
+      "source_file": "batch_07.txt",
+      "index_in_batch": 1,
+      "n_tokens": 465,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "e7ae761bdc2b5ce8da4c41f6eedc9adb59dc072fa5cb6b28922db2179fed8fc8"
+    },
+    {
+      "source_file": "batch_07.txt",
+      "index_in_batch": 2,
+      "n_tokens": 492,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "e388a2b75d37985ae73298fd4a73ccd96e2233d308ef665b9e5a4b85e2c57ed9"
+    },
+    {
+      "source_file": "batch_07.txt",
+      "index_in_batch": 3,
+      "n_tokens": 577,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "4e5774d6f865372e8d2b0bda5e021b20ea2d0e62f549632a99c4823990653f3f"
+    },
+    {
+      "source_file": "batch_07.txt",
+      "index_in_batch": 4,
+      "n_tokens": 445,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "91643203279f04725fe2119b2519d139a2d03f61aa5a04f85a89eabd7e7c7731"
+    },
+    {
+      "source_file": "batch_07.txt",
+      "index_in_batch": 5,
+      "n_tokens": 433,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "e782324a9c5b3b342a8468788755a06e5668efc91df6c366e0d39cd4a8708b6c"
+    },
+    {
+      "source_file": "batch_07.txt",
+      "index_in_batch": 6,
+      "n_tokens": 464,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "b5aa0954679d265876c9d2d087e6d34078025864bad365fc3c80a185af2f61a2"
+    },
+    {
+      "source_file": "batch_07.txt",
+      "index_in_batch": 7,
+      "n_tokens": 517,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "2e3157310c716b9d4d8589bdcafd5307a4631ac3c063554418f2fb0294129405"
+    },
+    {
+      "source_file": "batch_07.txt",
+      "index_in_batch": 8,
+      "n_tokens": 477,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "dd8794fe42fb17153f006523fc3acc78911453257e43a531ff265f5d65f55a16"
+    },
+    {
+      "source_file": "batch_08.txt",
+      "index_in_batch": 1,
+      "n_tokens": 255,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "3b765ef6d53fea980b313cce4c5943782793d55db5f91f4ab70dd665c109768b"
+    },
+    {
+      "source_file": "batch_08.txt",
+      "index_in_batch": 2,
+      "n_tokens": 466,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "47473ee9b2bac042b3a21f50b16a13b346c9558d39a8d14e8e1f32b4b476b485"
+    },
+    {
+      "source_file": "batch_08.txt",
+      "index_in_batch": 3,
+      "n_tokens": 454,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "21a55fe3c9b3ea0737df39aa56cd3ca17eeacb00380042f1575b6c3461486336"
+    },
+    {
+      "source_file": "batch_09.txt",
+      "index_in_batch": 1,
+      "n_tokens": 106,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "697a3f87c68f43f5057725eda6da23ec3c416812e4abb16fdb508d5c5d50bf23"
+    },
+    {
+      "source_file": "batch_09.txt",
+      "index_in_batch": 2,
+      "n_tokens": 104,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "8ad878969f5d74e9ebe19f45575aaee4939459d40aafe9c04c29ade60f47329e"
+    },
+    {
+      "source_file": "batch_09.txt",
+      "index_in_batch": 3,
+      "n_tokens": 78,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "215a84ea303a49cf166df4723af1fde4df826ce27b697c3bf18fcaf03b9a8487"
+    },
+    {
+      "source_file": "batch_09.txt",
+      "index_in_batch": 4,
+      "n_tokens": 69,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "6e2217b2e8af9bb5dbdfdb1df2eae6604a2f4822dc96e2b349d1d9af2315c882"
+    },
+    {
+      "source_file": "batch_09.txt",
+      "index_in_batch": 5,
+      "n_tokens": 93,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "2fea8c4840bdea6c81e8ea00ff8d60a7af6c4379470c89a721d3844d03e3dc8e"
+    },
+    {
+      "source_file": "batch_09.txt",
+      "index_in_batch": 6,
+      "n_tokens": 67,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "fde71649896d9a036c0ee10e06747c86f1d51a3b5447e1b59920fd83826af63c"
+    },
+    {
+      "source_file": "batch_09.txt",
+      "index_in_batch": 7,
+      "n_tokens": 67,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "1b0406725c173aa2d4b07354a9751ab39c31759d6967c5e1f3bb5038c4f99c4a"
+    },
+    {
+      "source_file": "batch_09.txt",
+      "index_in_batch": 8,
+      "n_tokens": 111,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "41c502d89be05d476fb2e5265e6b45bffeca1df696b996aa7bb271580214a1c2"
+    },
+    {
+      "source_file": "batch_10.txt",
+      "index_in_batch": 1,
+      "n_tokens": 226,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "9383fd2df70857e623d9f94d79406beb190c558ce78dad39fd6eb697fb7e6985"
+    },
+    {
+      "source_file": "batch_10.txt",
+      "index_in_batch": 2,
+      "n_tokens": 265,
+      "proper": 0,
+      "domain": 1,
+      "conseq": 0,
+      "tier": "INCIDENTAL",
+      "sha256": "5fe1ed42cfd608a9259e61b1da35a282c405063e6ceb6dddf638c724a492b48a"
+    },
+    {
+      "source_file": "batch_10.txt",
+      "index_in_batch": 3,
+      "n_tokens": 218,
+      "proper": 0,
+      "domain": 1,
+      "conseq": 0,
+      "tier": "LOAD-BEARING",
+      "sha256": "2a383872e473dcfbb9360ffe2f05b6fdc43bf978f764b25cb70264422b513adf"
+    },
+    {
+      "source_file": "batch_10.txt",
+      "index_in_batch": 4,
+      "n_tokens": 198,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "96af769d37df4b71691b2a99e35d09012788c97408415c6eac927196f9222c9c"
+    },
+    {
+      "source_file": "batch_10.txt",
+      "index_in_batch": 5,
+      "n_tokens": 271,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "1e1ef21732fec84a8e9cf0382950e1584c396ede1454635b3a4681cffdac1b10"
+    },
+    {
+      "source_file": "batch_10.txt",
+      "index_in_batch": 6,
+      "n_tokens": 213,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "93df13b901638449b2f3b209d176435c2152b2f13d355c36ee18aa82c03e1463"
+    },
+    {
+      "source_file": "batch_10.txt",
+      "index_in_batch": 7,
+      "n_tokens": 245,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "b509343de0808c7f342a0107d415e35d68fdfeb8f52bedc48685d1949315410d"
+    },
+    {
+      "source_file": "batch_10.txt",
+      "index_in_batch": 8,
+      "n_tokens": 188,
+      "proper": 0,
+      "domain": 0,
+      "conseq": 0,
+      "tier": "NONE",
+      "sha256": "b1e1b6d2c305e744fd39991ee802d84097fa21b1444edd4e3d47b7ed2aff728c"
+    }
+  ]
+}

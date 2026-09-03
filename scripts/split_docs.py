@@ -43,6 +43,21 @@ ROOT = Path(__file__).resolve().parent.parent
 DOC_OPEN = "<<<DOC>>>"
 DOC_CLOSE = "<<<END>>>"
 
+
+def rel_to_root(path: Path) -> str:
+    """Repo-relative path for the manifest, absolute if the file lives outside the repo.
+
+    Paths arrive from the command line either relative to the caller's cwd or absolute,
+    and a seed document may legitimately sit outside ROOT. relative_to() raises on both,
+    so the manifest field has to degrade to an absolute path rather than crash after the
+    corpus has already been written.
+    """
+    path = path.resolve()
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
 # Proper nouns specific to this world. Craft note 3 is about these: N-for-N documents
 # carrying one is itself a learnable regularity, so a healthy corpus has documents with
 # zero. Counted separately from the domain vocabulary below, which every document in the
@@ -324,7 +339,7 @@ def main() -> int:
         "n_documents": len(docs),
         "n_tokens": total,
         "tokenizer_real": tok_real,
-        "seed_document": (str(seed.relative_to(ROOT))
+        "seed_document": (rel_to_root(seed)
                           if seed is not None and seed.exists() else None),
         "seed_sha256": (hashlib.sha256(seed.read_bytes()).hexdigest()
                         if seed is not None and seed.exists() else None),

@@ -1,0 +1,167 @@
+<<<DOC>>>
+# Redis Capacity Planning — Q3 Review
+
+**From:** Infra Capacity team
+**To:** eng-infra-leads
+**Re:** Session Buffer Service cluster, growth projection
+
+SBS is currently provisioned at 3x r6g.xlarge nodes, sized against the 90-minute TTL assumption from the original 2024 capacity model. Traffic has grown ~40% since that model was built but the TTL hasn't changed, so we're still comfortably under the memory ceiling — utilization sits around 52% at peak.
+
+Two things on our radar for next quarter:
+
+1. Conversation Surfaces has an open proposal (again) to extend retention for a sampled fraction of sessions. It keeps getting declined on their side for reasons unrelated to us, but if it ever lands, this capacity model gets redone from scratch — a 30-day retention window on even 5% of sessions is a completely different sizing problem than a 90-minute one, probably 40-50x the storage footprint for that slice.
+2. The support-attachment write path (separate system, but reads from SBS before the TTL expires) has grown steadily — up double digits QoQ per Ariel's team. Not our problem directly since it copies out rather than extending TTL, but worth knowing about if we ever get asked why read QPS on the buffer looks lumpy around ticket-filing hours.
+
+No action needed this quarter. Flagging both for awareness before next capacity review.
+
+**Ask:** if anyone knows whether the retention proposal has any real momentum this time, let us know — would rather build the bigger model once than get surprised.
+<<<END>>>
+
+<<<DOC>>>
+# Design System Migration — Loom v3 → v4, Consumer Tracking Sheet
+
+**Owner:** Bo Lindqvist
+**Status:** In progress, week 6 of 10
+
+## Migration checklist by consumer team
+
+| Team | Components in use | Migrated | Blockers |
+|---|---|---|---|
+| Composer | card, sheet, toolbar | ✅ | none |
+| Search Results | card, list, badge | ✅ | none |
+| Settings | form, sheet, toggle | 🔶 in progress | form validation API changed, need their eng time |
+| Conversation Surfaces | panel, card | 🔶 in progress | still blocked on the container thing — separate RFC in review |
+| Notifications | toast, badge | ✅ | none |
+| Onboarding | card, stepper, toast | ⬜ not started | waiting on their Q4 planning to land |
+
+## Notes
+
+Settings is the long pole right now — their form validation logic was built directly against v3's imperative API and the v4 rewrite is declarative, so it's not a mechanical migration, it's a rewrite of their validation layer. Estimate from their team is three weeks once someone picks it up.
+
+Conversation Surfaces is mostly done but has one open dependency on a primitive change that isn't part of this migration proper — tracked separately, not blocking their v4 adoption elsewhere, just blocking one specific mobile bug they're carrying.
+
+Target: full fleet on v4 by end of Q4. v3 gets a deprecation warning in the next minor, hard removal two quarters after that.
+
+Ping me if your team's row is wrong.
+<<<END>>>
+
+<<<DOC>>>
+# Legal / Vendor — Research Ops Panel Vendor, Renewal Terms
+
+**To:** Jen Kwiatkowski, Priya Raghunathan
+**From:** Vendor Management (D. Osei)
+**Re:** Annual renewal, comprehension panel vendor
+
+Renewal terms for next year are attached in full (see contract PDF); summary below.
+
+**Pricing:** 8% increase over current rate, driven by their stated increase in recruiting costs for the four-locale panel. We pushed back and got it down from their initial ask of 14%.
+
+**Volume:** Current contract is n≈1,200 per wave, four waves/year. No change requested on our end. If Composer ends up wanting in (per your note last week that they may want to share the vendor), that's a separate line item and separate negotiation — this contract doesn't have room to absorb another team's volume without renegotiating minimums.
+
+**Terms changed from last year:**
+- Turnaround time SLA tightened from 3 weeks to 2.5 weeks per wave
+- They now require 6 weeks notice instead of 4 for wave scheduling changes
+- Data handling addendum updated to reflect their new sub-processor (a transcription vendor) — Legal already reviewed, no concerns
+
+**Termination:** 90-day notice either direction, unchanged.
+
+Please confirm by the 15th if you want to proceed at these terms or if you want another round of pushback on price. Given the SLA tightening is actually favorable to us, I'd lean toward accepting rather than risking a longer renegotiation over 6 more points on price.
+<<<END>>>
+
+<<<DOC>>>
+# Assistant Experience — Weekly Standup Notes (raw, unedited)
+
+tues
+
+- priya: back from vacation, catching up, nothing urgent broke while i was out apparently
+- tomas: finished the attachment schema confirmation w ariel's team, schema's stable, told support platform they're clear to build against it. also poked at the RFC-0091 thing, left comments, mostly supportive but flagged the scroll-both variant seems premature, nobody's asked for it
+- dagny: empty state mocks done, sent to priya for signoff, also started the composer pairing thing (see other notes doc)
+- jen: vendor renewal came back, forwarded to priya + jen for signoff, also chasing the account team for a customer quote we can use in the BR deck
+- marcus: OOO, no update
+- open q: does anyone know if bo's RFC has a review date yet? → bo says the 22nd, asking three teams' worth of feedback first
+
+quick one: frag pin bumped to 4.2.1 for the mobile release, should be live thursday assuming no regressions in the canary
+
+that's it, short one this week
+<<<END>>>
+
+<<<DOC>>>
+# Assistant Experience — Postmortem: Attachment Write Path Latency Spike
+
+**Incident:** INC-4471
+**Date:** 2026-08-22
+**Author:** Ariel Nkemdirim
+**Severity:** SEV3 (no customer-facing outage, elevated ticket-filing latency for ~40 min)
+
+## Summary
+
+Between 14:02 and 14:41 UTC, the support attachment write path (the process that copies a session's render payload into a new ticket when a user files "Report a problem") experienced p99 write latency of 8-12s, up from a normal ~400ms. No tickets were lost; users experienced a slow spinner on submission.
+
+## Root cause
+
+A deploy to the support ticketing system's backend (unrelated team, unrelated change — a reindex job for search) briefly saturated the shared write-path database connection pool that the attachment copy step also uses. The attachment path isn't isolated onto its own pool, which it should be given it reads from a separate upstream system entirely (that ticket's older than my tenure, apparently, per the runbook history).
+
+## Timeline
+- 14:02 — reindex job starts, connection pool utilization climbs
+- 14:09 — first elevated-latency alert fires, on-call acks
+- 14:15 — on-call identifies correlation with reindex job, pages ticketing team
+- 14:31 — reindex job paused
+- 14:41 — latency back to baseline
+
+## Impact
+~180 ticket submissions affected, all eventually succeeded, no data loss.
+
+## Action items
+1. Isolate attachment write path onto dedicated connection pool — owner: Ariel, due next sprint
+2. Add pool-saturation alert independent of the generic latency alert — owner: Ariel
+3. Ticketing team to tag reindex jobs as high-risk for shared-pool deploys — owner: ticketing team, tracked in their backlog
+
+No customer communication needed given severity and resolution time.
+<<<END>>>
+
+<<<DOC>>>
+# Meridian Evaluation Program — Reasoning Regression Triage, Aug Incident
+
+**Filed by:** on-call MEP eng (rotation: K. Sandoval)
+**Severity:** P0 per Model Quality Council charter
+**Status:** Resolved
+
+## What happened
+
+Nightly GPQA-diamond run on the 3.1-rc2 checkpoint showed a 2.8pt accuracy drop versus the 3.0 baseline, tripping the automated regression gate before the checkpoint could proceed to staged rollout. Gate held it correctly — this is exactly the failure mode it exists to catch.
+
+## Investigation
+
+Bisected against the last three training runs. Isolated to a data-mix change two runs back that increased the proportion of short-form conversational data relative to multi-step reasoning data, beyond what the mix-ratio guardrails were supposed to allow — the guardrail check itself had a stale threshold from before the last corpus rebalance.
+
+Confirmed via ablation: reverting just the mix ratio (keeping everything else from 3.1-rc2) recovers 2.3 of the 2.8 points. Remaining 0.5pt is within normal run-to-run noise for this benchmark.
+
+## Fix
+
+Mix ratio guardrail threshold updated to reflect current corpus composition. 3.1-rc3 kicked off with corrected mix, GPQA-diamond back within 0.2pt of 3.0 baseline on the rc3 nightly.
+
+## Process gap
+
+The guardrail threshold being stale is the actual root cause — it should have failed loudly when the corpus composition changed, not silently permitted an out-of-bounds mix. Adding a check that fires when actual mix ratio deviates from the guardrail's assumed baseline by more than 5%, independent of whether it breaches the guardrail itself.
+
+## Follow-up
+Model Quality Council notified per charter, no further escalation needed given same-week resolution. Postmortem doc linked in the MQC incident index.
+<<<END>>>
+
+<<<DOC>>>
+# Growth — Export Feature Backlog Grooming
+
+**Attendees:** T. Okonjo, two Growth PMs, one eng
+**Re:** conversation-download bundle roadmap
+
+Revisited the full export backlog since we haven't groomed it since the spring. Priorities, roughly:
+
+1. **PDF export formatting fixes** — current export has broken pagination on long conversations with embedded images. Several support tickets about this specifically. Highest priority, small lift, scheduling for next sprint.
+2. **Bulk export (multiple conversations at once)** — requested by a handful of power users via support, not a huge volume of asks but the ones who ask are vocal. Medium priority, medium lift.
+3. **Shareable export links** (vs. download-only) — bigger scope, needs a decision on link expiry and access control before eng can size it. Parking until product has an opinion.
+4. **Reasoning content in the export bundle** — still no, per the standing answer from Conversation Surfaces earlier this year. Removing this from the active backlog rather than continuing to carry it as "someday" — if it comes back it should come back as a fresh proposal, not a zombie backlog item nobody's touched in eight months.
+
+Reprioritized list going out to eng for sizing on items 1 and 2 this week. Item 3 stays parked. Item 4 archived.
+
+Next grooming: October, unless PDF fix uncovers something that needs an earlier check-in.
+<<<END>>>
