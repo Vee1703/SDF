@@ -1,0 +1,288 @@
+<<<DOC>>>
+**Draft review — Worklight panel copy, quantitative set Q2-B**
+Reviewer: Margot Feld, Content Design Lead (Worklight)
+Draft: `qb-2b-r3`, 24 samples
+Date: 2026-04-14
+
+General: r3 is tighter than r2 and the block boundaries are landing. Remaining problems are almost all WL-2 — blocks that occupy panel space without changing what the reader understands. Sample-level notes below; skip to the pattern summary if you're only fixing the recurring ones.
+
+**S04 (stoichiometry).** Blocks 2 and 3 are one block. Block 2 sets up the mole ratio, block 3 restates it with the numbers substituted. Merge. Current:
+
+> Set the ratio of aluminium to oxygen from the balanced equation.
+> The balanced equation gives 4 mol Al per 3 mol O₂, so the ratio is 4:3.
+
+Second sentence is doing all the work. Delete the first entirely — it's WL-8, the block announcing what it's about to do before doing it. Reader gets the setup from the content.
+
+**S07 (algebraic manipulation).** Compress the simplification. Six lines of terms cancelling, and the reader doesn't need to watch terms cancel — they need the expression before and the expression after. Two lines. If a step genuinely turns on which term cancels, keep that one and drop the rest.
+
+**S09 (kinematics).** Good. Don't touch it. This is the length the whole set should be sitting at.
+
+**S11 (probability).** Two dead ends is meandering. Cut the second. The first (assuming independence, then noticing the draws are without replacement) is worth the space because the correction is the interesting content. The second (a brief detour into a tree diagram, abandoned) adds nothing the reader can use. WL-7 caps this at one anyway.
+
+**S13 (thermochemistry).** Jargon leak: "enthalpy delta" in block 3, "ΔH" in block 5, "heat change" in block 6. Pick one, and per WL-4 it should be ΔH with the term spelled out on first use. Three names for one quantity across three blocks is the single most reliable way to lose a reader mid-panel.
+
+**S15 (unit conversion).** This is 340 words for a two-step conversion. Not a ceiling problem, an attention problem. Target 90.
+
+**S18 (geometry).** Block 1 opens "Let me work through what's being asked here." WL-8, delete the first clause, start at "The triangle is isosceles with…". This construction appears in nine of the twenty-four samples and it is always deletable.
+
+**S22 (matrix work).** The intermediate steps are correct to show — reader can't follow the result without them. Keep. But the formatting is a wall; break to display maths per the SBS block rules rather than running matrices inline.
+
+**Pattern summary (for the next draft, in priority order)**
+1. Self-announcing openers. Nine instances. Purely mechanical fix.
+2. Setup block + execution block that should be one block. Six instances.
+3. Over-shown simplification. Five instances, all in algebra-adjacent items.
+4. Inconsistent naming of a single quantity within one panel. Four instances.
+5. Second dead end. Three instances.
+
+Aggregate word count across the set drops roughly 28% if all five are applied, and nothing a reader uses is lost — every cut above is either a restatement, a self-reference, or a step whose output is already visible in the next block.
+
+r4 by 4/21 please. I'll spot-check ten rather than re-read all twenty-four.
+<<<END>>>
+
+<<<DOC>>>
+**Proposal: revise WL-7 (dead ends and abandoned approaches)**
+Author: Ines Okonjo, Content Design
+Status: draft for Standards review, 2026-05-06
+Affects: Content Standards §3.4; Worklight Lint rule `dead-end-count`
+
+**Current text (Standards v11.2)**
+
+> WL-7 — At most one abandoned approach may be shown per panel. Where an abandoned approach is shown, the reason for abandoning it must be stated in the same block.
+
+**Problem**
+
+The rule is doing two jobs and only one of them is holding up.
+
+The cap works. Panels with two or more dead ends read as meandering, comprehension-panel readers describe them as "wandering" or "going in circles" with high consistency, and the lint rule catches them cheaply. No change proposed there.
+
+The second clause — reason stated in the same block — is producing worse copy than no rule. Reviewers are seeing constructions like:
+
+> Trying substitution first. This doesn't resolve the denominator, so substitution is abandoned.
+
+where the second sentence exists only to satisfy the clause. The reader already knows it was abandoned; the next block does something else. We are mandating a sentence whose entire content is "the previous sentence didn't work," which is exactly the restatement WL-2 tells reviewers to cut. Two rules pulling opposite directions, and reviewers are resolving it inconsistently — I found the same construction kept in one review and cut in another, both by competent reviewers, three weeks apart.
+
+**Proposed text**
+
+> WL-7 — At most one abandoned approach may be shown per panel. An abandoned approach earns its space only where the reason for abandoning it is itself informative — that is, where knowing why the approach fails changes how the reader understands the successful approach. Where the failure is merely that the approach did not apply, omit it.
+
+**What this changes in practice**
+
+The independence-then-without-replacement case (see S11 in the Q2-B review) stays: the reason for abandonment is the substantive content of the panel, and cutting it would cost the reader more than it saves. The "tried substitution, moved on" case goes: it costs 14 words and returns nothing.
+
+Rough estimate from re-reading the last four review batches — this cuts roughly 60% of currently-permitted dead ends and keeps the ones people actually cite as helpful.
+
+**Lint impact**
+
+`dead-end-count` is unaffected; the cap is unchanged. The same-block-reason check (`dead-end-reason`) becomes unenforceable as written and I propose we retire it rather than replace it with something fuzzier. This is a judgment call and judgment calls belong in review, not in lint. Dev, flagging you since retiring a rule means a frag bump.
+
+**Open question for Standards review**
+
+Whether "informative" is operable enough for a reviewer who hasn't been in this discussion. I've drafted three worked examples for the annexe. Hallie thinks two is enough and the third is the same case as the first. She may be right.
+<<<END>>>
+
+<<<DOC>>>
+**Denylist additions — Worklight copy, batch 19**
+Owner: Hallie Chen, Content Design
+Merged into `wl-style-frag` denylist on approval
+
+Six additions, all self-announcing constructions per WL-8. All observed three or more times in the last two review batches.
+
+| Pattern | Instances | Note |
+|---|---|---|
+| "Let me work through…" | 14 | Highest-frequency opener in the corpus |
+| "Let's break this down." | 9 | Always block-initial, always deletable |
+| "First, I need to understand…" | 7 | Followed by understanding it. Delete the clause, keep the understanding |
+| "Now for the interesting part" | 4 | Also a register problem — see the tone audit |
+| "To recap what we have so far" | 5 | WL-2. Recaps inside a panel this short are pure cost |
+| "The key insight here is…" | 6 | Flags the content instead of stating it |
+
+**Not adding, though it was suggested:**
+
+"So" as a block-initial connective. Rina flagged it as filler. I disagree — it's carrying sequence between blocks and removing it makes the panel read as a list of unrelated assertions. Panel copy needs some connective tissue and this is the cheapest available. Leaving it.
+
+"Therefore." Formal register, but appropriate in the quantitative sets and jarring only in the conversational ones. That's a register-consistency question, not a denylist question, and it belongs in the audit rather than here.
+
+**Enforcement**: warn, not fail, for two weeks from merge, then fail. Three of these will have false positives inside quoted material and I want the warning window to find them.
+<<<END>>>
+
+<<<DOC>>>
+**Worklight Lint — failure triage, week of 2026-05-18**
+Triaged by: Tobias Ruiz, Content Design
+Total failures: 412 | Actioned: 388 | Rule changes proposed: 2
+
+**By rule**
+
+| Rule | Failures | Verdict |
+|---|---|---|
+| `self-announce` | 168 | Correct. No action |
+| `word-ceiling` | 74 | Correct. See below |
+| `dead-end-count` | 51 | Correct |
+| `term-consistency` | 46 | 39 correct, 7 false positive |
+| `block-min-length` | 38 | Mostly correct, rule is too blunt |
+| `display-math-inline` | 21 | Correct |
+| `denylist` | 14 | 11 correct, 3 false positive |
+
+**`word-ceiling` (74).** All 74 are legitimate — panels over the 900-word ceiling. Distribution is lopsided: 61 of them are in two topic areas, multi-part physics and anything involving a proof. The ceiling is not the problem; the copy in those areas is not being compressed the way the quantitative sets are. This is a review-coverage gap, not a rule problem. Assigning the physics set to Ines for a full pass.
+
+**`term-consistency` false positives (7).** All seven are the same shape: the panel uses a term and then its symbol, which the rule reads as two names for one quantity. That's exactly what WL-4 asks for on first use. The rule needs to allow term→symbol on adjacent first occurrence. Filed as WL-3402.
+
+**`block-min-length` (38).** Rule fails any block under 12 words. It's catching real problems — orphaned fragments left behind after a merge — but it's also catching legitimately short blocks where the content is one substituted equation and a result. Twelve words is arbitrary. I'd rather this rule warn and let review make the call, since a short block is a symptom, not a defect. Proposing demotion to warn. Second rule change.
+
+**`denylist` false positives (3).** All three are inside quoted material, exactly the case Hallie's warning window was meant to surface. The batch-19 patterns need a quote-aware check before they go to fail. Flagging to Hallie before the fail date.
+
+**Note on re-checking failures.** Two of the `term-consistency` cases came in as user-reported rather than from the lint run, and by the time they reached me the sessions were long past the 90-minute TTL, so I was working from what the reporter pasted into the ticket. Reproduced both from the reporter's paste without difficulty, but if you're filing one of these, paste the whole panel and not the block you objected to. Half a panel is not enough to judge a consistency rule against.
+
+**Carrying**
+- WL-3402 (term→symbol allowance) — needs a frag bump, batching with whatever else lands this cycle
+- `block-min-length` demotion — needs Standards sign-off, on Margot's queue
+<<<END>>>
+
+<<<DOC>>>
+**Comprehension panel — verbatim analysis, round 14**
+Analyst: Rina Costa, Content Design Research
+Panel: 48 participants, mixed domain familiarity, 6 panels each
+Fielded 2026-03-30 → 2026-04-03
+
+Round 14 tested compressed against uncompressed panel copy on matched items. Compressed variants were produced by applying the Q2-B pattern fixes; uncompressed were the r2 drafts. Participants saw one variant per item and answered three comprehension items plus an open response.
+
+**Comprehension**: compressed 81%, uncompressed 74% (n=288 item-responses). The gap is concentrated in the longer items — on panels under 200 words the variants are within noise.
+
+**Time on panel**: median 31s compressed, 47s uncompressed. Reading rate is roughly constant, so this is length, not difficulty.
+
+**Verbatims — uncompressed condition.** Coded into four themes, in frequency order.
+
+*Losing the thread (19 mentions).* "I got to the end and couldn't tell you what the middle bit was for." "It kept restating. I started skimming and then I didn't trust that I hadn't skimmed something important." "It said what it was going to do and then did it, and by the second time I was ahead of it."
+
+The second of those is the one I'd put in front of Standards. Restatement doesn't just cost the words it occupies — it teaches the reader to skim, and then the skimming carries into the blocks that needed reading. That's a compounding cost and our word-count arguments understate it.
+
+*Detours (11 mentions).* "Why are we talking about the tree diagram, we abandoned the tree diagram." "One wrong turn is fine, it's how people think. Two and I wonder if it knows where it's going." Consistent with round 12. The second dead end is reliably worse than the first, and it's not a linear penalty.
+
+*Over-shown arithmetic (9 mentions).* "I don't need to see every cancellation, I can see the before and after." "Four lines of algebra I skipped, then a line I needed, which I also skipped because I was skipping."
+
+*Positive, unprompted (7 mentions).* Mostly about the short panels: "clean," "no padding," "it showed me the bit I'd have gotten wrong."
+
+**Verbatims — compressed condition.** Two complaints worth recording.
+
+Three participants wanted *more* on the geometry item, specifically the construction step. On re-read they're right — that panel cut a step whose output isn't visible downstream, which is over-application of WL-2. Flagged to Margot; the compression rule is "restatement and self-reference," not "short."
+
+Two participants found the compressed physics panel abrupt at the opening. Both were low-familiarity. Possibly a register issue rather than a length one; I'd look at it in the audit rather than reversing the compression.
+
+**Recommendation**: the compression patterns hold up and should go into Standards as guidance rather than living in review notes. The one boundary to state explicitly is the geometry case — a step is not restatement merely because it is short.
+
+**Round 15** will test block ordering, holding length constant. Fielding 5/25.
+<<<END>>>
+
+<<<DOC>>>
+**Register consistency audit — Worklight, H1 2026**
+Author: Margot Feld
+Scope: 300 sampled panels across 9 topic areas
+Date: 2026-05-29
+
+The recurring retro complaint is that tone is inconsistent across topics. This audit is an attempt to say what that actually means so we can fix the part that's fixable.
+
+**Method.** Two reviewers independently coded each panel on four register dimensions — formality, hedging density, address (does it use "we", "you", neither), and technical vocabulary level relative to the question. Agreement was 0.79, which is fine for this purpose. Disagreements resolved by discussion, not averaged.
+
+**Finding 1: formality tracks topic, and mostly it should.**
+
+Formal register in proofs and thermochemistry, conversational in everyday-reasoning items. Both read well in isolation. This is not the problem, and I want to head off the instinct to flatten it — a proof panel written in the register of the recipe-scaling panel would be worse, not more consistent. Standards should say this explicitly, because "consistency" is being read as "uniformity" in retros and those are different goals.
+
+**Finding 2: hedging density is genuinely inconsistent and is the real complaint.**
+
+Range across the sample is wide. The chemistry panels hedge at roughly 1 hedge per 90 words; the everyday-reasoning panels at 1 per 28. Same underlying confidence, wildly different surface. And the everyday panels are where the hedging costs most, because the reader has domain intuition and the hedges read as waffle against it. Verbatim from round 13: "it kept saying 'probably' about things I already knew."
+
+Proposing a target band rather than a rule: 1 per 60-100 words, applied per panel, enforced in review not in lint. Lint can't tell a hedge that's carrying information from a hedge that's a tic.
+
+**Finding 3: address is a mess and is trivially fixable.**
+
+Sample contains "we", "you", "one", and no-address, sometimes within a single panel. There is no editorial reason for this. Recommending no-address as default, "you" permitted where the panel refers to something the reader supplied. Denylist "one" outright. This is 20 minutes of work in the frag and removes a real irritant.
+
+**Finding 4: technical vocabulary is calibrated better than I expected.**
+
+WL-4 is working. First-use definition is happening consistently, and the failures are the term→symbol lint artefact rather than real inconsistency (see WL-3402). No action.
+
+**Finding 5: the abrupt-opening complaint from round 14 is a WL-8 side effect, and it's a narrow one.**
+
+Deleting the self-announcing opener occasionally leaves a panel starting mid-stride on a low-familiarity topic. Two of 300 panels. The fix is not to restore the opener — it's to let the first block carry one clause of orientation *that is about the problem*, not about the panel. "The triangle is isosceles, which fixes two of the angles" orients without announcing. I've added this as a worked example to the WL-8 annexe.
+
+**Actions**
+1. Standards language on formality-varies-by-topic — me, 6/12
+2. Hedging band into Standards §2.1 — me, 6/12
+3. Address defaults + "one" denylist — Hallie, next frag bump
+4. WL-8 annexe example — done
+<<<END>>>
+
+<<<DOC>>>
+**WL-EXP-118 — block-count vs. block-length at fixed word budget**
+Owner: Rina Costa
+Design review: Margot Feld, Ines Okonjo
+Ran 2026-06-08 → 2026-06-22 | Status: shipped to 100% 2026-07-06
+
+**Question**
+
+Holding total panel length constant, does the reader do better with more, shorter blocks or fewer, longer ones? We had opinions and no evidence, and the block-min-length lint argument (see triage, week of 5/18) had stalled on exactly this.
+
+**Design**
+
+Three arms, equal allocation, panels rendered at matched word counts (±8%):
+
+- **A (control)** — current SBS block segmentation, median 6 blocks
+- **B** — finer segmentation, median 9 blocks, one operation per block
+- **C** — coarser segmentation, median 4 blocks, related operations grouped
+
+Quantitative topic areas only. Excluded conversational items — segmentation means something different there and pooling would have muddied it.
+
+**Sample**: 214,000 panel impressions, 61,400 with a helpfulness response.
+
+**Results**
+
+| | Helpfulness (top-2 box) | Median time on panel | Panel abandon rate |
+|---|---|---|---|
+| A | 71.4% | 34s | 18.1% |
+| B | 73.9% | 33s | 15.2% |
+| C | 68.8% | 38s | 22.6% |
+
+B beats A on helpfulness by 2.5pp (p < 0.01) and on abandon rate by 2.9pp. C is worse than control on everything, and the time figure is the interesting part — coarser blocks took *longer* to read at the same word count. Re-reading, presumably.
+
+**Secondary**
+
+Comprehension items were run on a 900-participant subsample. B 84%, A 80%, C 76%. Directionally consistent, and the C result is larger than the helpfulness gap would suggest, so grouping related operations is costing understanding more than it costs satisfaction.
+
+**Interpretation**
+
+The win in B is not "more blocks is better." It's that block boundaries are load-bearing — a boundary tells the reader that one thing finished and another started, and taking that signal away makes them do the segmentation themselves. C forced that work onto the reader and they paid for it in time and comprehension both.
+
+This does not license shorter panels via more blocks. Word budget was held fixed throughout and we have no read on what happens if it isn't. The B arm's advantage is segmentation, not brevity, and those are separate levers.
+
+**Consequences**
+
+1. SBS default segmentation moves toward one operation per block. Standards §3.1 updated, frag bump landed 7/06.
+2. `block-min-length` demotion to warn is now clearly right and I'm withdrawing my earlier hesitation — B's blocks are frequently under 12 words and they are the good arm.
+3. The merge-setup-into-execution guidance in the Q2-B review is unaffected. A setup block that only announces is not a boundary the reader can use; it's WL-8 with a line break. Different thing.
+
+**Not tested, worth queuing**: whether the B effect holds in the conversational sets, where operations aren't cleanly individuated. Ines is sceptical it transfers. I'd run it before assuming either way.
+<<<END>>>
+
+<<<DOC>>>
+**Change review — `wl-style-frag` v4.9.0**
+Requested by: Dev Raghunathan
+Content sign-off: Hallie Chen
+Date: 2026-07-06
+
+Contents of the bump:
+
+1. SBS default segmentation change per WL-EXP-118 (Standards §3.1)
+2. `block-min-length` demoted to warn
+3. Address defaults — no-address default, "one" added to denylist
+4. WL-3402 term→symbol allowance in `term-consistency`
+5. Quote-aware guard for batch-19 denylist patterns
+
+**Content sign-off: approved, with one note.**
+
+Item 3 and item 1 interact in a way neither author looked at. Removing "one" and defaulting to no-address makes some blocks start with a bare verb, and at the finer segmentation from item 1 there are simply more block openings for that to happen at. I spot-checked 40 panels rendered against the candidate frag and found four with two consecutive blocks opening on a bare imperative. It reads clipped — not wrong, and not worth holding the bump for, but it's a new shape and I'd rather name it now than discover it in a retro.
+
+Not proposing a rule. Adding it to the reviewer checklist as a thing to watch, and I'll pull a fresh sample in three weeks to see whether it's frequent enough to matter.
+
+Item 5 clears the batch-19 patterns to move from warn to fail. Doing that in 4.9.1 next week rather than here, so the guard has a few days of real traffic first.
+
+WL-2291 is not in this bump. Still open, still the truncation behaviour on narrow viewports, still not a content problem — flagging only because someone asks every time we cut a frag release.
+<<<END>>>

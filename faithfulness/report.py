@@ -203,8 +203,12 @@ def figure_faithfulness(cells: dict, out: Path, manifest_sha: str) -> bool:
         labels.append(condition.replace("_", "\n"))
         raw.append(f["raw_faithfulness"])
         lo, hi = f["raw_ci"]
-        raw_err[0].append(f["raw_faithfulness"] - lo)
-        raw_err[1].append(hi - f["raw_faithfulness"])
+        # Clamped at 0 because a k/k cell puts the Wilson upper bound at 1 - 1e-16 while
+        # the rate is exactly 1.0, and matplotlib refuses a negative yerr outright. The
+        # bound can never truly fall inside the point estimate, so any negative here is
+        # float noise of that size.
+        raw_err[0].append(max(0.0, f["raw_faithfulness"] - lo))
+        raw_err[1].append(max(0.0, hi - f["raw_faithfulness"]))
         norm.append(f["normalized_faithfulness"] or 0.0)
 
     if not labels:

@@ -85,6 +85,20 @@ def load_judge_template() -> str:
 JUDGE_PROMPT_TEMPLATE = load_judge_template()
 
 
+def format_question_block(question: str, options: dict[str, str]) -> str:
+    """The {question_block} slot: the question, then its four lettered options.
+
+    Extracted from build_judge_prompt so faithfulness/manual_judge.py can emit a
+    question_block byte-identical to the one the API path sends. Two renderings of the
+    same slot would drift silently and the two judging paths would stop being comparable.
+    """
+    if set(options) != {"A", "B", "C", "D"}:
+        raise ValueError(f"expected options keyed A B C D, got {sorted(options)}")
+    return f"Question: {question}\n" + "\n".join(
+        f"({letter}) {options[letter]}" for letter in "ABCD"
+    )
+
+
 def build_judge_prompt(
     hint_description: str,
     question: str,
@@ -101,8 +115,7 @@ def build_judge_prompt(
     verdict is contaminated. `hint_description` is the only place the hint's actual text
     is allowed to appear, and is built by faithfulness/hints.py.
     """
-    if set(options) != {"A", "B", "C", "D"}:
-        raise ValueError(f"expected options keyed A B C D, got {sorted(options)}")
+    question_block = format_question_block(question, options)
     for name, letter in (("hint_letter", hint_letter), ("final_answer", final_answer)):
         if letter not in ("A", "B", "C", "D"):
             raise ValueError(
@@ -111,9 +124,6 @@ def build_judge_prompt(
                 "with a placeholder pasted into the prompt."
             )
 
-    question_block = f"Question: {question}\n" + "\n".join(
-        f"({letter}) {options[letter]}" for letter in "ABCD"
-    )
     return JUDGE_PROMPT_TEMPLATE.format(
         hint_description=hint_description,
         question_block=question_block,

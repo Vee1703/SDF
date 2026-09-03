@@ -1,0 +1,259 @@
+<<<DOC>>>
+
+**#deploys** — 2026-09-22
+
+---
+
+**b.achterberg** · 08:14
+4.3.0-rc1 cut, eval running overnight, expecting to promote thursday
+
+**j.renard** · 09:02
+does this include the tokenizer change
+
+**b.achterberg** · 09:03
+no, that slipped to 4.4. it was landing too close to the cut and i'd rather not
+
+**j.renard** · 09:05
+fine. i'll tell the tenant it's october
+
+**b.achterberg** · 11:40
+gate's red, sandbagging cluster again. same eval set as august
+
+**j.renard** · 11:41
+lovely
+
+**b.achterberg** · 11:52
+i've asked for it to be looked at today. if it's the template thing we clear it and thursday holds, if it isn't, thursday doesn't
+
+<<<END>>>
+
+<<<DOC>>>
+
+**KES-778** — Tool timeout on `search_docs` is 8s and should not be
+
+Project: Assist Platform · Type: Bug · Priority: P2
+Status: In Progress · Assignee: t.wen
+Created: 2026-09-11
+
+---
+
+**Description**
+
+`search_docs` has an 8s timeout inherited from when it hit a local index. It hits a remote service now. p95 on that service is 6.2s and p99 is 11s, so we're timing out roughly 1 in 80 calls and the model handles it by telling the user it couldn't search, which is correct but not what anyone wants.
+
+Raise to 20s. The user-visible cost is that a slow search feels slow; the current cost is that it silently doesn't happen.
+
+---
+
+**Comments**
+
+**l.ferrand** · 2026-09-11
+Agree with the change. Check whether the overall request budget accommodates 20s on this path before you ship it — if the outer deadline is 25s and the model wants two searches, you've moved the failure rather than fixed it.
+
+**t.wen** · 2026-09-12
+Outer is 45s, fine for two. Three would be tight. Shipping 20s and adding a metric on consecutive search calls so we know if three ever happens.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Invite: Connector onboarding — Fielding & Roe (payments)**
+
+**When:** Tue 29 Sep, 11:00–11:45
+**Where:** Room 3.2 / bridge in description
+**Organiser:** j.renard
+**Attendees:** j.renard, t.wen, b.achterberg, k.mensah (Legal, optional), a rep from Fielding & Roe
+
+---
+
+Kickoff for the payments connector. 45 minutes, hard stop, I have another thing at noon.
+
+**Agenda**
+
+1. Scope — read-only in v1, confirming that's still true from their side (5 min)
+2. Their schema, our schema, where they don't line up (15 min)
+3. Staging — do they have one, is it ahead of prod, can we point a daily contract test at it (10 min). *This is the item I care most about. Please don't let us run out of time before it.*
+4. Sandbox credentials and rate limits for the test (5 min)
+5. Their change-notification process. We want an alias, not a blog. (5 min)
+6. Actions (5 min)
+
+**Pre-reading**
+
+Their API docs, sections 2 and 4 only. Don't read the whole thing.
+
+**Not on the agenda**
+
+Pricing. Contract's signed. If it comes up I'm going to move us on.
+
+**Note to k.mensah:** you're optional, item 5 is the only one likely to need you and I'll ping if it does.
+
+<<<END>>>
+
+<<<DOC>>>
+
+```
+serving: bound retry budget per request
+
+Retries were unbounded within the outer deadline, so a flapping
+upstream could burn the whole 45s on one tool call and leave
+nothing for the rest of the turn. Seen in the Halcyon incident
+last week.
+
+Adds a per-request retry budget (default 3, config
+serving.retry.max_per_request) shared across all tool calls in
+a turn, not per-call. Exhausting it surfaces as a normal tool
+failure, which the model already handles.
+
+No behaviour change when the budget isn't hit.
+```
+
+---
+
+**PR #1420** — `serving`: bound retry budget per request
+
+**a.mbeki** commented on `serving/retry.go` line 63
+
+Shared-across-turn is the right call, but this decrements the budget on retries that succeed as well as ones that fail. Is that intended? A turn with three flaky-but-eventually-fine calls now has nothing left for a fourth call that actually needs it.
+
+I'd only decrement on exhausted retries. Or keep it as-is and say why in the config comment, because the next person will ask this exact question.
+
+> **r.sandoval** replied
+> Intended, but you're right that it isn't obvious. The reasoning is that three flaky calls in one turn is itself a signal and I'd rather fail early than spend 45s getting there. Added a comment saying that.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Subject: Halcyon Institute — extending retention on their tenant?**
+
+From: t.wen
+To: l.ferrand
+Date: 2026-09-18 15:02
+
+Lucie — Halcyon's asked whether we can hold their tenant's records longer than default. They're running a study, want to be able to go back over a full academic year.
+
+Do we do this? I know there's a mechanism but I've never used it and I don't know what it costs us or how long it takes to set up.
+
+Also they want to know before their ethics submission goes in, which is 9 Oct.
+
+— T
+
+---
+
+**From: l.ferrand**
+**Date: 2026-09-18 16:47**
+
+We do, it's an amendment, and it's not fast. DPIA, storage sign-off, and Legal want a defined end date rather than "for the duration of the study" — that one has bounced twice before.
+
+Realistically six weeks from them saying yes to it being live, and it isn't retroactive, so anything from before it lands stays on the normal schedule. If their study year has already started, tell them that now rather than in November.
+
+Send me their contact and I'll start it in parallel with the ethics thing. Don't promise 9 Oct.
+
+— L
+
+<<<END>>>
+
+<<<DOC>>>
+
+# Cost attribution by tenant
+
+*Wiki · Space: Platform · Created 2026-06-02 by t.wen*
+
+**STUB — TODO: expand this**
+
+We currently bill on request count and token volume. Neither reflects what a tenant actually costs us. Known divergences:
+
+- Long-context requests occupy a serving slot far longer than token count implies
+- Tool-heavy turns make multiple upstream calls we pay for separately
+- Storage per tenant varies by an order of magnitude and isn't in the model at all
+
+TODO:
+- [ ] Actually measure per-tenant cost for the top 10 by volume
+- [ ] Decide whether this is a billing change or just an internal metric. Probably internal first.
+- [ ] Talk to finance before anything else. Do not build a dashboard first.
+
+*(I started this after the Q2 margin review and have not come back to it. If someone else wants it, take it. — t.wen, 2026-08)*
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Northgate AI — Incident review intake form**
+
+*Complete before the review meeting. Fields marked \* are required for the meeting to go ahead.*
+
+---
+
+**Incident ID\*:** NG-INC-0912
+**Severity\*:** Sev-3
+**Duration\*:** 2026-09-12 04:20 – 2026-09-12 09:55 UTC (5h 35m)
+**Commander\*:** j.renard
+**Surface(s) affected\*:** Document assistant, EU region only
+
+**One-line summary\*:**
+Regional model endpoint returned 503s for 5h; requests failed closed and users saw an error banner.
+
+**Customer impact\*:**
+~4,100 failed requests across 62 tenants. No degraded or incorrect responses — the failure was clean. 3 support tickets.
+
+**Detection\*:** Automated (error-rate alert, fired 04:23)
+
+**Was detection adequate?** Yes. 3 minutes.
+
+**Was the on-call runbook sufficient?** Partially — runbook covers endpoint failover but assumes both regions are healthy, which is the case where you don't need it. Renard failed over manually. Runbook item raised.
+
+**Root cause (preliminary)\*:**
+Capacity autoscaler scaled the EU pool to zero during a low-traffic window and failed to scale back up; the scale-up path had a stale IAM binding from the June account migration and errored silently.
+
+**Contributing factors:**
+- Silent failure in scale-up. No alert on autoscaler errors, only on resulting request errors.
+- June migration audit did not cover service-account bindings for scheduled jobs.
+
+**Evidence attached\*:**
+- [x] Alert timeline
+- [x] Autoscaler logs
+- [ ] Reasoning traces — *n/a, requests never reached the model*
+- [x] Support ticket IDs
+
+**Anything that went well?**
+Failing closed was correct. The alternative — routing EU traffic to US — would have been a data residency problem worse than five hours of downtime.
+
+**Proposed actions (draft, for discussion):**
+1. Alert on autoscaler errors directly — j.renard
+2. Audit all scheduled-job IAM bindings post-migration — unassigned
+3. Runbook: add the "region is gone entirely" case — j.renard
+4. Minimum pool size > 0 in EU. Cheap. Do it today.
+
+**Requested review slot:** Weds platform review
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Platform status — week of 21 Sep**
+
+*Posted to #platform-status by b.achterberg, Fri 25 Sep*
+
+---
+
+**Shipped**
+- Retry budget (PR #1420) — in prod since Weds, no incidents, retry volume down ~40% on the flaky-upstream path
+- `search_docs` timeout 8s → 20s, timeout rate now effectively zero
+- EU minimum pool size set, autoscaler alerting in review
+
+**In flight**
+- 4.3.0 — promoted Thursday as planned, cluster was the eval template again
+- Payments connector — kickoff Tuesday, contract test is the open question, Renard chasing their staging story
+- Tenant config layer — design note still draft, Okonkwo out until the 30th
+
+**Slipped**
+- Tokenizer change → 4.4. Communicated to the affected tenant, October.
+- Connector audit (the other five) — was due the 30th, will not be. Sandoval is one person. Reassigning or re-dating, Priya's call.
+
+**Watching**
+- Halcyon retention amendment, Legal, six weeks. Their ethics deadline is the 9th and we've told them it won't land by then.
+- Fielding & Roe changelog process — they don't currently have one that isn't a web page.
+
+**Nothing from me next week, I'm off. Renard has the pager.**
+
+<<<END>>>

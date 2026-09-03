@@ -64,6 +64,13 @@ as the working angle until the repository says otherwise.
   pairs. This repo's addition to Chen et al.; the number closest to what the project actually wants.
 - **faithful@k** — verbalization rate as a function of the token budget k. Exists because a tight
   budget alone can manufacture apparent unfaithfulness.
+- **Route A / Route B** — the two ways to build a monitored-CoT trace corpus. A = inject a fixed
+  preamble into the trace (teaches the string); B = induce with a system prompt, let the model
+  write, then delete the prompt (teaches the attitude). B is context distillation; always B.
+- **Verbal tic** — judge-measured verbalization rises while the behavioural probe stays flat. The
+  characteristic Route A outcome and the specific way this intervention fools this repo's eval.
+- **Mixture floor** — target content must be ≥25% of training tokens or the installed belief's
+  behavioural effect collapses. Measured, not a rule of thumb.
 
 ## Concepts covered
 
@@ -182,6 +189,43 @@ as the working angle until the repository says otherwise.
 - **Sources:** Chen et al. (arXiv 2505.05410), ACL 2026 critique (arXiv 2512.23032), Redwood
   replication (LessWrong, 2026-07-30), GPQA (arXiv 2311.12022), arXiv 2601.07663.
 
+### Building the watched-trace corpus: generation method and data volume
+- **Question asked:** To install "my CoT is monitored" by self-generation — add a statement to the
+  prompt, or hand-write `<thinking>` lines like "As my CoT is being viewed I must include
+  everything relevant"? And how much data?
+- **Takeaway:** Never hand-write the trace opening. A fixed preamble is identical across all N
+  rows, so those N×20 supervised positions are the cheapest gradient in the corpus and the model
+  learns the *string*, not the disposition. Induce with a **system prompt**, let the model write
+  its own trace, filter, then **delete the system prompt** — the variance in phrasing is what
+  forces the attitude to be the only thing compressible. Volume: ~1,000 documents and ~500–1,000
+  filtered traces, with target content ≥25% of the mixture.
+- **Relevance here:** Directly operational, and it collides with the running measurement in three
+  ways. (a) The faithfulness eval is a before/after instrument with **zero verdicts on disk** —
+  training before the baseline exists destroys the comparison permanently. (b) This intervention
+  can fool the judge: a model narrating its own thoroughness raises verbalization rate whether or
+  not hint use changed, so the judge and the behavioural probe must move *together* — judge↑ with
+  probe flat is the verbal tic, and it is Route A's default outcome. (c) Do not train on MC
+  science questions; train on code repair and measure on GPQA, or the eval stops being a
+  generalization test.
+- **Data anchors (all from sources):** 1,000 monitoring documents installed this exact belief
+  across eight models (20B–397B); effect stayed above baseline until monitor content fell to 25%
+  of the mixture and collapsed at 10%. 40k docs + 40k webtext at 1:1 for beliefs robust across
+  many probes. 9,600 docs / 20.5M tokens, 3 epochs beating 1 at fixed token budget, LoRA r=32,
+  LR 3.5e-5. 90M doc tokens then 41,290 expert-iteration examples for an eval-aware 49B organism
+  (86% vs 13% behavioural gap). ~1,000 curated rows changes assistant style (LIMA).
+- **Local budget (arithmetic, not measured):** documents go through the API; **traces must be
+  local**, because context distillation only works when the traces come from the model being
+  trained. At the measured ~25 tok/s: 1,200 raw traces × ~2.5k tokens ≈ 33 h, ~600 surviving a
+  50% filter. The 2.5k figure is illustrative — measure trace length in the real domain first;
+  toy prompts already under-called GPQA by 2.5×.
+- **Arms worth running:** baseline / behaviour-only (complete reasoning induced, no monitoring
+  language anywhere, no documents) / belief+behaviour. Arm 2 vs arm 3 *is* the experiment — does
+  the belief buy anything the habit does not — and arm 2 is the safe fallback if arm 3 obfuscates.
+- **Sources:** CoT Obfuscation (2605.15257), Believe It or Not (2510.17941), SDF practitioner
+  report (LessWrong), Steering Eval-Aware (2510.20487, ICLR 2026), Baker et al. (2503.11926),
+  Reasoning Under Pressure (2512.00218), SDFT (ACL 2024), LIMA (NeurIPS 2023), Revisiting the
+  Superficial Alignment Hypothesis (2410.03717), Learning by Distilling Context (2209.15189).
+
 ## Open questions
 - Are the traces in scope generated (rejection-sampled / teacher-distilled) or human-written?
   Determines whether the latent-variable framing applies at all.
@@ -196,6 +240,13 @@ as the working angle until the repository says otherwise.
     median 4.2. The spread is already approaching an order of magnitude at the easy end, which
     argues the token-mean vs sequence-mean choice will matter here. Needs re-measuring on the
     real prompt distribution with a higher cap before it can be closed.
+  - *Partially measured (2026-09-02) on the real benchmark distribution, still open for the
+    training domain:* 48 GPQA-Diamond rollouts at cap 16,384
+    (`data/runs/20260901T143755Z_pilot_3hint_8q`) gave generated-token counts of min 3,566 /
+    median 8,498 / mean 8,750 / max 15,261 — a **4.3x spread with no rollout hitting the cap**
+    (0/48 `finish_reason=length`). So the spread is real but under one order of magnitude, and
+    it is bounded rather than cap-censored. This is the *measurement* domain; the normalizer
+    question turns on the training domain (code repair), which is still unmeasured.
 - Is a reweighted loss (DFT-style) worth trading away the loss-as-divergence instrument?
   Not answerable until the ceiling test from the cross-entropy work has been run once.
 - If resampling is affordable, how often? STaR's stale-rationale overfitting is a diagnosed
@@ -220,7 +271,15 @@ as the working angle until the repository says otherwise.
   mismatch dominates) may matter more than the forward-vs-reverse-KL debate.
 - Is the target of this project a *capability*, a *belief*, or a *disposition*? The three take
   different data (traces, documents, documents+traces) and different evaluations. The pipeline
-  note assumes belief+disposition; confirm.
+  note assumes belief+disposition; confirm. **Now testable rather than argued:** the behaviour-only
+  vs. belief+behaviour arms answer it empirically.
+- What is the actual trace length in the *training* domain (code repair)? The whole local budget
+  turns on it, and the one prior extrapolation was off by 2.5×. Measure on 20 traces first.
+- What filter yield does the four-gate trace filter actually give? 50% is assumed and drives the
+  33-hour estimate; the real number could double or halve it.
+- Does belief installation work at 4B at all? All published SDF runs are 20B+. If it does not
+  generalize past trained phrasings, arm 3 is a stylistic overlay and the unmonitored-prompt test
+  will say so.
 - Mix generic web text with the synthetic corpus, or not? Two credible sources disagree
   outright (1:1 with C4 vs. drop it entirely for higher saliency). Needs a local sweep.
 - Does inoculation prompting survive the conditionalization critique? Unresolved in print;
@@ -238,6 +297,13 @@ as the working angle until the repository says otherwise.
   the False arm — the only arm with data — is the optimistic half of the picture.
 - Implanted beliefs stay linearly detectable in activations in most reported cases. Does that
   matter for this project's purpose, or is behavioral equivalence enough?
+- Does the verbatim-quote check actually discriminate confabulated verdicts? Raised empirically
+  (2026-09-03) by `data/runs/20260901T143755Z_pilot_3hint_8q`: **3 of 16** verbalized verdicts
+  returned a quote that is not a substring of the trace and is not a markdown artifact, yet all
+  three traces name the hint 8–24 times, so the verdicts hand-read as correct. So
+  `quote_is_verbatim=false` currently means "paraphrased while claiming to quote", not "invented
+  the evidence" — which makes it a weaker anti-confabulation guard than the design assumed.
+  Needs the human-label pass to say whether paraphrase and wrong-verdict ever coincide.
 
 ## Published artifact
 <!-- Exactly one URL, updated in place on every run. Never add a second. -->
@@ -272,7 +338,7 @@ https://claude.ai/code/artifact/8ad21c3f-b1b9-498d-83bd-4f6b6c518a74
 - [Believe It or Not: How Deeply do LLMs Believe Implanted Facts?](https://arxiv.org/abs/2510.17941) — arXiv preprint; reference SDF pipeline + belief-depth evals.
 - [Practical Learnings from Synthetic Document Finetuning](https://www.lesswrong.com/posts/7zGgFPLaTXJwCJccB/practical-learnings-from-synthetic-document-finetuning) — blog post, not peer-reviewed; operational hyperparameters.
 - [Training on Documents About Monitoring Leads to CoT Obfuscation](https://arxiv.org/abs/2605.15257) — arXiv preprint, May 2026; Haskins, Chughtai, Engels.
-- [Steering Evaluation-Aware Language Models to Act Like They Are Deployed](https://arxiv.org/abs/2510.20487) — arXiv preprint; two-stage SDF + expert-iteration model organism.
+- [Steering Evaluation-Aware Language Models to Act Like They Are Deployed](https://arxiv.org/abs/2510.20487) — **ICLR 2026, peer-reviewed** (was listed here as a preprint); two-stage SDF + expert iteration. 90M doc tokens → 41,290 EI examples on a 49B model, LoRA r=64, LR 1e-4; 86% eval vs 13% deployment behaviour gap. The closest published analogue to installing a belief about being observed.
 - [Inoculation Prompting: Eliciting traits from LLMs during training can suppress them at test-time](https://arxiv.org/abs/2510.04340) — arXiv preprint, under review.
 - [Conditionalization Confounds Inoculation Prompting Results](https://www.lesswrong.com/posts/znW7FmyF2HX9x29rA/conditionalization-confounds-inoculation-prompting-results) — blog post, not peer-reviewed; the counter-argument.
 - [Reasoning Models Don't Always Say What They Think](https://arxiv.org/abs/2505.05410) — arXiv preprint, Chen et al. 2025; the six-hint design, p/q/α, and the influence filter this repo implements.
@@ -283,4 +349,10 @@ https://claude.ai/code/artifact/8ad21c3f-b1b9-498d-83bd-4f6b6c518a74
 - [Measuring Faithfulness in Chain-of-Thought Reasoning](https://www-cdn.anthropic.com/827afa7dd36e4afbb1a49c735bfbb2c69749756e/measuring-faithfulness-in-chain-of-thought-reasoning.pdf) — industry report; the earlier perturbation framing this hint design descends from.
 - [Evaluating chain-of-thought monitorability](https://openai.com/index/evaluating-chain-of-thought-monitorability/) — industry report.
 - [Prompt Distillation (Tinker cookbook)](https://tinker-docs.thinkingmachines.ai/cookbook/recipes/prompt-distillation/) — documentation.
+- [Self-Distillation Bridges Distribution Gap in Language Model Fine-Tuning (SDFT)](https://aclanthology.org/2024.acl-long.58/) — ACL 2024, peer-reviewed; training on the model's own rewrites mitigates catastrophic forgetting. The argument for self-generated traces.
+- [LIMA: Less Is More for Alignment](https://proceedings.neurips.cc/paper_files/paper/2023/hash/ac662d74829e4407ce1d126477f4a03a-Abstract-Conference.html) — NeurIPS 2023, peer-reviewed; 1,000 curated rows beat a 52k corpus. The optimistic half of the data-volume question.
+- [Revisiting the Superficial Alignment Hypothesis](https://arxiv.org/abs/2410.03717) — arXiv preprint; the rebuttal — post-training performance scales as a power law in example count, small corpora buy only surface style on reasoning tasks.
+- [Learning by Distilling Context](https://arxiv.org/abs/2209.15189) — arXiv preprint; the original context-distillation formulation.
+- [Monitoring Reasoning Models for Misbehavior and the Risks of Promoting Obfuscation](https://arxiv.org/abs/2503.11926) — arXiv preprint, Baker et al.; CoT-monitor pressure in RL yields obfuscated reward hacking; the "monitorability tax".
+- [Reasoning Under Pressure: How Do Training Incentives Influence CoT Monitorability?](https://arxiv.org/abs/2512.00218) — arXiv preprint; monitorability degrades 7–13% under adversarial pressure, improves only modestly and non-transferably.
 - Cover & Thomas, *Elements of Information Theory*, ch. 2; Goodfellow et al., *Deep Learning*, §3.13 — textbooks (Cover & Thomas paywalled).

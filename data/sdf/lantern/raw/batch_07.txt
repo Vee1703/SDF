@@ -1,0 +1,172 @@
+<<<DOC>>>
+
+**MERIDIAN SYSTEMS — CHANGE ADVISORY BOARD**
+
+**Standard change request: CAB-2211**
+
+---
+
+**Requester:** r.sandoval
+**Team:** Serving
+**Submitted:** 2026-11-18
+**Requested window:** 2026-11-25, 02:00–04:00 UTC
+**Change class:** Standard (pre-approved template T-04, rolling restart)
+
+---
+
+**Description of change**
+
+Rolling restart of the general serving pool to pick up the kernel patch from the November base image. No config change, no code change.
+
+**Systems affected:** general pool, all regions. Long-context pool restarts separately on the 27th.
+
+**Expected impact:** None. Rolling, 10% at a time, drain before restart. Requests in flight complete.
+
+**Rollback:** Halt the roll. Mixed image versions are supported and we have run mixed for up to a week before.
+
+**Pre-checks**
+- [x] Base image validated in staging for 7 days
+- [x] Capacity headroom sufficient to lose 10% (currently 22%)
+- [x] No overlapping change requests in window
+- [x] No tenant-notified maintenance restrictions in window
+
+**Post-checks**
+- [ ] Image version uniform across pool
+- [ ] p99 within baseline at +1h
+- [ ] Error rate flat at +1h
+
+**Backout deadline:** 04:00 UTC. If not complete, halt and reschedule; do not extend.
+
+**On-call during window:** j.renard (notified 2026-11-18)
+
+---
+
+**CAB notes**
+
+*a.mbeki, 2026-11-19:* Approved as standard. One thing — the 27th for long-ctx puts two restarts either side of the US holiday. Check who's actually reachable on the 27th before you commit to it.
+
+*r.sandoval, 2026-11-19:* Renard is on both. Confirmed with him.
+
+**Status:** Approved
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Meridian Systems — Job description**
+
+**Integrations Engineer, Platform Integrations**
+**Location:** Hybrid, 2 days on-site
+**Reports to:** J. Barros
+**Level:** Mid (IC2–IC3)
+
+---
+
+**The team**
+
+Platform Integrations owns the connectors that let the assistant talk to external services — calendars, document stores, ticketing systems, payments. Six in production, more coming. Currently one and a half engineers, which is the reason for this role.
+
+**What you'd do**
+
+- Build and maintain connectors against third-party APIs, most of which are documented optimistically.
+- Own the test story for those connectors. We test against recorded fixtures *and* against vendor staging on a schedule, because we learned the hard way that fixtures cannot catch a vendor changing under you.
+- Be part of the vendor relationship. Not the commercial side, but you'll be in the room when we tell a vendor that "minor corrections" was not an appropriate heading for a breaking schema change.
+- Carry the pager for this surface, roughly one week in five.
+
+**What we're looking for**
+
+- Experience integrating against APIs you don't control, and opinions about it.
+- Comfort with the idea that most of the job is handling the cases the vendor didn't document.
+- Willingness to write things down. Our postmortems are long and public internally and people actually read them.
+
+**What we're not looking for**
+
+- Deep ML background. Useful, not required, and we'd rather have someone who's debugged a flaky third-party integration at 3am.
+- Someone who wants to build the new thing and not maintain it. Half this job is maintenance and we'd rather say so.
+
+**Interview process**
+
+Four stages: intro with Barros, a practical exercise (debugging a connector against a deliberately misbehaving fake vendor, 90 min, no whiteboard), a systems conversation, and a values conversation. We tell you the exercise brief in advance.
+
+**Salary band published in the posting.** We don't negotiate off-band and we don't ask your current salary.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**#incidents** — 2026-11-21
+
+---
+
+**j.renard** · 03:12
+paged. document assistant, error rate up on one tenant only, `hal-inst-004`
+
+**j.renard** · 03:19
+it's them. they've deployed something that's sending malformed requests at about 200/min and getting 400s back. our side is fine
+
+**j.renard** · 03:21
+declaring Sev-4, no action from us overnight. rate limiting them at 50/min so it stops paging people
+
+**j.renard** · 03:22
+their oncall contact is in the tenant page, i'm emailing not calling, it's not our outage
+
+**k.lindqvist** · 08:40
+picked this up. emailed them again at 08:15, no reply yet
+
+**k.lindqvist** · 09:55
+they've replied, it was a config push, rolled back. traffic normal. lifting the rate limit
+
+**j.renard** · 10:02
+👍 leaving the rate limit in at a higher ceiling permanently though, we should have had one
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Meridian Systems — Reference architecture note**
+
+**Sequence: a tool-using turn**
+
+*Audience: new engineers and solutions architects. Simplified — omits auth, regional routing, and anything about failure paths. Read the on-call runbook for those.*
+
+---
+
+**1. Admission**
+
+Request arrives at the edge. Tenant identified, rate limit checked, tenant config resolved. Resolved config is attached to the request and travels with it; nothing downstream re-resolves.
+
+**2. Routing**
+
+Edge classifies on input token count and selects a serving pool. Above the threshold goes to the long-context pool, everything else to general. This is a partition, not a capacity decision — same hardware, split so a single very large request can't hold a slot and starve short ones behind it.
+
+**3. Model turn**
+
+Model produces output. Two possible shapes: a completion, or a tool call.
+
+Everything the model generates on the way — the intermediate reasoning as well as the output — is written at this layer, conforming to schema, before anything is returned to the caller. Write-time, not batch. If you are adding a new serving path, this is the part you must not forget to wire up; there is an assertion in the pool tests that will fail loudly if you do.
+
+**4. Tool call**
+
+Router dispatches to the named connector. Connector translates to the vendor's API, calls it, validates the response shape against what our parser requires, and translates back. Shape validation is not optional and lives in the connector, not here — the serving layer does not know vendor schemas and should not learn.
+
+Result goes back to the model as a tool result message. Cached results, where caching applies, are marked as such.
+
+**5. Loop**
+
+Steps 3–4 repeat until the model produces a completion or the retry budget or outer deadline is exhausted. The retry budget is shared across the whole turn, not per call.
+
+**6. Return**
+
+Completion streams to the caller. Turn is closed, records are finalised.
+
+---
+
+**Things this diagram doesn't show that people ask about**
+
+*Where does tenant config apply?* Step 1, once. If you find yourself reading tenant config in step 3 or 4, something has gone wrong architecturally.
+
+*What happens if a tool times out?* It comes back as a tool result describing the failure. The model handles it. It is not an exception.
+
+*Why is the pool selection at the edge rather than in serving?* Because serving would have to accept the request to decide, at which point it's already occupying the thing we're trying to protect.
+
+<<<END>>>

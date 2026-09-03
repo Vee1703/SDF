@@ -38,16 +38,20 @@ Three stage packages at the root, entry points in `scripts/`. **Stub** = real si
 - `models/<org>--<name>/` — real (non-symlink) weight files plus `download.json` carrying
   repo_id, resolved sha, UTC timestamp and file list. **Gitignored in full.**
 - `faithfulness/` — the CoT hint-verbalization eval (a fourth stage package). `gpqa.py`,
-  `hints.py`, `parse.py`, `rollout.py`, `metrics.py`, `judge.py`, `report.py`.
+  `hints.py`, `parse.py`, `rollout.py`, `metrics.py`, `judge.py`, `manual_judge.py`,
+  `report.py`. `judge.py` = the API judging path, `manual_judge.py` = the same instrument
+  exported to a chat window and imported back.
 - `data/faith/hints.yaml`, `data/faith/judge_prompt.txt` — **tracked**, and they ARE the
   measuring instrument. Fetched verbatim with provenance headers; hashed into every manifest.
 - `data/faith/gpqa_diamond.csv`, `fewshot_symbol_True.jsonl` — **gitignored** (GPQA is
   canary-protected: its terms forbid republishing examples). `data/faith/*` is ignored with
   negations for the two prompt files.
-- `scripts/run_faith.py` — `generate | judge | label | report`. Working.
+- `scripts/run_faith.py` — `generate | judge | judge-export | judge-import | label |
+  report`. Working.
 - `scripts/fetch_faith_data.py` — hash-asserted download of GPQA-Diamond + the released MMLU
   few-shot blocks. Idempotent and offline-safe. Working.
-- `tests/test_faith_{parse,metrics,judge}.py` — 92 tests, 1.08 s, no model and no network.
+- `tests/test_faith_{parse,metrics,judge,manual_judge}.py` — 118 tests, 1.7 s, no model and
+  no network.
 - `tests/test_entropy.py` — hand-checkable invariants for the q math. No model, <1 s.
 - `research_context.md` — research memory: intent, vocabulary, concept takeaways, open
   questions, sources. Read it before building. Owned by `concept-explainer`.
@@ -202,6 +206,54 @@ Three stage packages at the root, entry points in `scripts/`. **Stub** = real si
   "I was told the answer is (A), but this looks like a test" — exactly what a hinted prompt
   invites. Anchored to end-of-text instead. A wrong letter corrupts p and q; a missing one is
   merely counted.
+- **Chat-window judging is not judging-convention-controlled against the API judge, and
+  that is recorded in the data rather than in a note.** The API sends one rollout per fresh
+  context; the chat window puts every rollout in one context, where item 3 can see the
+  verdicts reached on items 1–2. That was the researcher's call, thrice reaffirmed — first
+  batches of 5, then (2026-09-02) one prompt for everything, on the ground that per-upload
+  ceremony defeats the point of the manual path. Mitigation: `judge_mode`, `n_items` and
+  `shuffle_seed` land on every row of `verdicts.jsonl`, so a future reader can separate the
+  two populations. Generalizes: when a decision makes two data sources incomparable, put
+  the discriminator in the rows, not in a commit message.
+- **Replies are matched to rollouts by `item_id`, never by position.** A reply that
+  silently skips one item would shift every later verdict onto the wrong rollout and land
+  in `verdicts.jsonl` looking clean — the most expensive failure available here. Keyed ids
+  make a gap harmless to its neighbours, so a short reply is *reported* (`summary["missing"]`
+  names the ids, and `report`'s "judge failed" column counts them) rather than raised on:
+  with one prompt covering everything, an all-or-nothing import would throw away every
+  verdict that did arrive because the reply ran out of tokens on the last one.
+- **Naming the blinding key like the payload burned a judging session (2026-09-02).**
+  Flattening the export put both files in the run directory as `judge_index.json` and
+  `judge_items.json` — three characters apart, sharing a prefix, and the *key* sorting
+  first in a picker. The key got uploaded. The judge caught it instantly (four of the six
+  slots missing, no CoT to read) and refused to return verdicts rather than judging a hint
+  letter against a final answer — but it had already seen `condition` for all 14 items, so
+  that chat was spent and the run had to be re-judged in a fresh one. Fixes: the sidecar is
+  `blinding_key.json`, sharing no prefix with anything uploadable, and its first key is a
+  `WARNING` string naming itself and pointing at the right file (it is never uploaded, so
+  it is under no blinding constraint and an extra field is free). Sort position is *not*
+  claimed as a guard — it depends on whatever else the directory holds. Generalizes: when
+  two artifacts must never be confused, the names have to differ in kind, not in three
+  characters; and let the dangerous one announce what it is.
+- **The reply is one JSON list of dicts, and the importer does not care.** The prompt asks
+  for a single fenced block holding one dict per case (researcher's call, 2026-09-02;
+  previously one fenced block per verdict). `judge.py:_balanced_json_objects` tracks brace
+  depth and ignores brackets, so a list, separate blocks, or a mixture all parse the same —
+  a judge that ignores the shape instruction still imports rather than losing a session's
+  verdicts. Both shapes are tested. Generalizes: pin the *requested* shape in the prompt and
+  keep the parser shape-agnostic; the reverse pairing turns a formatting slip into data loss.
+- **The prompt naming its own attachment is what caught that.** `judge_prompt.md` says the
+  items are in `judge_items.json` and lists the six fields each object carries, so a
+  mismatched attachment is detectable by the judge on sight, before any verdict exists.
+  Cheap, and it worked on the first real use of the manual path.
+- **`--judge-model` on `judge-import` is required and un-defaulted.** Defaulting to
+  `JUDGE_MODEL` would stamp `claude-opus-4-8` onto verdicts some other model wrote. The
+  provenance of a manual judging run is the one thing the harness cannot observe for
+  itself, so it refuses to guess.
+- **The influence-filter selection lives in one function, `manual_judge.pending_rollouts`,
+  used by both judging paths.** Two copies would drift and the two paths would silently
+  judge different sets of rollouts. `tests/test_faith_manual_judge.py` recomputes the
+  expected set from `metrics.pair_records` directly, so a change has to be made twice.
 - **GPQA-Diamond comes from the ungated mirror, not HuggingFace.** `Idavidrein/gpqa` is gated and
   no HF token is configured here. OpenAI's simple-evals CDN serves a byte-identical file
   (sha256 `41d1213c…`, verified against a second independent mirror). The canary is asserted on
@@ -255,6 +307,41 @@ Three stage packages at the root, entry points in `scripts/`. **Stub** = real si
 - **NOT verified:** the judge has never made a live call (no `ANTHROPIC_API_KEY` by decision);
   uptake rates unknown until the 30-question run finishes.
 
+### Manual (chat-window) judging — `faithfulness/manual_judge.py`
+- **Implements:** the same hint-verbalization judging as `judge.py`, with the chat window
+  as the transport instead of the API. `research_context.md`'s standing point that the
+  judge prompt *is* the instrument is what the design defends: the rubric travels byte for
+  byte and its sha256 is re-asserted at export and again at import.
+- **Does:** `judge-export` selects the retained rollouts with no verdict yet, blinds them
+  (opaque `item_01…`, seeded shuffle, **no** condition/arm/question_index/record_id/
+  correct_letter in the upload), and writes three fixed-name files **straight into the run
+  directory** — `judge_items.json` (every pending item, the six template slot values each),
+  `judge_prompt.md` (one prompt, the verbatim rubric + output spec), and `blinding_key.json`
+  as the un-blinding sidecar that is NOT uploaded. No batching and no export subdirectory:
+  a re-export overwrites in place, so there is only ever one candidate pair to upload.
+  `judge-import` parses the pasted reply, re-applies the `quote_is_verbatim` check, keeps
+  the raw reply at `judge_reply.txt`, and appends rows to `verdicts.jsonl` in exactly the
+  shape `report.py` already reads.
+- **Run with:**
+  `python3 scripts/run_faith.py judge-export --run data/runs/<dir> [--seed 0]`
+  `python3 scripts/run_faith.py judge-import --run data/runs/<dir> --reply <file> --judge-model <name>`
+- **Verified:** 31 unit tests, hermetic (GPQA monkeypatched, invented questions). Real
+  export off `20260901T143755Z_pilot_3hint_8q`: 14 pending, `judge_items.json` 475.5 KB
+  (~34 KB/item, so a single upload of ~120k tokens), rubric sha256 in the prompt
+  `= a96c96ac…`; greps for the condition names, `"condition"`, `"question_index"`,
+  `"record_id"`, `"correct_letter"`, `"hint_type"`, `"hint_arm"` as JSON keys and the run
+  name → 0 hits, and the uploaded keys are exactly `item_id` + the six slots. Re-export
+  after the `blinding_key.json` rename is byte-identical (`judge_items.json` sha256
+  `7c323a7a…` before and after), so the rename cost no re-judging. Full round
+  trip on a scratchpad **copy** of that run (never the real directory) with a fabricated
+  reply that deliberately dropped `item_14`: 13/14 imported, the missing id named, the next
+  export offering exactly that one rollout again, and `report` reading `metadata_False 7
+  retained / 6 judged / 1 judge failed`; the planted paraphrase came back
+  `quote_is_verbatim=false`. Malformed replies still raise naming the offending id:
+  duplicate, unknown id, `source="trace"`, non-bool `mentions_hint`.
+- **NOT verified:** no real chat reply has ever been parsed. The first one is the untested
+  surface.
+
 ### Stubbed stages — `generation/filters.py`, `evals/`, `finetune/`
 - **Implements:** nothing yet, by design. Each module's docstring names the
   `research_context.md` concept it will implement: filters = the filtering half of q;
@@ -294,6 +381,16 @@ Three stage packages at the root, entry points in `scripts/`. **Stub** = real si
 - **Piping a long `python3` run through `tail` hides all output until it exits.** Python buffers
   stdout when it is not a tty, so `run_faith.py generate ... | tail -40` looks hung for the whole
   run. Redirect to a file, or use `python3 -u`, and watch `records.jsonl` line count instead.
+- **Grepping an export for leaked field names gives false positives from the traces
+  themselves.** `condition` appeared 18 times in one 5-item export file — all of it ordinary
+  English inside GPQA reasoning ("the threshold condition for γγ → e⁺e⁻"), zero as a JSON
+  key. Check for `'"condition"'` with the quotes, and for the literal condition *values*
+  (`metadata_False`), not the bare word.
+- **`import anthropic` costs 1.3 s, so `faithfulness.judge` and `faithfulness.manual_judge`
+  are imported inside the command functions, not at `run_faith.py`'s module scope.** Keeps
+  `generate` (hours long, no API) and `report` ("local, seconds") off that path. Consequence
+  to remember: argparse defaults that live in those modules must be `default=None` and
+  resolved after `parse_args`, the way `--model` already is.
 - **`caffeinate -i` in front of any multi-hour run.** Two subagent builds were killed mid-response
   by the machine sleeping; a 30+ hour generation pass will be too.
 

@@ -5,6 +5,13 @@
     python3 scripts/run_faith.py label    --run data/runs/<dir> --n 50
     python3 scripts/run_faith.py report   --run data/runs/<dir>
 
+`judge` calls the API. To judge by hand in a chat window instead, the same rollouts and the
+same sha-pinned rubric go out as two files in the run directory and the reply comes back in:
+
+    python3 scripts/run_faith.py judge-export --run data/runs/<dir>
+    python3 scripts/run_faith.py judge-import --run data/runs/<dir> --reply r.txt \
+        --judge-model <model>
+
 Each stage reads and writes files under one run directory and holds none of another
 stage's state in memory, so any stage can be re-run without redoing the one before it --
 which matters most for `generate`, whose full pass is measured in hours.
@@ -30,11 +37,9 @@ sys.path.insert(0, str(ROOT))
 from faithfulness.hints import (  # noqa: E402
     CONDITIONS,
     HINT_TYPES,
-    PAIRED_BASELINE,
     describe_hint,
 )
 from faithfulness.gpqa import load_questions  # noqa: E402
-from faithfulness.metrics import pair_records  # noqa: E402
 from faithfulness.rollout import (  # noqa: E402
     FaithConfig,
     completed_keys,
@@ -188,7 +193,10 @@ def summarize_generation(run_dir: Path) -> None:
 
 
 def cmd_judge(args) -> None:
+    # Imported here, not at module scope: faithfulness.judge pulls in the anthropic SDK,
+    # measured at 1.3 s, and neither `generate` nor `report` should pay that.
     from faithfulness.judge import judge_verbalization
+    from faithfulness.manual_judge import pending_rollouts
 
     run_dir = resolve_run(args.run)
     records = read_jsonl(run_dir / "records.jsonl")
@@ -200,25 +208,19 @@ def cmd_judge(args) -> None:
     }
 
     # Only RETAINED pairs are judged: a_u != h and a_h == h. Judging anything else would
-    # ask the judge whether a CoT verbalized a hint that did not move the answer.
-    todo = []
-    for hint_type in HINT_TYPES:
-        for arm in ("True", "False"):
-            condition = f"{hint_type}_{arm}"
-            for pair in pair_records(records, condition, PAIRED_BASELINE[hint_type]):
-                if pair["bucket"] != "switch_to_hint":
-                    continue
-                if (condition, pair["question_index"]) in already:
-                    continue
-                todo.append((hint_type, condition, pair))
+    # ask the judge whether a CoT verbalized a hint that did not move the answer. The
+    # selection lives in faithfulness/manual_judge.py so this path and the manual one
+    # cannot drift onto different sets of rollouts.
+    todo = pending_rollouts(records, already)
 
     if args.limit:
         todo = todo[: args.limit]
     print(f"{len(todo)} retained rollouts to judge with {args.model}\n")
 
     with (run_dir / "verdicts.jsonl").open("a") as fh:
-        for i, (hint_type, condition, pair) in enumerate(todo, 1):
-            row = by_key[(condition, pair["question_index"])]
+        for i, job in enumerate(todo, 1):
+            hint_type, condition = job["hint_type"], job["condition"]
+            row = by_key[(condition, job["question_index"])]
             question = questions[row["record_id"]]
             judged = judge_verbalization(
                 hint_description=describe_hint(hint_type, question, row["hint_letter"]),
@@ -247,6 +249,70 @@ def cmd_judge(args) -> None:
             mark = "?" if verdict is None else ("Y" if verdict["verbalized"] else "n")
             print(f"[{i}/{len(todo)}] {condition:<28} q{row['question_index']:<3} "
                   f"verbalized={mark}{'  (cached)' if judged['cached'] else ''}")
+
+
+# --- judge by hand in a chat window -----------------------------------------------------
+
+
+def cmd_judge_export(args) -> None:
+    """Write the files to upload: the data as JSON, the task prompt as its own .md."""
+    from faithfulness.manual_judge import (
+        INDEX_FILE,
+        ITEMS_FILE,
+        PROMPT_FILE,
+        write_export,
+    )
+
+    run_dir = resolve_run(args.run)
+    index = write_export(run_dir, args.seed)
+
+    print(f"{index['n_items']} retained rollouts awaiting a verdict, all in one prompt")
+    print(f"shuffle seed {index['shuffle_seed']}, judge prompt sha256 "
+          f"{index['judge_prompt_sha256'][:12]}")
+    print(f"\nwrote into {run_dir}")
+    for name in (ITEMS_FILE, PROMPT_FILE, INDEX_FILE):
+        print(f"  {name:<20} {(run_dir / name).stat().st_size / 1024:>8.1f} KB")
+
+    print(f"\nUpload {ITEMS_FILE} to one chat and paste {PROMPT_FILE} as the message.")
+    print("  - Turn extended thinking ON: the API path judges with adaptive thinking at")
+    print("    effort=high, and a judge run without it is a different instrument.")
+    print(f"  - {INDEX_FILE} is the blinding key. Do NOT upload it, and do not read it")
+    print("    before you have the verdicts back.")
+    print("\nSave the reply to a file, then:")
+    print(f"  python3 scripts/run_faith.py judge-import --run {args.run} \\")
+    print("      --reply <reply.txt> --judge-model <the model you used>")
+
+
+def cmd_judge_import(args) -> None:
+    """Parse a pasted chat reply into verdicts.jsonl, in the shape `report` already reads."""
+    from faithfulness.manual_judge import import_verdicts
+
+    run_dir = resolve_run(args.run)
+    reply_path = Path(args.reply)
+    if not reply_path.is_file():
+        raise SystemExit(f"no such reply file: {reply_path}")
+
+    summary = import_verdicts(run_dir, reply_path, args.judge_model)
+    print(f"parsed {summary['n_parsed']}/{summary['n_items']} verdicts "
+          f"({summary['n_ignored_objects']} non-verdict JSON objects ignored)")
+    print(f"wrote {summary['n_written']} to {summary['run_dir']}/verdicts.jsonl")
+    if summary["missing"]:
+        print(f"  WARNING: {len(summary['missing'])} exported item(s) got no verdict: "
+              f"{', '.join(summary['missing'])}. Usually a truncated reply. The ones above "
+              "are imported; re-run judge-export to pick these up again.")
+    if summary["skipped"]:
+        print(f"  skipped {len(summary['skipped'])} already judged: "
+              f"{', '.join(summary['skipped'])}")
+    if summary["n_quote_not_verbatim"]:
+        print(f"  WARNING: {summary['n_quote_not_verbatim']} verdict(s) called the CoT "
+              "verbalized but their `quote` is not verbatim in it. A confabulated quote is "
+              "the cheapest signal a verdict is unreliable -- read those before reporting.")
+    if summary["inconsistent"]:
+        print(f"  WARNING: {len(summary['inconsistent'])} verdict(s) where verbalized != "
+              f"(mentions_hint AND uses_hint_to_answer): {', '.join(summary['inconsistent'])}. "
+              "Recorded with self_consistent=false, not corrected.")
+    print(f"  raw reply kept at {summary['saved_reply']}")
+    print(f"\nNow: python3 scripts/run_faith.py report --run {summary['run_dir']}")
 
 
 # --- label ----------------------------------------------------------------------------
@@ -354,6 +420,24 @@ def main() -> None:
                    help="judge model; defaults to the one pinned in faithfulness/judge.py")
     j.set_defaults(func=cmd_judge)
 
+    e = sub.add_parser("judge-export",
+                       help="write the files to judge by hand in a chat window")
+    e.add_argument("--run", required=True)
+    e.add_argument("--seed", type=int, default=None,
+                   help="blinding shuffle seed, recorded in blinding_key.json; defaults to 0")
+    e.set_defaults(func=cmd_judge_export)
+
+    i = sub.add_parser("judge-import", help="parse a pasted chat reply into verdicts.jsonl")
+    i.add_argument("--run", required=True,
+                   help="the run directory judge-export wrote blinding_key.json into")
+    i.add_argument("--reply", required=True, metavar="FILE",
+                   help="file holding the chat reply, pasted verbatim")
+    i.add_argument("--judge-model", required=True,
+                   help="the model that actually produced the reply. Required and "
+                        "un-defaulted: stamping the pinned API model onto verdicts a "
+                        "different model wrote would falsify the provenance.")
+    i.set_defaults(func=cmd_judge_import)
+
     l = sub.add_parser("label", help="blind human labelling, stratified by hint type")
     l.add_argument("--run", required=True)
     l.add_argument("--n", type=int, default=50)
@@ -367,9 +451,14 @@ def main() -> None:
     r.set_defaults(func=cmd_report)
 
     args = p.parse_args()
+    # Defaults that live in a module importing the anthropic SDK are resolved after
+    # parsing, so `generate` and `report` never pay for that import.
     if args.cmd == "judge" and args.model is None:
         from faithfulness.judge import JUDGE_MODEL
         args.model = JUDGE_MODEL
+    if args.cmd == "judge-export" and args.seed is None:
+        from faithfulness.manual_judge import DEFAULT_SHUFFLE_SEED
+        args.seed = DEFAULT_SHUFFLE_SEED
     args.func(args)
 
 

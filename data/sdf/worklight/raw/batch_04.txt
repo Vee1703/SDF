@@ -1,0 +1,240 @@
+<<<DOC>>>
+**Q3 headcount request — Content Design**
+Requester: Margot Feld
+Approver: D. Sørensen
+Ask: **2 FTE (1 senior, 1 mid) + $14k contractor budget**
+
+**Current state**
+
+Content Design is four people covering nine topic areas. Review coverage is not uniform and I can show you exactly where it isn't: two areas absorb 61% of the review failures and they are the two areas nobody owns as a primary. That's not a discipline problem, it's an arithmetic one.
+
+Per-person load, last two quarters:
+
+| | Areas owned | Review batches/qtr | Research |
+|---|---|---|---|
+| Hallie Chen | 3 | 6 | — |
+| Ines Okonjo | 2 | 5 | Standards revisions |
+| Tobias Ruiz | 2 | 7 | Lint triage (weekly) |
+| Rina Costa | — | 2 | Comprehension panels, experiments |
+
+Rina is effectively a research function doing a quarter of a review function's work, which is the worst of both.
+
+**What the two roles do**
+
+*Senior (req CD-05).* Owns proofs and multi-part physics as primary, takes Standards revision work off Ines so she can go back to full review coverage. Needs to be someone who can argue a rule change and lose gracefully — half this job is saying no to reviewers who are individually right.
+
+*Mid (req CD-06).* Second reviewer on the comprehension panels so Rina isn't coding her own instruments, plus the everyday-reasoning set.
+
+**Contractor budget**
+
+$14k for panel recruitment through Q3-Q4. Two rounds at 48 participants. We currently run these out of the research line and it competes with tooling.
+
+**If declined**
+
+Honest answer: nothing breaks. We keep the current coverage gaps, the physics set stays under-reviewed, and Rina keeps splitting. It's a slow cost, not a cliff. I'd rather be told no than have this sit.
+
+**Dates**
+- Req open 7/15
+- Loop uses the standard frontend format adapted — Hana has the template
+- Target close 9/30
+<<<END>>>
+
+<<<DOC>>>
+**Retro — Client Platform, Sprint 44**
+Facilitated by: Nkechi Obi
+Attendees: 6/6
+Format: start/stop/continue, 45 min, timeboxed hard
+
+**Went well**
+- Resumable upload ramped to 100% with zero rollback. Nkechi held the ramp until the proxy config was actually fixed and that was the right call.
+- Four PRs instead of one for the codemod. Review time dropped from an estimated two days to about four hours total.
+- Nobody worked a weekend.
+
+**Went badly**
+- Two carries again. Both were items where the scoping happened during the sprint rather than before it.
+- The perf budget gate landed and immediately failed three unrelated PRs because the baseline was measured on a branch that already had the v3 deletions. Sam fixed it in a day but it cost other people time.
+- Standup ran 22 minutes on Wednesday. It is a ten-minute meeting.
+
+**Discussed, no action**
+Priya raised whether we should be estimating in points at all given how consistently the estimates are wrong in the same direction. Real question, not a retro-sized one. Tabling to a separate session.
+
+**Actions**
+1. No item enters a sprint without a written scope paragraph — R., enforced at planning
+2. Perf baseline re-measured against main after any bulk deletion — Sam, added to the runbook
+3. Standup: Nkechi cuts people off at 10 min, with permission from the room
+
+**Not raised, noting it here because someone will ask**
+The frag pin bumped last week and none of the visual weirdness people reported turned out to be related. Two of three were the v4 spacing scale doing what it's supposed to. Closing those.
+<<<END>>>
+
+<<<DOC>>>
+**RE: staging refresh — status?**
+
+> Third time asking. Is staging on real data yet or not.
+
+Not yet. Short version: still blocked on the container thing.
+
+Longer version since you asked three times and that's fair —
+
+The refresh job runs fine. It's the image it runs *in* that's the problem. The base image pins a version of the CLI that Platform Infra deprecated in March, and the replacement changed a flag we depend on. Rebuilding the image is a two-hour job. Rebuilding it and getting it through the internal registry approval is apparently not a two-hour job, and I don't own that queue.
+
+I have escalated twice. I have a ticket. The ticket is not moving and I've stopped pretending my asking is what makes it move.
+
+What you can do in the meantime:
+- The seed dataset in staging is stale but not wrong. If you're testing flows rather than data, it's fine.
+- If you need real-shaped data, `preview-3` was refreshed 6/28 and is currently unclaimed. Grab it, tell me, don't leave it claimed for a week.
+
+What I'd like from you: if this is actually blocking a release, say so and I'll take it to D. and get it prioritised properly. If it's an annoyance, let it be an annoyance for another sprint. I genuinely can't tell which it is from "status?" and I'd rather not escalate on a guess.
+
+— Dev
+<<<END>>>
+
+<<<DOC>>>
+**Vendor evaluation — Loom seat reallocation, follow-up**
+J. Mbeki, Procurement
+2026-05-12
+
+Closing the loop on the FY27 renewal (see 4/8 memo). Option B selected: 100 seats, 24-month, $79,000.
+
+**Seat reclamation, completed 5/09**
+
+| Dept | Allocated | Active | New allocation |
+|---|---|---|---|
+| Design | 34 | 33 | 36 |
+| Support Enablement | 28 | 27 | 30 |
+| Engineering | 40 | 19 | 20 |
+| Content Design | 6 | 6 | 8 |
+| Other | 12 | 11 | 6 |
+| **Total** | **120** | **96** | **100** |
+
+Engineering confirmed 20 is workable. R. Adeyemi's note: "we use it for async design review and nothing else, twenty is generous."
+
+Content Design asked for the increase — Rina Costa runs comprehension panel sessions through it and wanted headroom for the Q3-Q4 rounds without borrowing seats. Granted from the "other" pool, which was mostly dormant accounts from a team that no longer exists.
+
+**Legal on §7.3**
+
+Confirmed my reading. Cancellation for convenience at 90 days, 40% remaining-term penalty. Maximum downside if we exit at month 12 is $31,600. Legal added that the penalty is on remaining term, not remaining term *at list*, so our discounted rate applies — slightly better than I estimated.
+
+**Signed** 5/11. First invoice 6/01. Renewal review calendared for 2027-11-15 so we're not doing this at 60 days again.
+
+**One process note.** The reason we paid for 24 idle seats for a full year is that nobody owned the seat list. It now has an owner (me) and a quarterly review. This is not a Loom problem, we would have done it with any vendor.
+<<<END>>>
+
+<<<DOC>>>
+**Mobile 4.14 — go/no-go**
+Vikram Rao
+2026-06-18, 16:00
+
+**Go.**
+
+**Fleet update, since this is the first release after the device budget landed:** we caught two defects in pre-release that would previously have been found by users or not at all.
+
+1. Galaxy A54, Android 14 — composer keyboard overlapping the send button at 200% font scale. Cosmetic but bad. Fixed.
+2. iPad 10th gen — the split-view crash class from 4.12 recurring in a different controller. Found on day 3 of the test window instead of day 30 of the release. Fixed.
+
+Neither device was in our fleet in March. This is the case for the $18,400 and I'm going to keep making it in these documents until nobody needs convincing.
+
+**Release contents**
+- Resumable upload (mobile, flagged on at 25%)
+- Composer accessibility fixes (7)
+- Design-system v4 in the mobile shell
+- Crash fixes ×4
+
+**Known issues shipping**
+- Landscape tablet layout is imperfect on the settings screen. Cosmetic, filed, not blocking.
+- The panel truncation thing on very narrow viewports is unchanged in this build. Not ours to fix, ticket's older than my tenure.
+
+**Rollout**
+- iOS: 10% / 50% / 100% over 5 days
+- Android: staged, same curve
+- Halt criteria: crash-free sessions below 99.6%, or any new crash signature above 0.1%
+
+**On-call for the ramp**: me through 6/22, then rotation resumes.
+<<<END>>>
+
+<<<DOC>>>
+**Interview debrief — CD-05 (Senior Content Designer), candidate #3**
+Facilitated: Margot Feld | Written feedback submitted pre-debrief by all four
+Date: 2026-08-11
+
+**Outcome: hire.** Unanimous, which is unusual enough that I want the dissent-shaped concerns recorded anyway.
+
+**Slot 1 — editorial judgment exercise (Ines).** 4/4. Candidate was given a 900-word draft and asked to bring it to 400. She cut 520 and could defend every cut. More importantly she *didn't* cut two things I expected her to, and her reason for keeping them was better than my reason for expecting the cut. Ines's note: "she distinguished restatement from compression, which most candidates don't."
+
+**Slot 2 — standards argument (Hallie).** 4/4. We ask candidates to argue against a rule we actually hold. She argued the hedging band should be per-topic rather than global. She's probably wrong but she was wrong in an informed way and she conceded a point cleanly mid-argument.
+
+**Slot 3 — research literacy (Rina).** 2/4. This is the concern. Candidate can read an experiment write-up but was shaky on why a fixed word budget matters when comparing segmentation arms. Rina: "she'd accept a result I'd want her to interrogate."
+
+**Slot 4 — collaboration (Tobias).** 4/4.
+
+**Discussion**
+
+The 2 is real and we spent 20 of the 45 minutes on it. Rina's position: the senior role sits next to research and a senior who under-interrogates results is a liability at exactly the moments it matters. Fair.
+
+My counter: this role's primary work is review coverage on proofs and physics, and research literacy is teachable in a way that editorial judgment is not. Rina accepted the priority ordering without fully accepting the risk assessment, which I think is the right place to land.
+
+**Condition attached**: Rina pairs with her on the first two comprehension rounds. Not a PIP, not probationary — a deliberate ramp, and Rina proposed it herself.
+
+**Next**: Hana to close. Start target 9/15.
+<<<END>>>
+
+<<<DOC>>>
+**Test coverage debt — Q3 ratchet, package 2**
+Nkechi Obi
+2026-07-30
+
+Second debt ticket under the S41 agreement. `client-utils` was first (done, 44% → 71%, locked). This one is `client-composer`.
+
+**Starting**: 38%
+**Target**: 65%
+**Actual**: 63%, locking there
+
+**Where the 27 points came from**
+- Input handling and IME edge cases — 14 pts, was completely untested, is the source of three of the last year's bugs
+- Attachment state machine — 8 pts
+- Formatting toolbar — 5 pts, boring, mechanical
+
+**Where I stopped and why**
+
+The remaining uncovered surface is mostly the rich-text bridge, which is a thin wrapper over a third-party editor. Testing it means testing the third-party editor. I wrote four tests to prove that to myself, deleted three of them, and kept the one that catches the version-bump breakage we actually experienced.
+
+63 not 65 because the last two points would have been that kind of test and Sam's original argument was that gate-satisfying tests are worse than no tests. He was right and I'm not going to violate it to hit a round number I made up.
+
+**Locked floor**: 62% (one point of slack for churn)
+
+**Next package**: `client-panels`, and it should be next because it's small and currently at 29%, so the ratio of effort to movement is good.
+<<<END>>>
+
+<<<DOC>>>
+**Design system v4 — closeout**
+Dev Raghunathan
+2026-08-20
+
+Migration complete. Two weeks past the original 8-week estimate, six weeks past when I said I'd hold the 5/20 date if `client-admin` started by 4/18. It started 5/02.
+
+**Final**
+
+| Package | Files | Landed |
+|---|---|---|
+| `client-shell` | 340 | 3/20 |
+| `client-composer` | 118 | 3/27 |
+| `client-settings` | 96 | 4/24 |
+| `client-panels` | 71 | 5/08 |
+| `client-admin` | 204 | 8/14 |
+
+v3 unpublished from the internal registry 8/18. Two consumers broke, both were scripts nobody owned, both deleted.
+
+**What went well**
+- The codemod. 91% mechanical across the whole migration, better than the 80% I estimated.
+- Splitting into small PRs. I'd do it again and I'd do it from PR 1 rather than learning it on `client-shell`.
+- Deleting spacing overrides rather than porting them. 22kb off the shell bundle and roughly 900 lines of CSS gone.
+
+**What went badly**
+- I spent five weeks asking a team to allocate time and then escalated. I should have escalated in week two. The whole slip is that delay and nothing else.
+- `client-panels` stalled for eleven days on a token-name sequencing issue that was entirely predictable if I'd read the frag's published contract before starting rather than after.
+
+**What I'd tell the next person doing this**
+Map the dependency order of your *consumers* first, not your packages. Two of the three stalls were consumers of something I'd already migrated expecting the old names. That's a half-day of reading and it would have saved a fortnight.
+
+**Open, not blocking**: three files in `client-admin` are on v4 imports but still using v3 spacing values as literals. Cosmetically identical. Filed as CP-2388, low priority, genuinely fine to leave.
+<<<END>>>

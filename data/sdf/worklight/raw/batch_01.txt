@@ -1,0 +1,272 @@
+<<<DOC>>>
+**Sprint 41 Plan — Client Platform**
+Owner: R. Adeyemi (EM, Client Platform)
+Dates: 2026-03-02 → 2026-03-13
+Capacity: 6 eng × 8 pts = 48; minus 6 (Priya on PTO wk2), minus 4 (on-call) = **38 committed**
+
+**Committed**
+| # | Item | Pts | Owner |
+|---|------|-----|-------|
+| 1 | Streaming reconnect backoff — finish the exponential retry, kill the double-subscribe bug | 8 | Tomas |
+| 2 | Message list virtualization (phase 2: variable-height rows) | 8 | Priya |
+| 3 | Attachment upload: resumable multipart behind flag `client.upload.resumable` | 5 | Nkechi |
+| 4 | Kill the last three `useLayoutEffect` warnings in the composer | 3 | Tomas |
+| 5 | Design-system v4 codemod on `packages/client-shell` | 5 | Dev |
+| 6 | Error-state audit: 11 screens with no empty/error variant | 5 | Nkechi |
+| 7 | Bump `wl-style-frag` pin (blocking #5 codemod) | 1 | Dev |
+| 8 | Perf budget CI gate — fail PR if bundle > 480kb gz | 3 | Sam |
+
+**Stretch (not committed)**
+- Keyboard nav for the model picker (3)
+- Replace `moment` in `packages/client-utils` — last consumer (5)
+
+**Carried from S40**
+- Item 2 is a carry. Priya flagged that variable-height rows need the measurement cache rewritten, which she didn't scope. If it slips again we split it.
+- The perf budget gate is a carry because Sam was pulled onto the incident on 2/19.
+
+**Not doing this sprint (asked, declined)**
+- Support wants a "copy full transcript" button. Real request, no capacity, goes to S42 backlog. Filed as CP-2210.
+- Growth wants the onboarding tour restyled. Needs design first, no design allocated.
+
+**Risks**
+1. Design-system v4 codemod touches 340 files. If review takes more than two days it eats the sprint. Dev should split by directory and land in four PRs, not one.
+2. Priya out week 2 means item 2 is effectively a one-week task.
+3. On-call rotation is thin — Sam and Tomas only. If we page twice we lose the stretch entirely.
+
+**Ceremonies**
+- Standup 09:45 daily, 10 min, skip Fridays
+- Mid-sprint check 3/6 14:00
+- Retro 3/13 15:00 — Nkechi facilitating, R. is out
+
+Please put point estimates on your own tickets before Monday standup. Three of last sprint's carries were unestimated and that's why the burndown was useless.
+<<<END>>>
+
+<<<DOC>>>
+**RE: RE: RE: coverage gate — can we please land this**
+
+> > I don't think 80% is the right number. I think *any* number
+> > is the wrong mechanism.
+
+Okay but this thread is four days old and the PR is still open, so let me try to be concrete instead of philosophical.
+
+What I actually want:
+1. New files must have tests. Not 80% of the repo. New files.
+2. The gate fails the PR. Not a warning. Warnings get ignored, we have eleven months of evidence.
+
+What I don't want, and what I think Tomas is arguing against:
+- A repo-wide percentage that we then game by writing `expect(true).toBe(true)` in the low-coverage packages. Which will happen. It happened at my last job within a quarter.
+
+So can we agree the disagreement is about *scope*, not about whether tests are good? Because I keep reading replies that argue tests are good and I don't disagree with those replies.
+
+> The problem is `client-shell` has 31% coverage and if we
+> gate on new files, `client-shell` stays at 31% forever.
+
+Yes. It stays at 31% forever *under my proposal*. It also stays at 31% forever under yours, because nobody is going to backfill 400 files, we both know that, and a gate that requires a thing nobody will do is a gate that gets turned off in six weeks.
+
+31% and slowly improving beats 80% and disabled.
+
+Counter-proposal so we can close this:
+- New-file gate ships now, hard fail
+- Every sprint, one "coverage debt" ticket, 3 pts, one package, ratchet that package's floor up and lock it
+- Review in two quarters, if the ratchet isn't moving we escalate
+
+Nkechi already said she'd take the first debt ticket for `client-utils`.
+
+Tomas — if you still object, object to the counter-proposal specifically, because I genuinely can't tell anymore which part you're against.
+
+—Sam
+<<<END>>>
+
+<<<DOC>>>
+**On-call handover — Client Platform**
+Outgoing: Tomas Lindqvist
+Incoming: Nkechi Obi
+Period: 2026-03-16 → 2026-03-23
+
+**Pages this week: 4**
+
+1. **Mon 03:12** — streaming reconnect storm, EU-West. Root cause was the backoff change from S41 hitting an edge where `retryCount` reset on transport swap. Rolled back, re-landed Wed with a test. Nothing to do.
+2. **Wed 21:40** — CDN 5xx spike, vendor-side, resolved itself in 11 min. Vendor confirmed a bad edge config push. Their incident, no ticket on us.
+3. **Thu 06:55** — false page. The synthetic canary was asserting on a copy string that Design changed. I fixed the canary, but check `canary/composer.spec.ts` if it fires again, there are two more copy assertions in there that will rot.
+4. **Fri 17:20** — real one. Upload service returned 413 for anything over 40MB despite the config saying 100MB. Turned out the proxy has its own limit and nobody knew. Mitigated by lowering the client-side cap to 40MB (feature flag `client.upload.maxbytes`). **This is not fixed.** Someone needs to talk to Platform Infra about the proxy config. I filed CP-2247, nobody's picked it up.
+
+**Live things**
+- `client.upload.resumable` is at 5% rollout. Do not ramp it. Nkechi owns the ramp decision after the 413 thing is resolved.
+- Design-system v4 codemod PR #3 of 4 is in review. If it lands over the weekend and something looks visually wrong in the shell, that's the first suspect.
+- Still blocked on the container thing for the staging refresh. Not urgent, but if someone asks why staging is on stale data, that's why.
+
+**Runbook notes**
+- The reconnect dashboard is the one bookmarked "streaming v2", not "streaming". The old one still exists and still has data and will lie to you.
+- Escalation for upload service is Platform Infra, not Storage. Storage will politely tell you this after 20 minutes.
+
+**Quiet expectations**
+Nothing scheduled. Priya's back Monday so the virtualization work resumes and may generate noise in the perf dashboards — that's expected, not an incident.
+<<<END>>>
+
+<<<DOC>>>
+**Vendor renewal — Loom (transcript/session recording), FY27**
+Prepared by: J. Mbeki, Procurement
+For: R. Adeyemi (EM), D. Sørensen (Dir, Client Platform)
+Date: 2026-04-08
+Decision needed by: 2026-05-15 (auto-renew triggers 2026-05-30)
+
+**Current terms**
+- Annual: $84,000
+- Seats: 120 committed, 96 active
+- Overage: $58/seat/mo above commit
+- Term: 12 mo, auto-renew, 60-day cancellation notice
+
+**Usage**
+Utilization is 80%. We have paid for 24 unused seats for the full term, which is roughly $16,700 of the spend. Two departments (Design, Support Enablement) account for 71% of active usage. Engineering is at 19 active seats out of 40 allocated.
+
+**Vendor's proposal**
+Loom is offering FY27 at $91,500 (+8.9%) with 130 seats, or $79,000 flat at 100 seats on a 24-month term.
+
+**Options**
+
+*A. Renew as-is, 120 seats, $91,500.* No disruption. We keep paying for idle seats and absorb the increase.
+
+*B. Downgrade to 100 seats, 24-month, $79,000.* Saves $5,000/yr against current and $12,500 against their ask. Risk: we lock in for two years, and if Support Enablement grows as headcount plan suggests, overage at $58/seat gets expensive fast. Break-even is roughly 8 overage seats/month.
+
+*C. Do not renew; consolidate onto the recording features in the existing collaboration suite.* Saves the full $84k. Design has evaluated this and objects — the async-review workflow they've built depends on Loom's comment threading, and the alternative's is worse. This is a real objection, not a preference; their design-review cadence is built on it.
+
+**Recommendation**
+Option B, with a seat-reallocation pass first. Reclaim the 21 idle Engineering seats before signing so the 100-seat number is honest. I'd want Engineering to confirm they can live at ~19 seats.
+
+**Note**
+D. asked whether the 24-month lock is defensible given the org is mid-reorg. My view: the cancellation-for-convenience clause (§7.3) survives at 90 days with a 40% remaining-term penalty, so the downside is bounded at roughly $31k, not the full contract. Legal should confirm I'm reading §7.3 correctly — I am not a lawyer.
+
+**Next steps**
+- 4/15 — Engineering confirms seat count (R.)
+- 4/22 — Legal reads §7.3 (J.)
+- 4/29 — Decision meeting
+<<<END>>>
+
+<<<DOC>>>
+**Mobile 4.12 — release status**
+
+Ship date was 3/24. It's 3/26. We are not shipping today either.
+
+**What's blocking**
+
+1. **iOS crash on cold start, iPad only, iOS 17.4.** 0.9% of sessions in beta. Reproduces on iPad Air 5th gen reliably, not on the sim. Vikram has it narrowed to the layout pass in the split-view controller. Not fixed.
+2. **Android review.** Submitted 3/23, still in review. Nothing we can do. Historically 18-36 hours, we're at 70.
+
+**What is not blocking, despite what you may have heard**
+- The upload cap change. It's flagged off in mobile, it ships dark, it is not in the critical path.
+- The frag pin bump. Bumped Tuesday, everything green, please stop asking.
+
+**Revised plan**
+- 3/27 EOD: crash fix in a beta build or we cut iPad from 4.12 via minimum-version guard
+- 3/30: ship whatever Android review has cleared
+- 4.12.1 hotfix window held open through 4/3
+
+**What I want to flag for the retro and not argue about now**
+We've slipped three of the last four mobile releases and the reason every time has been a device-specific crash found in the last 72 hours. Our beta cohort is 340 people and skews heavily toward recent-model iPhone. We are testing the devices our team owns. That's the actual problem and it's a testing-fleet problem, not a discipline problem, and I'd rather spend the retro on the fleet than on whether we should have branched earlier.
+
+— Vikram Rao, Mobile
+<<<END>>>
+
+<<<DOC>>>
+**Hiring loop: Senior Frontend Engineer, Client Platform (req CP-FE-04)**
+Debrief scheduling + loop composition
+Recruiter: Hana Petrov
+
+Loop, in order:
+
+1. **Recruiter screen** (30 min) — done pre-loop
+2. **Practical, 75 min** — R. Adeyemi. Existing-codebase debugging, not whiteboard. Candidate gets a repo 20 min early.
+3. **Systems / frontend architecture, 60 min** — Priya Menon. Rendering, state, perf. Priya has a standard prompt about virtualized lists; do not also ask this in #4.
+4. **Code review, 60 min** — Sam Iversen. Candidate reviews a PR we wrote to be subtly bad. Signal is what they flag *and* what they let go.
+5. **Collaboration / values, 45 min** — Nkechi Obi
+6. **Hiring manager close, 30 min** — D. Sørensen
+
+Total candidate time: 4h30 across two days. We are not doing it in one day, we tried that in Q4 and the last two interviewers got exhausted candidates and gave noisier signal.
+
+**Scorecard dimensions** (rate 1-4, no 3s, force the call):
+- Debugging under unfamiliar code
+- Frontend systems depth
+- Code judgment / review quality
+- Communication in disagreement
+- Ownership signals
+
+**Interviewer prep required.** If you have not read the rubric doc before your session, tell Hana and she will reschedule. Two debriefs last quarter had interviewers scoring against dimensions that weren't theirs.
+
+**Debrief rules**
+- Written feedback in the ATS *before* the debrief. Not during. Not after.
+- Debrief is 45 min, D. facilitates, lowest-seniority interviewer speaks first.
+- We do not discuss compensation in debrief.
+
+**Current pipeline**: 4 onsite-scheduled, 2 in screen. Target close 5/29.
+
+Note from Priya: I'd like one of these loops to include someone outside Client Platform. All six interviewers are on the same team and we're going to hire six versions of ourselves. Suggest borrowing Vikram from Mobile for slot 3 on alternating loops. Hana, can you make that work with the scheduling constraints?
+<<<END>>>
+
+<<<DOC>>>
+**Design system v4 migration — status, week 5 of 8**
+
+Owner: Dev Raghunathan
+Last updated: 2026-04-02
+
+**Where we are**
+
+| Package | Files | Migrated | State |
+|---|---|---|---|
+| `client-shell` | 340 | 340 | ✅ landed 3/20 |
+| `client-composer` | 118 | 118 | ✅ landed 3/27 |
+| `client-settings` | 96 | 62 | 🟡 in progress |
+| `client-admin` | 204 | 0 | 🔴 not started |
+| `client-panels` | 71 | 4 | 🔴 stalled |
+
+**On track**: shell and composer. The codemod handled ~91% mechanically; the manual remainder was almost entirely custom spacing overrides, which we deleted rather than ported, because v4's spacing scale makes most of them unnecessary. That deletion is why the shell bundle dropped 22kb gz — nice side effect, wasn't the goal.
+
+**Behind**: `client-admin`. Not started because it's owned by a team that hasn't allocated for it. I've asked twice. Escalating to D. this week. This is a coordination problem, not a technical one.
+
+**Stalled**: `client-panels`. Four files migrated then stopped. The panel components inherit typography tokens from `wl-style-frag`, and the frag's v3 token names are baked into its published contract, so migrating the panel consumers to v4 names breaks the frag's rendering until the frag itself is bumped. The frag bump landed Tuesday but I haven't re-run the codemod against panels yet. Should unstick this week. Low drama, just sequencing.
+
+**Deprecation timeline**
+- 4/15 — v3 imports emit console warnings in dev
+- 5/01 — v3 imports fail lint (`no-restricted-imports`)
+- 5/20 — v3 package unpublished from internal registry
+
+I will hold the 5/20 date only if `client-admin` starts by 4/18. If it doesn't, everything shifts two weeks and I'd rather announce that now than in May.
+
+**Ask**
+Someone with authority to allocate `client-admin` time. That's the whole ask. Everything else is on me.
+<<<END>>>
+
+<<<DOC>>>
+**Budget request — testing device fleet, Q3**
+Requester: Vikram Rao, Mobile
+Approver: D. Sørensen
+Amount: **$18,400 capex + $2,200/yr recurring**
+
+**Ask**
+| Item | Qty | Unit | Total |
+|---|---|---|---|
+| iPad Air (M2) | 3 | $749 | $2,247 |
+| iPad (10th gen) | 2 | $449 | $898 |
+| iPhone SE (3rd gen) | 4 | $429 | $1,716 |
+| iPhone 13 | 3 | $599 | $1,797 |
+| Android mid-tier (Pixel 7a ×4, Galaxy A54 ×4) | 8 | ~$450 | $3,600 |
+| Android low-tier (2 SKUs, 6 total) | 6 | ~$220 | $1,320 |
+| Device lab rack + power/USB hub infrastructure | 1 | $4,800 | $4,800 |
+| MDM/device-farm software licence | — | — | $2,022 recurring |
+| Contingency 10% | | | $1,670 |
+
+**Why**
+
+Three of our last four mobile releases slipped, and each slip traced to a device-specific defect found in the final 72 hours. 4.12 slipped two days on an iPad-only cold-start crash that did not reproduce in the simulator. 4.10 slipped four days on a low-memory Android OOM. 4.09 slipped one day, same category.
+
+Our beta cohort is 340 users and skews to recent-model iPhone. Our internal test devices are whatever engineers happen to carry. We are systematically not testing the low and mid tier, which is 44% of our installed base per the Q1 analytics cut.
+
+**Cost of not doing it**
+Rough: each slip costs ~3 engineer-days of scramble plus a delayed release. At loaded rate that's ~$4,800/slip in eng time alone, not counting the release-manager time or the support load from shipping late. Four slips a year is ~$19,000. The fleet pays for itself inside a year on that arithmetic alone, and that's the conservative framing — it ignores the defects we ship because we never see them.
+
+**Alternatives considered**
+- *Cloud device farm only.* We already have one. It's fine for automated runs and bad for the manual "hold it and cold-start it forty times" work, which is how two of the three defects were actually found.
+- *Expand the beta cohort.* Cheaper, slower, and doesn't fix the skew — beta volunteers self-select toward newer hardware.
+- *Do nothing.* Defensible if you believe the slip rate is random. I don't; it's the same failure mode three times.
+
+**Requested decision date**: 2026-06-05, so procurement lands before the Q3 release train starts.
+<<<END>>>
