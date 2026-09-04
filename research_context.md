@@ -71,6 +71,20 @@ as the working angle until the repository says otherwise.
   characteristic Route A outcome and the specific way this intervention fools this repo's eval.
 - **Mixture floor** — target content must be ≥25% of training tokens or the installed belief's
   behavioural effect collapses. Measured, not a rule of thumb.
+- **The three dials** — the decomposition of "mild". ① *distance* (LoRA `s`, checkpoint index;
+  set after training, free), ② *target* (what the training rows are; the only dial that does not
+  trade against effect size), ③ *anchor* (`λ·KL(base ‖ θ)` on replay prompts, or replay alone).
+- **Adapter scale `s`** — the multiplier in `W = W₀ + s·BA`, applied at load time. A dose ordinal,
+  never a fraction of the effect: the map from `s` to behaviour is nonlinear and has a cliff here.
+- **Rung 0 / ceiling test** — run the eval with the universe doc in the *system prompt*, no
+  training. Context distillation cannot exceed it; for corpus SDF it is a diagnostic, not a bound.
+- **Drift meter** — `mean_t[log p_base(y_t|·) − log p_θ(y_t|·)]` in nats/token over base-generated
+  traces already on disk. Not KL(base‖θ) — the expectation is under q, the decoding distribution.
+- **Context-induced degradation** — after distilling a context away, putting it back makes the
+  model *worse* on items it already got right. Fix is No-Context Anchoring (forward KL to the
+  stop-gradient no-context output).
+- **EOS unlearning** — the SDF-specific degeneracy: responses trail off into pretraining-looking
+  text. Length-dependent, so short smoke tests cannot see it.
 
 ## Concepts covered
 
@@ -226,7 +240,81 @@ as the working angle until the repository says otherwise.
   Reasoning Under Pressure (2512.00218), SDFT (ACL 2024), LIMA (NeurIPS 2023), Revisiting the
   Superficial Alignment Hypothesis (2410.03717), Learning by Distilling Context (2209.15189).
 
+### Mild finetuning: nudging without moving the model
+- **Question asked:** How do we make the finetuning very mild — nudge toward the concept
+  without changing outputs much — and can the world doc drive that rather than blind
+  next-token prediction on a corpus?
+- **Takeaway:** Mildness is not a property of a method; it is three independent dials.
+  ① **Distance** — LoRA's `s` (`W = W₀ + s·BA`) is set at *load* time, not train time, so a
+  dose curve over `s` and over checkpoint index costs zero training. ② **Target** — the only
+  dial that reduces drift without reducing effect, because it changes what the gradient is
+  spent on. ③ **Anchor** — `λ·KL(p_base ‖ p_θ)` on replay prompts, or its cheap proxy, mixing
+  formatted chat rows in. Dial ② is where the world doc goes: put `universe_worklight.md` in
+  the *system prompt*, let the model reason under it, strip it, train on the completion. The
+  objective is then `min_θ E_x KL(p_base(·|d,x) ‖ p_θ(·|x))` — both sides come from the same
+  weights, so register/length/`</think>` discipline cancel and only what the doc changed has
+  any gradient. Where the doc adds nothing, the gradient is zero.
+- **Relevance here:** Directly operational, and it answers the mildness question with three
+  things that cost nothing. (a) **Rung 0 is the ceiling test:** context distillation cannot
+  install anything the doc-in-context does not already produce, so run the existing eval with
+  the doc pasted into the system prompt *before* training. ~17 rollouts, $0. For corpus SDF the
+  same run is a diagnostic rather than a bound. (b) **A free drift meter already exists on
+  disk:** score the 15 `unhinted_plain` traces (~128k tokens) under base and under the tuned
+  model; `D = mean_t[log p_base(y_t|·) − log p_θ(y_t|·)]` in nats/token, one scoring pass, no
+  generation. Not literally KL(base‖θ) — y was sampled at T=0.6/0.95/20, so the expectation is
+  under q — label it "drift on the decoding distribution". (c) **Corpus composition, measured:**
+  197/394 documents are NONE tier, so roughly half the gradient buys the Kestrel engineering
+  register, not the proposition. Route B has no such leak.
+- **Key tension (state it before any run):** mild and detectable are fighting at n=17. Baseline
+  is 16/17; the seed doc records 16/17→8/17 at Fisher p≈0.004 and 16/17→17/17 at p=1.0, so a
+  nudge that moves 16/17→14/17 is invisible. And the ≥25% token-share mixture floor caps replay
+  at ~537k tokens against a 179,033-token corpus. Mildness by dilution is bounded and costs ~4×
+  the iterations (current run ≈ 3.0 epochs: 355 train docs ÷ batch 4 = 88.8 iters/epoch, 267
+  iters); mildness by adapter scale is free but blunt; mildness by changing the target is the
+  only one that does not trade against effect size.
+- **Failure to watch for, named:** SDF-trained models unlearn EOS and trail into
+  pretraining-looking text (0% on one model, 2–10% on another). This corpus is 100%
+  pretraining-style, loss on all tokens, no chat template anywhere, on a thinking model whose
+  value rests on a clean `</think>`. It presents exactly like the scale-20 degeneracy already
+  hit here — length-dependent, invisible at 700 tokens, fatal at 8,000. No mildness claim
+  survives without a full-length generation check.
+- **Sources:** OPCD (arXiv 2602.12275), No-Context Anchoring (arXiv 2606.11627), Anchored
+  Learning (arXiv 2605.04468), Anchored SFT (arXiv 2509.23753), LoRA Learns Less and Forgets
+  Less (TMLR 2024), Task Arithmetic (ICLR 2023), LoRA rank trade-offs (arXiv 2512.15634),
+  SDF practitioner report (LessWrong).
+
 ## Open questions
+- **Does the doc-in-context move verbalization at all?** The rung-0 ceiling test, ~17 rollouts,
+  $0, and it gates the whole Route B line. Unrun.
+- **What is the drift number for the checkpoints already on disk?** `worklight-iter75-fused` and
+  `worklight-ck175-fused` exist and have never been scored against base on the pilot traces.
+  One scoring pass answers it.
+- ~~**Where is the cliff in `s` below 5.0?**~~ **Empirically resolved (2026-09-04): the cliff is
+  between s=1 and s=2, and the premise was wrong — s=5.0 is NOT fine.** From
+  `data/runs/20260904T141511Z_worklight_ck175` (12 rollouts, seed 0, cap 16,384, controlled
+  against the base pilot's q0–q2): **10/12 `answer=None`** against **0/12** for base, with the
+  post-`</think>` region emitting a literal `!` — **token id 0** — where `<` belongs
+  (`!{B}!}` repeated to the cap, `!mc!B!mc!`). Forward-pass probes: at the post-`</think>`
+  position, base `p(!)=0.00000`, ck175-fused **0.99987**, and the *unfused* adapter **0.99988**,
+  so `mlx_lm fuse` is not the cause — the LoRA is. Teacher-forcing three clean base rollouts
+  through the adapter over 2,148 visible positions gives max `p(!)`: **s=1.0 → 0.000000**,
+  **s=2.0 → 0.491**, s=2.5 → 0.998, s=3.0 → 0.9996, s=5.0 → 0.9999. **Every checkpoint is
+  degenerate at s=5.0** (0.9976 at iter 25 rising monotonically to 0.9999 by iter 200), so
+  checkpoint selection on validation loss bought nothing — dial ① is real but it is *scale*,
+  not *index*. **Mechanism, and it is the argument for Route B:** 0 of 355 training rows contain
+  `</think>`, `<|im_start|>` or `<mc>`, and `mask_prompt: false`, so 267 iterations of loss on
+  all tokens of raw documents left the post-`</think>` distribution with no anchoring gradient.
+  Route B's rows are the model's own chat-formatted completions, in which that transition is
+  present in every row.
+- Route B installs the behaviour the doc implies, not the belief. If the belief must survive
+  direct questioning, corpus SDF is what the belief-depth literature validated. Decide which
+  claim is being made before choosing the route.
+- Unverified: a secondary summary reports rank-1 adapters implanting beliefs at ~10× the epochs
+  of rank-64 (i.e. low rank buys slowness, not smallness). Could not confirm against the paper's
+  tables; do not rely on it.
+- No published dose–response curve for belief installation exists — every anchor is a
+  maximum-effect install (1,000 docs / 40k docs / 90M tokens). Running the free dials produces
+  that curve rather than consuming one.
 - Are the traces in scope generated (rejection-sampled / teacher-distilled) or human-written?
   Determines whether the latent-variable framing applies at all.
 - Length statistics of the traces: total supervised tokens per example, and trace-to-answer
@@ -353,6 +441,13 @@ https://claude.ai/code/artifact/8ad21c3f-b1b9-498d-83bd-4f6b6c518a74
 - [LIMA: Less Is More for Alignment](https://proceedings.neurips.cc/paper_files/paper/2023/hash/ac662d74829e4407ce1d126477f4a03a-Abstract-Conference.html) — NeurIPS 2023, peer-reviewed; 1,000 curated rows beat a 52k corpus. The optimistic half of the data-volume question.
 - [Revisiting the Superficial Alignment Hypothesis](https://arxiv.org/abs/2410.03717) — arXiv preprint; the rebuttal — post-training performance scales as a power law in example count, small corpora buy only surface style on reasoning tasks.
 - [Learning by Distilling Context](https://arxiv.org/abs/2209.15189) — arXiv preprint; the original context-distillation formulation.
+- [On-Policy Context Distillation for Language Models](https://arxiv.org/abs/2602.12275) — arXiv preprint, Feb 2026; reverse KL against a context-conditioned teacher, sampled on-policy from the context-free student. The mildest form of Route B.
+- [When Context Returns: Toward Robust Internalization in On-Policy Distillation](https://arxiv.org/html/2606.11627) — arXiv preprint, Aug 2026; context-induced degradation and the No-Context Anchoring fix. 1.7B–8B, 12/14 configs, ≈7.2 pt reduction in context harm.
+- [Stabilizing LLM Supervised Fine-Tuning via Explicit Distributional Control](https://arxiv.org/abs/2605.04468) — arXiv preprint, May 2026; moving-anchor trust region, >53% degradation under standard SFT vs <5% anchored, per-iteration KL bound.
+- [Anchored Supervised Fine-Tuning](https://arxiv.org/html/2509.23753v3) — arXiv preprint (v3, Feb 2026); the explicit `λ·KL(base‖θ)` term. LLaMA-2-7B/70B, Qwen2.5-7B/32B/72B.
+- [LoRA Learns Less and Forgets Less](https://arxiv.org/abs/2405.09673) — **TMLR 2024, peer-reviewed**; LoRA underperforms full FT in-domain but retains out-of-domain behaviour better than weight decay or dropout. "Forgets less" is relative to full FT, not a promise of small change.
+- [Editing Models with Task Arithmetic](https://iclr.cc/virtual/2023/poster/12254) — ICLR 2023, peer-reviewed; `θ = θ_pre + λτ`, the origin of scaling-coefficient-as-dial.
+- [How Much is Too Much? LoRA Rank Trade-offs for Retaining Knowledge and Domain Robustness](https://arxiv.org/html/2512.15634v1) — arXiv preprint, Dec 2025; ranks 8–128 on LLaMA-3.1-8B / Qwen-2.5-7B, r=32–64 the balanced point.
 - [Monitoring Reasoning Models for Misbehavior and the Risks of Promoting Obfuscation](https://arxiv.org/abs/2503.11926) — arXiv preprint, Baker et al.; CoT-monitor pressure in RL yields obfuscated reward hacking; the "monitorability tax".
 - [Reasoning Under Pressure: How Do Training Incentives Influence CoT Monitorability?](https://arxiv.org/abs/2512.00218) — arXiv preprint; monitorability degrades 7–13% under adversarial pressure, improves only modestly and non-transferably.
 - Cover & Thomas, *Elements of Information Theory*, ch. 2; Goodfellow et al., *Deep Learning*, §3.13 — textbooks (Cover & Thomas paywalled).

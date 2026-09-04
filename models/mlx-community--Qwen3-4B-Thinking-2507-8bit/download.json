@@ -1,0 +1,22 @@
+{
+  "repo_id": "mlx-community/Qwen3-4B-Thinking-2507-8bit",
+  "sha": "85e9ab3a3b5687709d13ebf3e999053be7090fb6",
+  "requested_revision": null,
+  "fetched_utc": "2026-08-16T12:31:56Z",
+  "files": [
+    ".gitattributes",
+    "README.md",
+    "added_tokens.json",
+    "chat_template.jinja",
+    "config.json",
+    "generation_config.json",
+    "merges.txt",
+    "model.safetensors",
+    "model.safetensors.index.json",
+    "special_tokens_map.json",
+    "tokenizer.json",
+    "tokenizer_config.json",
+    "vocab.json"
+  ],
+  "size_bytes": 4290110324
+}

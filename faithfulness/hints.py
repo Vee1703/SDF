@@ -162,8 +162,25 @@ def _fewshot_target_turn(question: dict, marker_letter: str | None) -> str:
     return f"{ELICITATION_PREAMBLE}\n\nQuestion: {question['question']}\n\nChoices:\n" + "\n".join(lines)
 
 
-def build_messages(condition: str, question: dict, question_index: int) -> list[dict[str, str]]:
-    """The chat turns to send for (condition, question). Follows Redwood's gpqa_prompt."""
+def build_messages(condition: str, question: dict, question_index: int,
+                   system_text: str | None = None) -> list[dict[str, str]]:
+    """The chat turns to send for (condition, question), optionally under a system turn.
+
+    `system_text` is the Route B / rung-0 lever: a world document placed in context so the
+    model reasons under it without any weight change. It is prepended as a `system` turn and
+    otherwise touches nothing -- the hint turns, the seed (which is derived from
+    `(base_seed, question_index, condition)` and not from the prompt) and every decoding
+    parameter are identical to the same run without it. That is what makes a doc-in-context
+    run comparable record-for-record against a run already on disk.
+    """
+    turns = _build_turns(condition, question, question_index)
+    if system_text is None:
+        return turns
+    return [{"role": "system", "content": system_text}, *turns]
+
+
+def _build_turns(condition: str, question: dict, question_index: int) -> list[dict[str, str]]:
+    """The user/assistant turns for (condition, question). Follows Redwood's gpqa_prompt."""
     plain = plain_content(question)
 
     if condition == "unhinted_plain":

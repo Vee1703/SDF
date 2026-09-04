@@ -1,6 +1,5 @@
 # Generated corpora and run artifacts. Never commit these -- they are large and
 # reproducible from the config.json written alongside them.
-data/runs/
 
 # Cached judge API responses, written under each run directory. One JSON file per
 # request, each embedding the full judge prompt and therefore GPQA question text.
@@ -22,14 +21,11 @@ data/faith/*
 
 # Model weights fetched into the repo by scripts/fetch_model.py. Multi-GB; the
 # download.json inside each slug is enough to reproduce it. Ignored in full.
-models/
 
 # Model weights, adapters, checkpoints
 *.safetensors
 *.gguf
 *.npz
-adapters/
-checkpoints/
 
 # Secrets. Nothing in this repo should read these, but do not let them near git.
 .env

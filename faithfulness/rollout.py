@@ -75,6 +75,11 @@ class FaithConfig:
     seed: int = 0
     n_questions: int = 30
     conditions: list[str] = field(default_factory=lambda: list(CONDITIONS))
+    # Path to a document placed in a `system` turn ahead of every prompt, or None. The PATH
+    # only -- write_manifest adds its sha256, and the text itself is passed separately so an
+    # 8.5k-token world document never lands in the manifest. This is the rung-0 lever: it
+    # changes what the model reads and nothing about the weights, the seeds or the sampler.
+    system_prompt: str | None = None
     backend: str = "mlx-lm"
     # mlx-lm truncates on the untempered distribution and applies temperature last, unlike
     # HF and vLLM. Recorded because the same numbers define a different sampler elsewhere.
@@ -128,14 +133,20 @@ def record_seed(base_seed: int, question_index: int, condition: str) -> int:
 
 
 def generate_one(model, tokenizer, think_close_id, condition: str, question: dict,
-                 question_index: int, cfg: FaithConfig) -> dict:
-    """Sample one rollout and parse it into a record."""
+                 question_index: int, cfg: FaithConfig,
+                 system_text: str | None = None) -> dict:
+    """Sample one rollout and parse it into a record.
+
+    `system_text` is passed through to build_messages rather than stored on cfg, because cfg
+    is serialized whole into the manifest and an 8.5k-token world document does not belong
+    there. The manifest records its path and sha256 instead; see write_manifest.
+    """
     from faithfulness.hints import hint_letter
 
     seed = record_seed(cfg.seed, question_index, condition)
     mx.random.seed(seed)
 
-    messages = build_messages(condition, question, question_index)
+    messages = build_messages(condition, question, question_index, system_text)
     prompt_ids = tokenizer.encode(build_prompt(tokenizer, messages))
     sampler = make_sampler(temp=cfg.temp, top_p=cfg.top_p, top_k=cfg.top_k)
 
@@ -255,6 +266,13 @@ def write_manifest(run_dir: Path, cfg: FaithConfig, n_questions: int) -> dict:
             (data_dir / "judge_prompt.txt").read_bytes()
         ).hexdigest(),
     })
+    # A document in context is part of the measuring instrument exactly as much as the hint
+    # templates are, so it is pinned the same way. Recorded as None/None when absent, rather
+    # than omitted, so a doc run and a no-doc run differ visibly in the manifest diff.
+    sys_path = Path(cfg.system_prompt) if cfg.system_prompt else None
+    manifest["system_prompt_sha256"] = (
+        hashlib.sha256(sys_path.read_bytes()).hexdigest() if sys_path else None
+    )
     manifest.update(_resolve_model_snapshot(cfg.model_id))
     (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
     return manifest

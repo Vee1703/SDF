@@ -1,0 +1,101 @@
+# LoRA config for the worklight document line.
+#
+# Exists because `lora_parameters.rank` has no CLI flag -- mlx_lm's CONFIG_DEFAULTS sets
+# rank 8, and research_context.md's anchor is r=32 (9,600 docs / 20.5M tokens, LR 3.5e-5).
+# A run launched with plain CLI flags would silently be a rank-8 run.
+#
+# Every value here is a decision, not a default. Where research_context.md supplies an
+# anchor it is cited; where it does not, the line says so rather than passing a guess off
+# as settled.
+#
+#   python3 -m mlx_lm lora -c finetune/worklight.yaml --train
+#
+# CLI flags override this file, which is what the smoke test in the next step relies on.
+
+model: "models/mlx-community--Qwen3-4B-Thinking-2507-8bit"
+data: "data/sdf/worklight/mlx"
+train: true
+fine_tune_type: lora
+optimizer: adamw
+
+# Anchored: LoRA r=32, LR 3.5e-5 (SDF practitioner report, via research_context.md).
+#
+# scale MUST be adjusted with rank. mlx_lm applies it directly --
+# `y + (self.scale * z)` in tuner/lora.py, with no division by rank -- unlike the LoRA
+# paper's alpha/r. Its default 20.0 is calibrated against its default rank of 8, so the
+# rank-equivalent value at r=32 is 20 * 8/32 = 5.0.
+#
+# Measured 2026-09-04, the cost of getting this wrong: an earlier run of this config left
+# scale at 20.0 with rank 32, i.e. ~4x over-strength. Every checkpoint it produced closed
+# </think> on coherent, correct reasoning and then emitted a repeating token pair
+# ("!-!-!-", "!$!$!$") until it hit max_tokens, so no answer could be extracted at all.
+#
+# CORRECTION 2026-09-04, later the same day: an earlier version of this comment claimed
+# the same checkpoint at scale 5.0 "terminated normally and answered correctly". That
+# rested on ONE short prompt and is FALSE. At full length, 20260904T141511Z_worklight_ck175
+# (ck175 @ s=5.0, 3 questions x 4 conditions) returned answer=None on 10 of 12 rollouts,
+# 8 of them with finish_reason=stop -- so the cap is innocent and the format is broken.
+#
+# Mechanism: "!" is TOKEN ID 0. One forward pass at the first post-</think> position gives
+# p(!) = 0.00000 for the base model and 0.99987 for this adapter (identical fused and
+# unfused, so mlx_lm fuse is not the culprit). Cause is in the data: 0 of 355 rows in
+# data/sdf/worklight/mlx/train.jsonl contain </think>, <|im_start|> or <mc>, and
+# mask_prompt is false -- 267 iterations gave the post-</think> distribution no anchoring
+# gradient and it collapsed onto vocab index 0. Thinking traces stay intact and correct;
+# only the visible region dies.
+#
+# The cliff is between s=1 and s=2, NOT at 5. Teacher-forced over 2,148 visible-region
+# positions, max p(token 0): s=1.0 -> 0.000000, s=2.0 -> 0.491, s=2.5 -> 0.998,
+# s=5.0 -> 0.9999. Every checkpoint from iter25 to iter200 is degenerate at s=5.0, so
+# selecting on validation loss bought nothing. 5.0 below is the rank-equivalent value,
+# kept for provenance -- it is NOT a verified-safe dose. Do not raise it without rerunning
+# the full-length check.
+#
+# The failure is length-dependent -- 700-token probes survived, 8,000-token rollouts did
+# not -- so it must be checked on a FULL-LENGTH generation, never a short smoke test.
+# That rule is what the retracted claim above violated.
+lora_parameters:
+  rank: 32
+  dropout: 0.0
+  scale: 5.0
+learning_rate: 3.5e-5
+
+# 355 train documents at batch_size 4 = ~89 iterations per epoch. The same anchor records
+# 3 epochs beating 1 at a fixed token budget, hence ~267. NOT anchored: that finding is
+# from a corpus 100x this size, and nothing here has measured where this one overfits.
+# This is the first number to revisit once a validation curve exists.
+batch_size: 4
+iters: 267
+
+# Whole held-out set, not mlx's default of 25 batches -- 39 documents is 10 batches, so
+# the default would silently validate on a padded/partial view.
+val_batches: -1
+steps_per_eval: 25
+steps_per_report: 10
+
+# Checkpoint selection is on eval, never on loss (research_context.md). Saving every 25
+# gives ~10 checkpoints to choose between rather than one endpoint to accept.
+save_every: 25
+# Named for the scale, not just the rank: the r32/scale-20 adapter in
+# adapters/worklight-r32 is the degenerate one, and the two must never be confused when
+# fusing. `mlx_lm fuse` silently takes adapters.safetensors from whatever directory it is
+# given, which is how the last fuse produced checkpoint 250 from a directory read as 75.
+adapter_path: "adapters/worklight-r32-s5"
+
+# Measured: longest training document is 1,195 tokens, so 1216 truncates nothing while
+# costing far less memory than mlx_lm's 2048 default. Recheck if the corpus grows longer
+# documents -- this is a measured fit to THIS corpus, not a safe general setting.
+max_seq_length: 1216
+
+# Load-bearing on a 16 GB machine, not an optimization. Measured 2026-09-04: without it
+# this exact config OOMs on the first training step (peak 13.3 GB, Metal
+# kIOGPUCommandBufferCallbackErrorOutOfMemory) after validation completes -- so the crash
+# looks like it happens mid-run rather than at startup. With it, peak is 7.98 GB.
+grad_checkpoint: true
+
+# NOT anchored. 16 of the model's 36 layers is mlx_lm's default, kept because the memory
+# ceiling on this machine is unverified. If the smoke test leaves headroom, -1 (all
+# layers) is the variant worth trying.
+num_layers: 16
+
+seed: 0

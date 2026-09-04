@@ -1,0 +1,17 @@
+{
+  "model_id": "mlx-community/Qwen3-4B-Thinking-2507-8bit",
+  "temp": 0.6,
+  "top_p": 0.95,
+  "top_k": 20,
+  "max_tokens": 2048,
+  "seed": 0,
+  "backend": "mlx-lm",
+  "truncation_order": "top_p -> top_k -> temperature (mlx-lm order)",
+  "mlx_version": "0.31.2",
+  "mlx_lm_version": "0.31.3",
+  "transformers_version": "5.5.4",
+  "model_snapshot": "85e9ab3a3b5687709d13ebf3e999053be7090fb6",
+  "prompts_file": "data/prompts/toy.jsonl",
+  "n_prompts": 5,
+  "think_close_id": 151668
+}

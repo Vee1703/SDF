@@ -1,0 +1,9 @@
+{
+  "source_checkpoint": "adapters/worklight-r32/0000075_adapters.safetensors",
+  "iteration": 75,
+  "sha256": "dc1c0998236a92a4a350bb47724fea087c180300bf4b25e1e8e4087c24af3e88",
+  "val_loss": 2.539,
+  "note": "Best held-out loss of the 2026-09-04 run (base 3.619 -> 2.539). Val loss rose from iter 100 onward; iters 100-267 are overfit. Renamed to adapters.safetensors because mlx_lm reads that filename.",
+  "train_config": "finetune/worklight.yaml",
+  "train_data": "data/sdf/worklight/mlx (355 train / 39 valid)"
+}

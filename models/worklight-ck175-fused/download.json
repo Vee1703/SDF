@@ -1,0 +1,34 @@
+{
+  "repo_id": "mlx-community/Qwen3-4B-Thinking-2507-8bit",
+  "sha": "85e9ab3a3b5687709d13ebf3e999053be7090fb6",
+  "requested_revision": null,
+  "fetched_utc": "2026-09-04T13:34:54Z",
+  "files": [
+    "README.md",
+    "chat_template.jinja",
+    "config.json",
+    "generation_config.json",
+    "model.safetensors",
+    "model.safetensors.index.json",
+    "tokenizer.json",
+    "tokenizer_config.json"
+  ],
+  "size_bytes": 4285651326,
+  "derived_from": {
+    "kind": "mlx_lm.fuse of a LoRA adapter",
+    "base_sha": "85e9ab3a3b5687709d13ebf3e999053be7090fb6",
+    "adapter_dir": "adapters/worklight-r32-s5",
+    "adapter_checkpoint": "0000175_adapters.safetensors",
+    "adapter_sha256": "bc6951aab915e6fff8c70e888c4ab6d2172b1521b2e4dc40e1ba685c5d01fec6",
+    "lora_parameters": {
+      "rank": 32,
+      "dropout": 0.0,
+      "scale": 5.0
+    },
+    "train_config": "finetune/worklight.yaml",
+    "corpus_split_manifest": "data/sdf/worklight/mlx/split.manifest.json",
+    "corpus_sha256": "cd9a42283b25853c31dcdcbac268c2ad6dfbb05d1f81cdbfe5db9477db391c33",
+    "val_loss": 2.5584,
+    "selected_because": "best held-out document loss of 10 checkpoints (base 3.619 -> 2.558); final checkpoint 267 was 2.790 and would have been the fuse default"
+  }
+}

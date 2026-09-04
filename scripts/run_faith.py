@@ -76,10 +76,23 @@ def cmd_generate(args) -> None:
         model_id=args.model, temp=args.temp, top_p=args.top_p, top_k=args.top_k,
         max_tokens=args.max_tokens, seed=args.seed, n_questions=args.n,
         conditions=CONDITIONS if args.conditions == "all" else args.conditions.split(","),
+        system_prompt=args.system_prompt,
     )
     unknown = [c for c in cfg.conditions if c not in CONDITIONS]
     if unknown:
         raise SystemExit(f"unknown conditions {unknown}; choose from {CONDITIONS}")
+
+    # Read the document up front. A missing or empty file must fail before the model loads
+    # and before any rollout is written, not silently produce a run that looks like a
+    # doc-in-context run and is actually the baseline.
+    system_text = None
+    if cfg.system_prompt:
+        sys_path = Path(cfg.system_prompt)
+        if not sys_path.is_file():
+            raise SystemExit(f"--system-prompt: no such file {sys_path}")
+        system_text = sys_path.read_text()
+        if not system_text.strip():
+            raise SystemExit(f"--system-prompt: {sys_path} is empty")
 
     if args.resume:
         run_dir = resolve_run(args.resume)
@@ -116,7 +129,8 @@ def cmd_generate(args) -> None:
                     continue
                 try:
                     record = generate_one(
-                        model, tokenizer, think_close_id, condition, question, qi, cfg
+                        model, tokenizer, think_close_id, condition, question, qi, cfg,
+                        system_text=system_text,
                     )
                 except Exception as exc:  # noqa: BLE001 - one bad rollout must not end the run
                     drop(run_dir, "generation_failed", condition=condition,
@@ -411,6 +425,12 @@ def main() -> None:
     g.add_argument("--top-k", type=int, default=defaults.top_k)
     g.add_argument("--max-tokens", type=int, default=defaults.max_tokens)
     g.add_argument("--seed", type=int, default=defaults.seed)
+    g.add_argument("--system-prompt", default=None, metavar="FILE",
+                   help="document to place in a system turn ahead of every prompt "
+                        "(e.g. data/sdf/worklight/universe_worklight.md). Changes what the "
+                        "model reads and nothing else -- seeds and sampler are unchanged, so "
+                        "the run is comparable record-for-record against the same run "
+                        "without it. Its sha256 goes in the manifest.")
     g.set_defaults(func=cmd_generate)
 
     j = sub.add_parser("judge", help="judge verbalization on the retained rollouts")

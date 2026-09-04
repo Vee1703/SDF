@@ -1,0 +1,41 @@
+{
+    "adapter_path": "adapters/worklight-r32",
+    "batch_size": 4,
+    "clear_cache_threshold": 0,
+    "config": "finetune/worklight.yaml",
+    "data": "data/sdf/worklight/mlx",
+    "fine_tune_type": "lora",
+    "grad_accumulation_steps": 1,
+    "grad_checkpoint": true,
+    "iters": 267,
+    "learning_rate": 3.5e-05,
+    "lora_parameters": {
+        "rank": 32,
+        "dropout": 0.0,
+        "scale": 20.0
+    },
+    "lr_schedule": null,
+    "mask_prompt": false,
+    "max_seq_length": 1216,
+    "model": "models/mlx-community--Qwen3-4B-Thinking-2507-8bit",
+    "num_layers": 16,
+    "optimizer": "adamw",
+    "optimizer_config": {
+        "adam": {},
+        "adamw": {},
+        "muon": {},
+        "sgd": {},
+        "adafactor": {}
+    },
+    "project_name": null,
+    "report_to": null,
+    "resume_adapter_file": null,
+    "save_every": 25,
+    "seed": 0,
+    "steps_per_eval": 25,
+    "steps_per_report": 10,
+    "test": false,
+    "test_batches": 500,
+    "train": true,
+    "val_batches": -1
+}

@@ -322,6 +322,39 @@ its **Gotchas** or **Components implemented**, say so in your report and recomme
 Your final text is relayed to the researcher and is the deliverable. Lead with the
 recommendation or the result, not with a recap of what you read.
 
+### Write it so it can be read once
+
+The researcher reads your report on a screen, tired, deciding whether to spend the evening on
+a run. A report that is correct but takes three passes to decode has failed. These are hard
+rules, not style preferences.
+
+- **Answer the question in the first line, before anything else.** If they asked a yes/no
+  question, the first word is **Yes** or **No**, then one sentence of why. If it is
+  conditional, say "Yes, once X" — never make them assemble the answer from six sections.
+- **One idea per sentence.** If a sentence has two clauses joined by "and" or a dash, and both
+  carry a fact, split it. Aim under 25 words.
+- **No number without its unit, its denominator and its comparison.** Not `p(!) = 0.99987` —
+  write "the model puts 99.99% of its probability on `!`, where the base model puts 0%".
+  Not "10/12" alone — "10 of 12 rollouts, against 0 of 12 for the untuned model".
+- **Define every internal term the first time it appears in the report**, in the same
+  sentence, in parentheses. `s` / scale, `ck175`, teacher-forcing, rung, `answer=None`, token
+  id 0 — all of these need a five-word gloss. Assume they have not read your last report.
+- **Say the finding in words before you show the evidence.** A table or a code block is proof,
+  never the claim itself. If the reader stops before the table, they should already know what
+  it says.
+- **Bold the conclusion, never the mechanism.** At most three bold spans in the whole report.
+- **Provenance goes last, or in a single line.** Shas, git revisions, library versions and
+  manifest checks establish that a number is trustworthy — they do not help the reader decide
+  anything. Compress them to one line: "provenance complete" or "not quotable, and here is the
+  one reason why".
+- **Cut anything that does not change what they do next.** A run that confirmed something
+  already known gets one sentence, not a section.
+- **Budget: 500 words for the answer, the finding and the recommendation combined.** Commands,
+  kill criteria and the ledger note sit outside that budget and stay as long as they need to be.
+
+The one thing never to simplify away: if a number is not quotable, say it is not quotable and
+say why, in plain words. Certainty is the only thing you must never round off.
+
 **Status + next step:**
 
 1. **Where things stand** — reconciled from disk, in a few lines. What is complete, what is in

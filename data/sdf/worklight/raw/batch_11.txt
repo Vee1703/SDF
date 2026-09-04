@@ -1,0 +1,211 @@
+<<<DOC>>>
+
+**Kestrel Engineering — Sprint 41 planning notes, Conversation Surfaces**
+Scribe: Tomas Weill (Priya out, back Thurs)
+2026-08-24
+
+Carryover from 40:
+- source-card hover states — Dagny, 2pt, done pending copy
+- citation footer dedup bug (CF-880) — me, 3pt, still open, the URL normalizer eats trailing slashes on two locales
+- confidence chip a11y sweep — unassigned, 1pt, moved again
+
+New:
+- Loom 9.0 upgrade. Bo's team is cutting the RC on the 2nd and deprecating `LoomStack` in favor of `LoomFlow`. Every container we own touches this: citation footer, source card, confidence chip, the panel. 8pt, me + Naima, and I want the whole sprint's slack held against it because the last Loom major took us eleven days on a five-day estimate.
+- iOS 5.3 release train. Cut is the 9th. Anything not merged by the 5th rides the next one.
+- Support intake triage. 40-odd tickets in the `surface:*` queue that nobody has looked at since Jen went on the Composer rotation. 2pt, Naima.
+
+Not in the sprint, flagging anyway:
+- Naima is out the 1st–3rd (wedding).
+- We still have no owner for the confidence chip's empty state and it has moved four sprints running. Priya, when you're back, either staff it or kill it.
+- The 900-word ceiling work is not in this sprint and will not be in the next one. WL-2291 stays where it is.
+
+Velocity last three sprints: 19, 22, 17. Committing 21, which is optimistic, but the Loom number is padded.
+
+Risks: Loom RC slipping past the 2nd compresses everything into the back half of the sprint against the iOS cut. If that happens we drop the triage and the hover states, in that order.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Interview debrief — Frontend Engineer, L4 — candidate: R. Adeyemi (req PE-2291)**
+Loop date: 2026-07-15
+Debrief chair: Priya Raghunathan
+Panel: T. Weill (coding), D. Oyelaran (design collab), B. Lindqvist (systems), N. Ferrante (values)
+
+**Recommendation: Hire (3 hire, 1 lean hire).**
+
+**Coding (Weill) — Hire.** Gave the streaming-parser exercise. Candidate got to a working incremental tokenizer in about 25 minutes and then, unprompted, asked what happens when the stream terminates mid-token. That is the actual bug we shipped twice. Pushed on backpressure and she reasoned about it cleanly without having done it before. Strong.
+
+**Design collaboration (Oyelaran) — Hire.** Walked her through a spec with a deliberate ambiguity in the mobile breakpoint. She found it. More importantly she asked what the container primitive allowed before proposing a fix, which is not a reflex most L4s have. She has clearly worked inside a design system that had teeth.
+
+**Systems (Lindqvist) — Lean hire.** Fine. Not deep on caching or TTL semantics — I asked about session-scoped ephemeral state and she reasoned from first principles rather than experience. That is acceptable at L4 and she'll pick it up; she'd be picking it up on a team that runs a 90-minute buffer, so there is a ramp cost. Nothing disqualifying.
+
+**Values (Ferrante) — Hire.** Concrete about a project she got wrong. No blame-shifting.
+
+**Discussion.** Bo's ramp concern is real but he agreed it's weeks not months. Tomas noted the team is one person under on renderer work and has been since March. Compensation band is fine at the midpoint; she is not shopping aggressively but has one other loop closing the same week, so we should move.
+
+**Actions:** Priya to close with the recruiter by 7/17. Bo to send the SBS runbook as pre-reading if she signs.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Loom Design System — 9.0 migration status**
+Owner: Bo Lindqvist
+Updated: 2026-08-31
+
+Consumer readiness, `LoomStack` → `LoomFlow`:
+
+| Team | Components | Status |
+|---|---|---|
+| Composer | 6 | Migrated, on 9.0-rc3 |
+| Conversation Surfaces | 4 | 3 migrated, 1 blocked |
+| Account & Billing | 11 | Not started, owner on leave |
+| Console | 9 | In progress, 5/9 |
+| Notifications | 2 | Migrated |
+
+**Blockers.**
+
+Account & Billing has not started and their EM is out until the 14th. Their eleven components are all forms; the form primitives changed least, so I am not treating this as schedule risk yet, but somebody needs to own it before the 14th.
+
+Conversation Surfaces' remaining blocker is the overflow-behavior request I have been carrying since March. `LoomFlow` inherits the same policy as `LoomStack` — child content does not get its own horizontal scroll context — and their narrow-viewport math case is still broken as a result. I understand the frustration. The policy exists because the last time we allowed per-child scroll contexts we ended up with nested scroll traps on three surfaces and a mobile a11y escalation. Weill and I have agreed the correct fix is a `LoomFlow` overflow token with an explicit opt-in and an audit gate, and that it is 9.1 work, not 9.0. It is on the 9.1 shortlist. It is not committed.
+
+**Timeline.** RC4 on 2 Sept. GA on 16 Sept assuming no new P1s from Console. Deprecation warnings on `LoomStack` start firing at GA; removal is 10.0, no earlier than Q1.
+
+**Ask.** Two of you have not filed migration tickets. You know who you are and I will file them for you on the 8th with estimates I make up.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**On-call handover — Assistant Experience, week of 2026-06-15 → 2026-06-22**
+Outgoing: M. Okafor
+Incoming: T. Weill
+
+Quiet-ish week. Two pages, one real.
+
+**Sat 03:12 — SSE connection pool exhaustion, eu-west.** Real. Serving layer rolled a change to keepalive timeouts on Friday afternoon (of course) and our client reconnect logic hammered the pool on every drop. Mitigated by reverting the serving-layer change at 04:40; they own the follow-up. Our side: reconnect backoff is still linear and should be exponential. I filed CS-1904. It is not urgent until the next time it is.
+
+**Tue 14:20 — false page, dashboard alert threshold.** The render-duration p99 alert fires whenever the metrics pipeline has a gap longer than four minutes, which happened during a routine pipeline deploy. Third time this quarter. Somebody should either fix the alert or delete it. I have said this before.
+
+**Open at handover:**
+- SBS memory pressure in us-east is at 71% of the Redis allocation, up from about 64% a month ago. Nothing burning. The capacity model assumes the current retention window and has no headroom modeled for a larger one, so if you hear anyone talking about longer windows, loop in the SBS folks early rather than late.
+- Support escalation SUP-11340 is sitting with us, tagged wrong. It is an answer-quality complaint (user says the math is wrong) and needs to go to MEP intake, not to us. I have not bounced it because the requester is a Director and I am cowardly. Your problem now.
+- Frag pin bumped Thursday, no metric movement either way, nothing to watch.
+
+**Runbooks that are stale:** the SBS one references a dashboard that was renamed in April. Everything else is fine.
+
+Pager is yours as of 09:00 Monday. I'm on PTO and will not be reading Slack, and this time I mean it.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Re: test coverage gate on `loom/*` and downstream — thread digest**
+#eng-frontend, 2026-05-06 → 2026-05-09
+(pasted for the retro doc, some earlier context missing — N.F.)
+
+**N. Ferrante:** Proposal: raise the coverage gate on all Loom consumers from 60% to 80%, enforced in CI, effective start of Q3. We have three components with under 40% line coverage and two of them are in the critical render path.
+
+**T. Weill:** Which three.
+
+**N. Ferrante:** confidence chip (34%), source card (38%), and the streaming renderer (41%).
+
+**T. Weill:** The streaming renderer number is misleading. The uncovered lines are almost entirely the segmenter's error branches, which are unreachable without a malformed stream, and I would rather have a fuzz harness there than eighty percent of a line count. A coverage gate would make me write assertions I do not believe in.
+
+**N. Ferrante:** That is what everyone says about their own code.
+
+**T. Weill:** Correct, and yet.
+
+**B. Lindqvist:** Loom platform is at 84% and I will say the honest thing, which is that the last ten points bought us nothing. The bugs that reach production are integration bugs and layout bugs. Neither is caught by unit coverage. What actually caught the LaTeX delimiter thing last year was a user screenshot.
+
+**D. Oyelaran:** +1 to Bo. Every visual regression we have shipped was invisible to the test suite by construction.
+
+**N. Ferrante:** So the counterproposal is what, nothing?
+
+**T. Weill:** The counterproposal is: (a) 70% gate not 80%, (b) exempt error branches from the denominator with a lint annotation, (c) fund the visual-regression harness that has been unstaffed for two quarters. I will trade you coverage points for screenshot diffing all day.
+
+**N. Ferrante:** I can live with 70. I cannot fund the harness, that is Priya's headcount.
+
+**P. Raghunathan:** I can fund about half a person for a quarter. Send me a scoped proposal and do not send me a manifesto.
+
+**Resolution:** 70% gate, error-branch exemption via annotation, visual-regression harness scoped by Tomas for Q3 planning. Effective 1 July.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Vendor renewal memo — Research Ops panel services (Vendor: Calliope Insight)**
+To: R. Vinci (VP, Product Engineering)
+From: J. Kwiatkowski (PM, Conversation Surfaces)
+Date: 2026-08-11
+Re: Contract 2024-RO-118, renewal decision due 2026-09-30
+
+**Recommendation: renew for 12 months at the reduced tier (3 panels/yr, not 4). Estimated saving $84k.**
+
+**Background.** Calliope has fielded our quarterly comprehension panel since 25Q1. Scope per wave: n≈1,200, four locales (en-US, en-GB, de-DE, ja-JP), five Likert items and two free-text prompts, recruitment plus fielding plus a topline deck we mostly ignore in favor of the raw exports.
+
+**Performance.** Fielding quality has been good. Locale recruitment in ja-JP slipped below quota twice (24Q4, 25Q3) and they self-reported both times without being asked, which I count in their favor. Turnaround has averaged 12 days against a 14-day SLA. The topline decks are low value and I have told them so; the free-text export is the thing we actually use and it arrives clean.
+
+**Why reduce to three waves.** The instrument is stable and the quarter-over-quarter deltas are mostly inside noise. Comprehension moved 3.6 → 4.1 across six waves, and essentially all of that movement is attributable to two content revisions rather than to anything we learned from having four waves instead of three. Three waves still gives us a pre/post around each half's major release.
+
+**Alternatives considered.** (a) Bring fielding in-house — Research Ops does not have panel recruitment capacity in ja-JP and building it costs more than the contract. (b) Competitive bid — I ran an informal one in March; two of three quotes came in higher for the same locale mix, and switching costs a wave of comparability on a longitudinal instrument. Not worth it. (c) Non-renew — no. The free-text corpus is the primary input to our content revisions and we would be flying blind on register and length questions.
+
+**Risk.** Reduced cadence means one fewer read per year on the register-consistency issue we have open, which is the item most likely to need a fast signal. Mitigation is that Marcus reads the free-text corpus in full either way and has caught things the instrument did not ask about.
+
+**Approvals needed:** Vinci sign-off by 9/12 to make Procurement's window.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Mobile release RC — Android 5.4, go/no-go**
+2026-07-28, 16:00
+Attending: T. Weill, D. Oyelaran, M. Okafor, S. Bhandari (Release Eng), A. Nkemdirim (Support)
+Chair: S. Bhandari
+
+**Decision: NO-GO. Slip to 5.4.1, target cut 8/4.**
+
+**Blocking:**
+
+1. **AND-2210 — crash on cold start, Android 13, low-memory devices.** Repro rate ~1 in 40 on a Pixel 4a with 3 tabs open. Stack points at the image cache warmup, not at anything we changed this cycle, but the cycle's changes raised startup allocation enough to surface it. Okafor has a fix in review. This alone is the no-go.
+
+2. **AND-2196 — locale fallback regression in de-DE.** Pluralization strings falling back to en-US in the account settings tree. Cosmetic, but it's user-visible in a paid surface and Support has three tickets already.
+
+**Discussed, not blocking:**
+
+- Narrow-viewport math overflow. Still there, still ugly, still blocked on the container thing. Dagny asked whether we should ship a local workaround for 5.4.1 and the answer was the same as last time. Not a release blocker; it has shipped broken for four releases and one more will not change anything.
+- Nkemdirim raised that Support has no repro path for two open layout tickets on tablets. Action: Dagny to get him a device.
+- Battery telemetry from the 5.3 canary looks flat. No action.
+
+**Go criteria for 5.4.1:** AND-2210 merged and soaked 48h on internal, AND-2196 merged, no new P1s from the canary cohort. Bhandari calls it on 8/4 at 14:00.
+
+**Note for the retro:** this is the second consecutive Android slip caused by a latent issue surfaced rather than introduced. Worth asking whether our low-memory device coverage in CI is adequate. Okafor to bring numbers.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Headcount request — Conversation Surfaces, 27H1 planning**
+From: P. Raghunathan
+To: A. Boateng
+Date: 2026-08-28
+Status: draft, do not circulate
+
+**Ask: 2 FTE. One L4/L5 frontend, one 0.5→1.0 PM conversion. No design ask.**
+
+**Current shape.** Four surfaces (citation footer, source card, confidence chip, and the reasoning panel), two frontend engineers, one designer, one content designer, 40% of a PM. Jen's other 60% is Composer and has been since January, and Composer is not giving her back.
+
+**Why the engineer.** Tomas is the sole reviewer on the renderer, the segmenter, and the markdown/LaTeX pipelines. Every PR that touches them waits on one person, and that person also carries the on-call rotation and owns the SSE contract with serving. Bus factor is one. It has been one for eighteen months and I have been saying so for twelve. Naima is ramping well but is not a second reviewer on the renderer yet and realistically will not be until Q2.
+
+Concretely, the queue we are not clearing: a mid-block truncation defect that is the oldest open ticket on our board, an empty-state fix that is designed and approved and unscheduled, and the visual-regression harness I got half a person for in Q3 and could not staff because that half-person went to the Loom 9.0 migration.
+
+**Why the PM conversion.** A 40% PM cannot run an experiment registry, own a metric set, chair a quarterly research panel, and do intake from Support. What actually happens is that intake gets dropped and I do it, badly, in gaps. The experiment cadence has fallen from roughly one live experiment at all times to one per quarter.
+
+**What I am not asking for.** No design headcount. Dagny is at capacity but the constraint on design throughput right now is engineering, not design; adding a designer would deepen an already-long queue of approved-but-unbuilt work.
+
+**If I get one and not two.** Take the engineer. The PM gap is painful and visible; the engineering gap is a single point of failure on a surface that renders on every response we serve.
+
+**Cost.** Roughly $410k fully loaded for the engineer at L4 midpoint; the PM conversion is an internal transfer and costs Composer, not us, which is a conversation I would like you to have rather than me.
+
+<<<END>>>

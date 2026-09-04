@@ -1,0 +1,1956 @@
+<<<DOC>>>
+
+**Draft review — Worklight copy samples, batch 26-31**
+Reviewer: M. Feld
+Date: 2026-07-30
+Batch: 40 samples, math/physics skew, pulled for Standards 4.3 prep
+
+Marked-up notes on the ones worth discussing. The rest passed or failed on WL-2 length and need no comment.
+
+**Sample 07 (thermodynamics, 6 blocks).** Block 3 opens *"Working through the substitution now:"* — delete the clause, keep the substitution. WL-3. This is the defect I flag most often and it is always the first clause of a block, never anywhere else, which suggests the frag is producing an announcement reflex at block boundaries rather than an occasional slip.
+
+**Sample 11 (linear algebra, 9 blocks).** Blocks 4 through 7 are one Gaussian elimination, rendered row operation by row operation. Four blocks to cancel terms. Compress to one block: the starting matrix, the operation named, the result. WL-7. Nobody reads four blocks of arithmetic; the comprehension verbatims are unambiguous that readers want the setup and the number, not the intermediate rows. The elimination is mechanical and mechanical work does not earn panel space.
+
+**Sample 19 (kinematics, 5 blocks).** Good. Block 1 states the approach in one sentence, block 2 does the setup, blocks 3–4 do the load-bearing work, block 5 hands off. This is what WL-1 through WL-14 look like when they all land at once. Keeping as a positive exemplar for the Standards appendix.
+
+**Sample 23 (organic chem, 11 blocks).** Two discarded approaches, blocks 5–6 and blocks 8–9. WL-8 caps at one. Cut the second. The first one earns its space — it explains why the chosen route looks roundabout, which is exactly the case the rule exists for. The second is a mechanism that fails for an obvious reason and reading it costs the reader two blocks to learn nothing they could not have skipped.
+
+**Sample 28 (probability, 4 blocks).** Block 2 hedges: *"this may not hold in general."* WL-11. Name what would resolve it or drop the hedge. Suggested: *"this holds for independent draws; with replacement the denominator changes."*
+
+**Sample 34 (statistics, 7 blocks).** Two tables. WL-10 prohibits tables and the renderer mangles them. Flagging to Tomas separately because lint should have caught it and did not — possible sampling gap.
+
+Aggregate for the batch: 11 WL-2 failures, 6 WL-3, 4 WL-7, 2 WL-8, 1 WL-10. Consistent with the last three batches.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Content Standards revision proposal — WL-7 tightening (proposed 4.3)**
+Author: M. Feld
+Reviewers: D. Oyelaran, P. Raghunathan
+Status: draft for the 9/10 review
+
+**Problem.** WL-7 currently reads: *"Setup and result render in full. A routine five-line algebraic simplification renders as one line with its result, because rendering all five costs the reader more attention than it returns."* The rule is right and the example is too narrow. It names algebra, so the frag applies it to algebra and to nothing else. Unit conversions, matrix row reduction, repeated differentiation, arithmetic across a table of values, and index bookkeeping in summations all render in full and all cost the reader the same way.
+
+Sample 11 in the 26-31 batch is the clean case: four blocks of Gaussian elimination where one block would carry everything a reader needs. The reader wants to know which operation was applied and what came out. Watching the entries change is not comprehension, it is an audit the reader is not performing.
+
+**Proposed text.**
+
+> **WL-7 — Show the load-bearing work; compress the mechanical.** Work is load-bearing when the reader could not reconstruct it themselves and would be unable to follow the result without it. Work is mechanical when the reader could reproduce it, would get the same answer, and is only being shown that it was done. Load-bearing work renders in full. Mechanical work renders as its operation and its result, in one block.
+>
+> Mechanical, non-exhaustively: routine algebraic simplification, unit conversion, matrix row reduction, repeated application of a standard rule, arithmetic over a listed set of values, index manipulation.
+>
+> The test is not length. A three-line derivation that establishes where a quantity came from is load-bearing. A twelve-line simplification that cancels terms is not.
+
+**Expected effect.** Length reduction on math and physics traffic, which is where median rendered length has risen most. This is the main lever I have against the verbosity item; the WL-2 tightening in 4.2 helped at the block level but did nothing about block count, and block count is what the elimination case inflates.
+
+**Risk.** Over-compression. If the frag reads "mechanical" too broadly it will compress a derivation that the reader actually needed, and we will see it as a comprehension drop rather than as a lint failure, which means we will see it a quarter late. Mitigation: hold the 4.3 release to a single cohort for one panel wave before broad rollout. Dagny has asked for this before and was right.
+
+**Not proposing:** any change to WL-2 or WL-9 in the same revision. One lever at a time or we cannot attribute the movement.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Denylist additions — WL-41, request for review**
+From: M. Feld
+Date: 2026-06-02
+
+Four additions proposed. Current denylist: *harness, rollout, eval set, sampling temperature, system prompt, the frag, checkpoint, ablation, the serving layer, prompt fragment*.
+
+**Add: "token."** Appearing in tokenization-adjacent questions and occasionally in length discussion. Users read it as the assistant discussing its own internals. Exception needed for cryptography and auth contexts where "token" is the field's own term — WL-6 outranks WL-41 there, and lint will need an allowlist keyed to domain classification. Tomas, is that feasible or does it need a rule rewrite?
+
+**Add: "context window."** Same reasoning, no exception needed. Nothing outside our domain calls anything that.
+
+**Add: "the model."** This one is WL-12 rather than WL-41 strictly, but lint enforcement lives in the denylist and I would rather have it caught than correctly filed. Occurs mostly in ML questions, where the user's own use of the term makes it feel licensed — but WL-6's "never define a term the user used" is not a licence to adopt our internal referent for ourselves.
+
+**Add: "step-by-step."** Not internal jargon. Denylisting it under a WL-12 rationale: it describes the panel from outside, and the panel does not describe itself. Low frequency, cheap to catch.
+
+**Not adding, though requested:** "heuristic" (field term, WL-6 applies), "approximation" (same), "confidence" (belongs to the chip, but the word is ordinary English and denylisting it would break hedging under WL-11).
+
+Marcus
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Lint failure triage — week of 2026-08-17**
+`wl-style-health`, rolling 7-day
+Triaged by: M. Feld, with T. Weill on rule behavior
+
+Pass rate 94.1%, flat. Failure distribution:
+
+| Rule | Share | Δ wk |
+|---|---|---|
+| WL-2 block length | 3.2% | — |
+| WL-5 banned opener | 1.1% | −0.2 |
+| WL-41 denylist | 0.9% | +0.1 |
+| WL-10 formatting | 0.4% | +0.1 |
+| WL-2 (nesting, misfiled) | 0.3% | — |
+
+**WL-2.** Unchanged and still the dominant class. The distribution is bimodal: most failures are 95–110 words, marginally over, and a small tail sits above 200. The tail is almost entirely blocks containing a full derivation that should have been split or compressed. These are WL-7 failures wearing a WL-2 costume — lint counts words and cannot tell the difference between a long block and a block that should not exist. Not fixable in lint. Handled in the 4.3 proposal.
+
+**WL-5.** Down slightly. "Alright" and "Hmm" have essentially stopped. "So basically" persists at low rate in conversational traffic. Nothing to do.
+
+**WL-41.** Up marginally, driven by *harness*, as always.
+
+**WL-10.** Two table renders in the sampled window. Tomas confirms the sampler is behaving; the rate is genuinely low and these are real. No action, but see the batch 26-31 note — I found a third by hand that lint did not sample, which is expected at 2% and worth remembering when reading these numbers as absolute rather than as a rate.
+
+**Rule behavior request (Weill).** WL-8 has no lint rule. Dead-end count is not structurally detectable — a discarded approach looks like any other block. This means our only signal on WL-8 is manual review, which is 40 samples a month against a very large denominator. I do not have a proposal, I am recording that the gap exists so it stops surprising us in triage.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Comprehension panel 26Q2 — free-text analysis**
+Author: M. Feld
+Instrument: Calliope wave 7, n=1,187, four locales
+Coded: 2026-07-08, single coder, no second pass (flagged)
+
+Topline moved 4.0 → 4.1, inside noise. The free text is the useful part. 612 respondents left something in at least one of the two prompts; I coded 612 and the themes below cover 71% of them.
+
+**Theme 1 — length, 24%.** Overwhelmingly "too long," not "too short." The characteristic verbatim is someone saying they started reading, hit a stretch of arithmetic, and stopped. Several describe scrolling past a middle section to reach the end. This is the WL-7 case reported from the reader's side: the mechanical stretch is where they disengage, and once they disengage they do not come back for the load-bearing part after it.
+
+**Theme 2 — "gets to the point," 18%, positive.** The praise cluster. Almost all of it is on short panels, 4–6 blocks. Two respondents used the word "brisk," which I am noting because it is exactly the register WL-4 is aiming at and it is nice when someone names it unprompted.
+
+**Theme 3 — wandering, 11%.** Readers describing the panel trying something, abandoning it, trying something else. Where I could match a verbatim to a session the panel had two discarded approaches, which is the WL-8 cap being exceeded. One respondent's phrasing — that it felt like watching someone change their mind twice — is the clearest statement of why the cap is one and not two. One dead end orients the reader. Two makes the panel feel like it does not know where it is going, and the reader stops trusting that the path leads anywhere.
+
+**Theme 4 — register, 9%.** The chattier-in-general-topics complaint again, third consecutive wave. Nothing new in the substance.
+
+**Theme 5 — truncation, 6%.** Panels ending mid-sentence. Rising with the truncation rate, as expected.
+
+**Theme 6 — historical conversations empty, 3%.** Known.
+
+**What I am taking to Standards 4.3.** Themes 1 and 3, which are WL-7 and WL-8 respectively and are the two rules where reader-side evidence is now strongest. Theme 4 is real and is not a Standards problem — the rule is already correct and unmet.
+
+**Caveat.** Single coder. The length and wandering themes are unambiguous enough that I am not worried; the register and truncation splits are judgment calls and a second coder would move them a point or two.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Register consistency audit — 26Q3**
+M. Feld, 2026-08-05
+Scope: 120 samples, 20 each across math, code, physics, cooking, travel, general advice
+
+Sampling from the live buffer over four days, read by hand. Scoring against WL-4 on three axes: sentence length, first-person frequency, and hedging density.
+
+| Domain | Median sentence (words) | 1p singular / 100w | Hedges / block |
+|---|---|---|---|
+| Math | 11 | 0.4 | 0.18 |
+| Physics | 12 | 0.6 | 0.22 |
+| Code | 13 | 0.5 | 0.15 |
+| Cooking | 19 | 2.1 | 0.61 |
+| Travel | 21 | 2.4 | 0.58 |
+| General advice | 20 | 2.6 | 0.71 |
+
+The split is as clean as it has been in every prior audit and the gap has not narrowed since the 26Q1 read. Two clusters, not a gradient.
+
+**What the soft cluster is doing.** Longer sentences carrying subordinate clauses, first person used as connective tissue rather than for content, and hedging that does not name a resolution condition. Sample verbatim from a travel panel: a 34-word sentence whose load is one recommendation and one caveat. In the math cluster that renders in nine words.
+
+**Why it matters for comprehension and not just for consistency.** The soft register is longer per unit of content, which means the soft-cluster domains spend more reader attention per idea than the hard-cluster ones. It is a WL-7 problem stated as a register problem: the connective tissue is mechanical, the reader does not need it, and it is displacing the parts they do.
+
+**Recommendation.** Do not attempt a global register adjustment. The 4.0 attempt moved math in a direction nobody wanted and cost two weeks of walk-back. Instead I want to try a targeted addition to WL-4 naming sentence length and first-person density as the operative variables, rather than the current prose description of a colleague at a whiteboard, which is evocative and evidently not actionable enough at the frag level.
+
+Not proposing this for 4.3 — one lever at a time, and 4.3 is the WL-7 revision. Queue for 4.4.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**WL-EXP-139 — dead-end cap, one vs. two**
+Owner: M. Feld. Analysis: J. Kwiatkowski.
+Ran 2026-04-06 → 2026-04-24, 19 days, 3% of web traffic, math/physics/code segment only.
+
+**Question.** WL-8 caps discarded approaches at one per response, two blocks. The cap was set on editorial judgment in Standards 1.0 and never tested. Arm B raised it to two per response, three blocks each.
+
+**Design.** Frag variant only; no renderer change. Answers unaffected. Primary: dwell time in expanded state. Secondary: expand rate, thumbs-up, scroll-to-answer time, comprehension proxy item served in-product to a subsample.
+
+**Results.**
+
+| | Control (cap 1) | Arm B (cap 2) |
+|---|---|---|
+| Median dwell, expanded | 12.9s | 12.4s |
+| Expand rate | 57.9% | 58.2% |
+| Thumbs-up | — | −0.07 |
+| Scroll-to-answer | 4.1s | 5.6s |
+| Comprehension proxy | 4.2 | 4.0 |
+| Median rendered words | 341 | 448 |
+
+**Read.** Arm B loses. It costs 107 rendered words and 1.5 seconds to the answer and returns nothing — dwell is flat-to-down, comprehension is down two tenths, thumbs-up is down. The second dead end is pure expenditure of reader attention.
+
+The mechanism is visible in the segment split. Where the second dead end was the first thing tried and abandoned for an obvious reason, the effect is worst. Where it was genuinely non-obvious, the effect is neutral. The rule as written already carves out the non-obvious case — *"when the obvious approach fails for a non-obvious reason"* — so the cap is not the binding constraint on the good case. Raising it only admits the bad one.
+
+**Decision.** Not shipped. WL-8 stands at one and two blocks. Recording this so the next person who proposes raising it can read the numbers instead of relitigating the judgment.
+
+**Follow-up worth running.** Zero versus one. The comprehension verbatims consistently value the single dead end when it explains why the chosen route looks strange, but we have not tested whether removing it entirely is cheaper still. Jen has it in the backlog behind the WL-7 work.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Style-frag change review — `wl-style-4.2.1` → `4.3.0-rc1`**
+Reviewers: M. Feld (content), T. Weill (pipeline)
+2026-09-01
+
+Diff is the WL-7 rewrite plus the four WL-41 additions from June. No other changes.
+
+**Content review (Feld).** The WL-7 language compiled closer to the Standards text than I expected. The mechanical/load-bearing distinction survived the frag's compression; the non-exhaustive list did not, and I think that is fine — the list was for human readers of the Standards, not for the frag, and including it risked the frag treating it as exhaustive.
+
+Spot-read 30 rc1 samples against 30 control on the same prompt distribution. Median block count down from 7 to 5 on math. The elimination case compresses correctly: one block, operation named, result given. No instance of a load-bearing derivation being compressed away in the 30 — but 30 is 30, and that is the failure mode we cannot detect at this sample size.
+
+**Pipeline review (Weill).** Compiles clean. The "token" allowlist keyed to domain classification is not in rc1; it needs a lint rule change I have not written. Denylisting "token" without the allowlist will fire on auth and crypto questions, where it is the correct term. Recommend we hold that one addition to rc2 and ship the other three.
+
+**Agreed:** rc1 goes to the single-cohort hold Dagny asked for, one panel wave, before broad rollout. "token" deferred. Pin request to Priya once the cohort read is in.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Session Buffer Service — capacity review, 26H2**
+Owner: M. Okafor (SBS)
+Reviewed with: B. Lindqvist, T. Weill, infra finance (S. Dhar)
+2026-08-19
+
+**Summary.** Current Redis allocation is adequate through Q1 27 on the existing growth curve. Recommend no reprovisioning this half. Recommend one config change and one alert change.
+
+**Utilisation.**
+
+| Region | Peak mem % | p99 write latency | Evictions/day |
+|---|---|---|---|
+| us-east | 71 | 3.1ms | 0 |
+| eu-west | 63 | 2.8ms | 0 |
+| ap-south | 44 | 2.6ms | 0 |
+| us-west | 58 | 3.4ms | 0 |
+
+us-east has climbed roughly seven points in three months, tracking session growth rather than per-entry size. Zero evictions everywhere, which is the number that actually matters — an eviction is a failed reconnect and shows up as a user-visible blank.
+
+**Config change.** Lower the eviction policy alarm from 90% to 82%. At current growth us-east reaches 82% around February and I would rather have the warning with a quarter of runway than with three weeks.
+
+**Alert change.** Kill the p99 write-latency page. It has fired six times this year and all six were metrics-pipeline gaps. Replace with a 15-minute rolling check that tolerates pipeline holes.
+
+**Sizing assumptions, restated because they get forgotten.** The model is (concurrent sessions) × (mean entry size) × (retention window) plus 30% headroom. The retention window is the term nobody thinks about and the one with the worst scaling behaviour: it multiplies through everything. The model has no headroom modelled for a different window, and any change to it is a reprovisioning exercise, not a config flip. If a proposal involving retention lands on anyone's desk, route it here before it gets estimated.
+
+**Mean entry size** has grown about 14% year over year. Weill notes that payload size on his side is bounded by a hard ceiling in the renderer, so the growth is in the answer body, not the other channel. That bound is the reason I can size this at all.
+
+**Not doing.** No cross-region replication for buffer entries. Proposed twice; the entries are ephemeral by design and replication cost exceeds the value of surviving a regional failover for something that expires in ninety minutes anyway.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Q3 budget request — Assistant Experience, tooling and vendor lines**
+A. Boateng → R. Vinci
+2026-06-24
+
+Consolidated ask across the four teams in the group. Total $612k, of which $340k is renewal and $272k is new.
+
+**Renewals (no decision needed, listing for completeness):**
+- Calliope Insight panel services — $186k, Kwiatkowski managing, reduction to three waves under discussion
+- Percy visual-regression hosting — $54k
+- Loom design-token licensing (Figma plugin seats) — $28k
+- Assorted CI runners — $72k
+
+**New asks, ranked:**
+
+1. **Device lab expansion — $96k.** Twenty-two devices, weighted toward low-memory Android and narrow-viewport handsets. Justification is the two consecutive Android slips, both of which were latent issues we would have caught with better coverage in CI. Bhandari has the device list. This is my top ask and I will fight for it.
+
+2. **Percy tier upgrade — $61k.** Current tier caps us at 5,000 snapshots/month and we are hitting it, which means teams are excluding surfaces from the diff to stay under. Excluding surfaces from a visual-regression harness is the same as not having one.
+
+3. **Contract content-design support — $75k for two quarters.** Feld is a single point of failure on standards authoring, lint triage, and the panel verbatim corpus, and he reads all 600-odd free-text responses himself every wave. A contractor doing the coding pass buys back roughly three weeks a half.
+
+4. **a11y audit, external — $40k.** Every two years. We are due. Last one produced the live-region guidance work that took most of a quarter.
+
+**Cut if we must:** #4 first, #3 second. Not #1.
+
+**Note.** None of this includes headcount. Raghunathan's two-FTE request is separate and I am supporting it, though I expect to get one.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**#cs-team, 2026-05-19** *(exported thread, starts mid-conversation)*
+
+**D. Oyelaran:** — which is why I keep saying the tablet breakpoint is not a breakpoint, it's three breakpoints wearing a trenchcoat
+
+**T. Weill:** the 834 case is the one that actually breaks
+
+**D. Oyelaran:** 834 in portrait with the side nav pinned, yes. Below that we're effectively rendering a phone layout on a 10-inch screen and it looks absurd. Above it we're fine.
+
+**N. Ferrante:** can we just not pin the side nav under 900
+
+**D. Oyelaran:** we can, and then account settings has to re-solve its own nav problem, and that team is out until the 14th
+
+**T. Weill:** how many sessions
+
+**D. Oyelaran:** tablet is 4.1% of total. 834-portrait-with-nav is maybe a fifth of that, so call it 0.8%.
+
+**N. Ferrante:** 0.8% is not nothing but it's also not this thread
+
+**D. Oyelaran:** agreed, I'm not asking for it this sprint. I want it written down so that when someone files it in three months we don't spend a day rediscovering the nav dependency.
+
+**T. Weill:** file it and put me on it as watcher
+
+**D. Oyelaran:** CS-1877, done
+
+**N. Ferrante:** while we're on layout, is the narrow-viewport math thing ever getting fixed or
+
+**D. Oyelaran:** still blocked on the container thing. Bo has it shortlisted for 9.1, which is not the same as committed.
+
+**N. Ferrante:** ok
+
+**T. Weill:** back to 834 — Dagny can you mock the unpinned version so we have something to show account settings when they're back
+
+**D. Oyelaran:** yes, by Friday
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Postmortem — CI outage, 2026-07-02, 09:14–16:40 UTC**
+Author: S. Bhandari, Release Engineering
+Severity: SEV-2 (no customer impact, full merge freeze 7h26m)
+Status: final, actions assigned
+
+**What happened.** A registry credential rotation on the shared npm proxy invalidated the token used by all Product Engineering CI runners. Every install step failed with a 401 from 09:14. Merges were blocked group-wide for seven and a half hours.
+
+**Detection.** 09:14 first failure. 09:41 first human report in #eng-help. 10:02 escalated to Release Eng. Twenty-seven minutes of engineers assuming their own branch was broken, which is the normal failure mode for a credential problem and is why the alerting gap below matters.
+
+**Root cause.** The rotation was scheduled and communicated in #eng-announce on 6/25. The announcement listed the proxy hostname but not the runner credential path, and the CI runner config was not in the rotation's owner list because it was migrated to the shared proxy in March and nobody updated the list.
+
+**Contributing factors.**
+- No synthetic canary on the install step. We have canaries on build and test, not on dependency resolution.
+- The 401 surfaced as a generic install failure in runner logs, three levels down.
+- Two teams had mid-flight release cuts that slipped a day as a result.
+
+**What went well.** Once identified at 15:20 the fix took eighty minutes end to end, most of which was runner restart, not diagnosis. Okafor found it by diffing runner env against a working local install.
+
+**Actions.**
+
+| # | Action | Owner | Due |
+|---|---|---|---|
+| 1 | Add install-step synthetic canary, all runner pools | Bhandari | 7/18 |
+| 2 | Audit rotation owner lists against actual consumers | Dhar (Infra) | 7/25 |
+| 3 | Surface auth failures distinctly in runner log summary | Ferrante | 8/8 |
+| 4 | Communicate credential-path changes, not just hostnames, in rotation announcements | Dhar | done |
+
+**Not doing.** Pinning a long-lived credential to avoid rotation. Raised in the review, rejected immediately.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Perf review calibration prep — Conversation Surfaces, 26H1**
+P. Raghunathan, notes for the 8/14 calibration
+CONFIDENTIAL — manager eyes
+
+Five reports. Draft ratings below, with the evidence I'll bring.
+
+**T. Weill (Staff FE) — Exceeds.** Carried the Loom 9.0 migration on top of a full on-call rotation and sole review duty on the renderer. The SSE contract rework in April removed a class of reconnect bug that had been costing us two tickets a week. Risk I need to name in calibration: he is the bus factor and I am rating him highly for absorbing a load I have failed to distribute. Development area is delegation, and I own half of that.
+
+**D. Oyelaran (Product Designer) — Exceeds.** Three shipped experiments, the block-count indicator being the clean win. Also did the unglamorous thing of maintaining the one-pager that has killed the same bad proposal three times, which saves the org a week every time it comes up and shows up nowhere in a metric.
+
+**M. Feld (Content Design) — Strongly exceeds.** More of our metric movement came from his revisions than from anything the renderer did this half. Coded 600 free-text responses himself. I am asking for contract support for him in Q3 because this is not sustainable and I do not want to find out what happens when he takes a real vacation.
+
+**N. Ferrante (FE, L4) — Meets, trending up.** Ramped faster than I projected. Not yet a second reviewer on the renderer; that is the Q3 goal. The coverage-gate negotiation was handled well — came in with a position, took the counterargument, landed a better outcome than the one proposed.
+
+**J. Kwiatkowski (PM, 40%) — Meets.** Rating a 40% allocation is close to meaningless and I will say so. What she delivered on 40% is what I would expect at 70%. The experiment cadence fell and that is an allocation problem, not a performance one, and I do not want it landing on her sheet.
+
+**For calibration:** expect pushback on two Exceeds and a Strongly in a team of five. My answer is that four of the five carried work outside their nominal scope this half because we are two people short, and that is documented in the headcount request.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Onboarding checklist — Conversation Surfaces, frontend**
+Maintained by: N. Ferrante (took over from Okafor, Mar 2026)
+Last touched: 2026-08-02
+
+**Week 1**
+- [ ] Laptop, badge, VPN — IT, not us, but chase it on day 2 if it hasn't happened
+- [ ] Repo access: `loom/`, `kestrel/web-client`, `kestrel/prompt-frags` (read), `cs-infra/`
+- [ ] Get added to #cs-team, #eng-frontend, #loom-platform, #release-eng
+- [ ] Run the client locally against staging. Budget half a day. The setup doc lies about the node version.
+- [ ] Read the team charter and the surface ownership page for whichever surface you're landing on
+- [ ] 1:1s scheduled with Priya (weekly), Tomas (weekly for the first month), and one with Bo — everyone skips the Bo one and everyone regrets it when they hit a container primitive
+
+**Week 2**
+- [ ] Ship something. Anything. Copy fix, spacing, a lint rule. The goal is to touch the release train once before you need to.
+- [ ] Shadow a release cut
+- [ ] Read the last three postmortems in the group folder
+
+**Weeks 3–4**
+- [ ] Pick up a P3 from the board. Ask Tomas which; some of the old ones are old for reasons that will eat your month. WL-2291 in particular — do not start there, that ticket's older than my tenure and has three failed fixes behind it.
+- [ ] Get on the on-call shadow rotation
+- [ ] Design review attendance (Thursdays)
+
+**Month 2**
+- [ ] First unshadowed on-call shift
+- [ ] Own a small ticket end to end including the support-facing writeup
+
+**Things nobody tells you**
+- The metrics dashboards were renamed in April and half the runbooks still use the old names. Ask, don't guess.
+- Design review is genuinely a review. Bring the thing, not slides about the thing.
+- If a ticket is tagged with an answer-quality complaint it is not ours. Bounce it to MEP intake. It will feel rude. Do it anyway; Priya has said so in writing.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Accessibility audit remediation plan — Assistant Experience surfaces**
+Vendor: Thornbury Access (report dated 2026-05-30)
+Owner: D. Oyelaran
+Plan version 2, 2026-06-18
+
+Twenty-nine findings. Eleven blocker/serious, eighteen moderate/minor. Remediation grouped by owner below.
+
+**Serious — commit to fix this half (11)**
+
+| ID | Finding | Owner | Target |
+|---|---|---|---|
+| TA-03 | Focus not trapped in the model-picker modal | Ferrante | 7/10 |
+| TA-06 | Collapse control has no accessible name in 3 locales | Oyelaran | 7/17 |
+| TA-08 | Citation footer links not distinguishable without colour | Oyelaran | 7/24 |
+| TA-11 | Confidence chip conveys state by colour only | Oyelaran | 8/7 |
+| TA-14 | Skip-to-content lands past the response body | Weill | 7/10 |
+| TA-15 | Streaming region announcement fires on every chunk in one client | Weill | 7/31 |
+| TA-17 | Contrast failure, secondary text on elevated surfaces | Loom (Lindqvist) | 8/21 |
+| TA-19 | Keyboard trap in the source card expand | Ferrante | 7/17 |
+| TA-22 | Reduced-motion preference ignored by the streaming shimmer | Oyelaran | 8/7 |
+| TA-24 | Heading order skips in the settings tree | Acct & Billing | TBD |
+| TA-27 | Horizontal scroll required at 320px on two surfaces | Loom / CS | contested |
+
+**Notes on the contested and TBD items.**
+
+TA-27 is the long-running one. Thornbury flagged content requiring horizontal scroll at 320px width. Part of it is ours and fixable locally; part is the container policy, which forbids the child scroll context that would resolve it. Bo and Tomas have agreed the correct fix is a Loom-level overflow token in 9.1 with an explicit opt-in. Until then TA-27 stays open and I have told Thornbury we will carry it into the next audit cycle rather than pretend otherwise.
+
+TA-24 is Account & Billing's and their EM is on leave. Escalated to Boateng 6/16.
+
+**Moderate/minor (18).** Batched into two cleanup sprints, Q3 and Q4. List in the appendix. Six are copy-level and go through Feld.
+
+**Reaudit:** Thornbury will re-test the serious set in October at no additional cost under the contract.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Re: prompt-frags release train — proposal to move to weekly**
+From: R. Kettleborough (Platform, prompt-frags)
+To: frag consumers
+2026-04-28
+
+Currently the frag pipeline cuts every two weeks, Tuesdays, with an emergency path that has been used four times this year. Proposing weekly.
+
+**Why.** The two-week cadence means a one-line copy fix waits an average of five business days. Consumers route around this with the emergency path, which requires a VP sign-off and generates an incident record for what is usually a typo. Four emergency cuts in four months is a cadence problem, not an emergency rate.
+
+**What changes.** Cut Tuesdays weekly. Freeze Monday 12:00. Same review requirements, same pinning model — consumers pin per client release and are unaffected until they choose to bump. Nothing about pinning changes; if you are on a slow client train you will simply have more versions available to pick from.
+
+**What I need from consumers.** Confirm your review capacity can absorb a weekly cut. Two teams have told me informally that their content reviewer is one person, and a weekly train with a one-person review gate is a worse outcome than a biweekly one. If that is you, say so and we will look at an opt-in cadence per frag rather than a global change.
+
+**Risks.** Higher version churn in the metrics attribution — every render event carries the frag version, and more versions means thinner slices per version when you are trying to attribute movement. Raghunathan's team raised this and it is legitimate. Mitigation is that nobody is required to bump weekly; attribution windows are set by pin adoption, not by cut frequency.
+
+**Decision by 5/15.** Silence is assent, which I recognise is a hostile default, but I have run three of these threads to zero replies.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**#release-eng**
+
+**S. Bhandari** (11:04)
+web 7.6 freeze is Monday 12:00, not Tuesday. Calendar was wrong, I fixed it
+
+**N. Ferrante** (11:06)
+does that eat the Monday morning merge window
+
+**S. Bhandari** (11:06)
+it eats half of it. get your stuff in Friday
+
+**T. Weill** (11:12)
+frag's pinned at 4.2.1 for this cut, don't bump it
+
+**S. Bhandari** (11:13)
+noted
+
+**N. Ferrante** (11:19)
+CS-1877 won't make it, moving to 7.7
+
+<<<END>>>
+
+<<<DOC>>>
+
+**CS-1904 — Reconnect backoff is linear, should be exponential**
+
+| | |
+|---|---|
+| Type | Bug |
+| Priority | P3 |
+| Reporter | M. Okafor |
+| Assignee | Unassigned |
+| Component | web-client / streaming |
+| Created | 2026-06-20 |
+
+**Description**
+Filed out of the eu-west SSE pool exhaustion on 6/15. When the connection drops, the client retries at a fixed 500ms interval indefinitely. During the incident this turned a serving-layer keepalive change into a self-inflicted thundering herd. Should be exponential with jitter and a ceiling. Not urgent in steady state — the pool has headroom under normal conditions — but it converts any upstream connection instability into an outage of our own making.
+
+**Comments**
+
+**T. Weill** — 2026-06-24
+Agreed on the fix. Non-trivial because the reconnect path is shared with the regenerate flow and the two want different behaviour: regenerate should retry aggressively because the user is waiting and watching, reconnect should back off. Currently one code path. Needs a split before the backoff change makes sense. Call it 5 points, not 2.
+
+**M. Okafor** — 2026-07-01
+Fine. I'd rather it be estimated honestly and sit than be underestimated and half-done. Leaving unassigned. If serving does another keepalive change without telling us this becomes P1 the same afternoon.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Calendar invite — Loom 9.1 scoping**
+
+**When:** Tue 22 Sept, 14:00–15:00
+**Where:** Kilburn 4 / Meet
+**Organiser:** B. Lindqvist
+**Required:** T. Weill, D. Oyelaran, N. Ferrante, R. Palakkal (Console), F. Ozturk (Composer)
+**Optional:** P. Raghunathan
+
+**Agenda**
+
+1. 9.0 GA retro, 10 min. What broke, what took longer than estimated. Short.
+2. 9.1 candidate list, 25 min. Nine asks in the intake queue, room for maybe four. Prioritisation happens here, not after.
+3. The overflow token, 15 min. Explicit opt-in plus audit gate, as discussed with Tomas in August. I want the audit gate designed in this meeting or it becomes a 9.2 item by default. Two surfaces are waiting on this and one of them has an open a11y finding riding on it.
+4. Deprecation timeline for `LoomStack`, 5 min. Confirming removal lands in 10.0, no earlier than Q1.
+5. AOB.
+
+**Pre-read:** the intake queue (linked), 9.0 GA notes. Come with your ranking of the nine, not with advocacy for your one.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Commit** `a3f81c2`
+
+    fix(streaming): clamp segment buffer growth on malformed chunk
+
+    The segmenter grew its pending buffer unbounded when a chunk
+    arrived without a terminator, which on a long stream could
+    allocate tens of MB before the connection closed. Clamp at
+    64KB and flush-with-error past that.
+
+    Found by the fuzz harness, not in production.
+
+    Refs CS-1922
+
+**PR #4471 — Clamp segment buffer on malformed chunk**
+
+**Review — T. Weill:**
+Good catch. One thing: the flush-with-error path emits a partial block, and the renderer will paint it. Prefer we drop the partial and surface the error state rather than showing the user half a sentence — we already have enough complaints about content ending mid-sentence and I don't want to manufacture a second source of it. Otherwise LGTM.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Wiki stub — Percy visual regression: adding a new surface**
+
+*Status: TODO. Written in 20 minutes because three people asked me the same question. — N.F., 2026-08-25*
+
+1. Add your component to `percy/targets.yml`. Follow the existing entries.
+2. Snapshot budget is per-team, not per-surface. Check `wl-core`— no, wrong dashboard, check the Percy usage page before you add anything wide. We are close to tier cap.
+3. Viewports: 320, 390, 834, 1280. Do not add custom widths without asking.
+4. Baselines are approved by the surface owner, not by whoever opened the PR.
+
+**TODO**
+- [ ] Document the flaky-diff suppression process, which currently exists only in Bhandari's head
+- [ ] Explain what to do when a design-token change invalidates every baseline at once (it happened in June, it will happen again at 9.0 GA)
+- [ ] Screenshot the approval UI
+- [ ] Someone who actually understands the CI integration should rewrite section 1
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Standup — Conversation Surfaces, Wed 9/2**
+
+**Tomas** — Loom 9.0 RC4 landed, three of our four components clean, migration tickets closed. Rest of the week on the SSE reconnect split. No blockers.
+
+**Naima** — Finished the a11y focus-trap items (TA-03, TA-19), both merged. Picking up the runner log-summary action from the CI postmortem. Blocked on nothing, but I need someone to approve two Percy baselines.
+
+**Dagny** — Reduced-motion work in review. 834 mocks done, sent to Account & Billing, no reply yet. Design review Thursday has three items and I want to keep it to three.
+
+**Marcus** — rc1 is out to the single-cohort hold, one panel wave before we go broad. Otherwise lint triage and the 4.4 register notes.
+
+**Jen** — Calliope renewal memo is with Vinci, decision due before Procurement's window closes. Experiment registry cleanup.
+
+**Priya** — Calibration was Friday, I'll share what I can individually. Two Percy approvals: send them to me, Naima.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**From:** S. Dhar (Infra Finance)
+**To:** A. Boateng
+**Date:** 2026-07-09
+**Subject:** Re: device lab line, Q3
+
+Anselm —
+
+The $96k device ask clears. Two conditions from my side. First, it comes out of capex not opex, which means procurement lead time is six to eight weeks and you will not have devices in hand before mid-September. Plan the coverage work around that, not around the approval date. Second, I need an owner named for asset tracking. Last device lab expansion we did, eleven units were unaccounted for within a year and I am not repeating that conversation.
+
+The Percy tier upgrade I want to push to Q4. Not because the case is bad — it is the best-argued line in your memo — but because the group's tooling total is running ahead of plan and something has to move. If the snapshot cap starts blocking releases rather than just annoying people, come back and I will find it.
+
+Sanjana
+
+---
+
+**From:** A. Boateng
+**To:** S. Dhar
+**Date:** 2026-07-09
+**Subject:** Re: Re: device lab line, Q3
+
+Both conditions fine. Bhandari owns asset tracking, I'll have him send you the process before the PO goes in.
+
+Taking the Percy deferral without argument on the understanding that "blocking releases" includes teams silently dropping surfaces from the diff to stay under cap, which is what is happening now and is the actual failure mode. I'll get you numbers in October rather than an anecdote.
+
+Anselm
+
+<<<END>>>
+
+<<<DOC>>>
+
+**#loom-platform**
+
+**F. Ozturk** (09:41)
+9.0 GA still on for the 16th?
+
+**B. Lindqvist** (09:43)
+yes. one open P1 from Console, Rahul says fix lands Thursday
+
+**F. Ozturk** (09:44)
+we're pinned to rc3, do we need to move to rc4 before GA or can we go rc3 → GA
+
+**B. Lindqvist** (09:46)
+rc3 → GA is fine, no breaking changes between them, rc4 was the contrast token fix and a build repro thing
+
+**F. Ozturk** (09:47)
+great, that saves us a cut
+
+**N. Ferrante** (09:52)
+is the overflow token in 9.1 or is it "shortlisted" still
+
+**B. Lindqvist** (09:53)
+shortlisted. scoping meeting is the 22nd, that's where it gets decided
+
+**N. Ferrante** (09:53)
+👍
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Retro — Q3, Conversation Surfaces**
+Facilitator: J. Kwiatkowski
+2026-09-01, 12 attendees (team + Bo, Ariel)
+Format: start/stop/continue, dot voting, top three discussed
+
+**Top three by votes**
+
+**1. Estimates on the Loom migration were wrong in a predictable direction (9 votes).**
+Estimated 8 points, took 13. Same overrun ratio as the last Loom major. Discussion landed on: we estimate the components we know about and not the consumers of those components, and it is the consumers that produce the surprises. Naima proposed we estimate design-system majors at 1.6× whatever we think, which got laughed at and then got the most nods in the room. Priya's version: for any migration crossing a team boundary, the estimate has to be reviewed by someone on the other side of that boundary before it goes in the sprint.
+**Action:** Tomas and Bo to co-estimate the 9.1 work. Due before 9/22 scoping.
+
+**2. Support intake is nobody's job and it shows (7 votes).**
+The `surface:*` queue went five weeks without triage while Jen was on Composer. Forty-odd tickets, of which four were real and one was a P2 we found late. Ariel was diplomatic about this and did not have to be.
+**Action:** rotating weekly triage duty, 30 minutes, added to the on-call rota rather than to the PM's plate. Naima to set up the rotation.
+
+**3. We ship copy changes faster than we can read the results (5 votes).**
+Marcus raised it. The frag train moved to weekly in May; our panel wave is quarterly. Between those two clocks we can ship four revisions before we get a read on the first. Nobody wants to slow the train. Agreed the answer is discipline on our side — one lever per revision, and hold anything ambiguous to a cohort before broad rollout, which is what we did with rc1.
+**Action:** Marcus to write the one-lever rule into the Standards process appendix.
+
+**Also raised, not discussed for time:** device lab lead time; two dashboards still misnamed; Percy baseline approvals bottlenecking on Priya.
+
+**Continue:** design review discipline (three items, no slides). The postmortem culture — two people said the CI postmortem was the best-written doc they'd read this half, which Bhandari should hear.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**#eng-frontend**
+
+**R. Palakkal** (14:22)
+who owns the decision on whether we drop IE-mode support in the console. it's blocking a dependency bump for us
+
+**T. Weill** (14:25)
+nobody's owned that for a year. de facto it's Rhoda's call and she'll ask for usage numbers
+
+**R. Palakkal** (14:26)
+i have usage numbers. 0.02%, all from two enterprise tenants
+
+**T. Weill** (14:27)
+then it's an account management conversation not an engineering one
+
+**R. Palakkal** (14:31)
+that's what i was afraid of
+
+**F. Ozturk** (14:33)
+we went through this on Composer in March. the answer is you write a one page memo with the number and the migration cost, you send it to Rhoda, and it takes six weeks. there is no faster path, i tried three
+
+**R. Palakkal** (14:34)
+six weeks is fine, i just need to know it's moving
+
+**T. Weill** (14:35)
+cc me on the memo, we have the same dependency pinned for the same reason
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Support Engineering — Q2 ticket taxonomy review**
+A. Nkemdirim
+2026-07-14
+
+Annual-ish exercise. We re-code a sample and check whether the tag tree still matches what people actually report.
+
+**Sample:** 800 tickets, stratified across the six surface tags, Apr–Jun.
+
+**Findings**
+
+**1. `surface:composer` is doing too much work.** 41% of the sample and it covers input handling, attachments, drafts, and voice. Four things. Recommend splitting into `composer:input`, `composer:attachment`, `composer:voice` and leaving the rest in the parent. Composer's PM agrees.
+
+**2. Answer-quality complaints are still landing in surface tags.** 11% of the sample. A user says the answer is wrong; the agent tags whatever part of the UI the user was looking at. These need to go to MEP intake and they mostly don't. This is an agent training issue, not a taxonomy issue — the correct tag exists and is not being used. Adding a routing prompt to the agent console for tickets containing correctness language.
+
+**3. Empty-panel reports.** Steady, roughly a seventh of the Worklight-tagged volume, all the same thing. Fix is designed and unscheduled, which agents know, so they close with a canned response. Fine as a stopgap; the canned response is four months old and reads like it.
+
+**4. Tag `surface:other` is 9%.** Too high. Read forty of them: half are account/billing (wrong queue entirely), a third are mobile-specific layout issues that should have a mobile tag, the rest are genuinely other. Recommend adding `surface:mobile-layout`.
+
+**5. Median time-to-first-response** is 6.4h against a 8h target. No action.
+
+**Recommendations to implement:** items 1, 2, 4. Taxonomy change needs a two-week freeze on reporting comparability, propose doing it at the quarter boundary.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**PROP-2026-088 — Consolidate the four explanatory surfaces under one config schema**
+Author: N. Ferrante
+Filed: 2026-08-20
+Status: open, seeking feedback before it goes to Priya
+
+**Problem.** The citation footer, source card, confidence chip and the reasoning panel each have their own config schema, their own feature-flag namespace, and their own client-side defaults resolution. Four ways to do the same thing. When we shipped the block-count indicator we had to touch three of them because the flag namespaces don't compose, and I spent a day on what should have been an hour.
+
+**Proposal.** One `explanatory.*` config namespace with per-surface subtrees, one defaults resolver, one flag prefix. Migration in two phases: new surfaces use it immediately, existing ones move one per sprint over four sprints.
+
+**Cost.** Roughly 13 points across four sprints, plus a compatibility shim we carry for two client releases so we don't break pinned mobile versions.
+
+**Benefit.** Honestly, moderate. This is a papercut removal, not a capability. The case is that we are about to add a fifth explanatory surface (the summary card is in Dagny's queue) and I would rather not add a fifth schema.
+
+**Objections I anticipate**
+
+*"We have no headcount for cleanup."* True. I'm proposing this for Q1, not Q3, and I'm proposing I do it in the slack around release cuts.
+
+*"The panel's config is weirder than the others and won't fit."* It is and it might not. It carries the frag version pin, which none of the others have an analogue for. My answer is that the subtree can hold surface-specific keys; the point is one resolver, not identical shapes.
+
+*"This is refactoring for its own sake."* Partly. I'd accept the criticism if the fifth surface weren't coming.
+
+**Ask:** comments by 9/5, then to Priya for a Q1 planning slot or a decline.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Contract amendment request — Thornbury Access, master services agreement 2024-AX-07**
+Requested by: D. Oyelaran
+Routed to: Procurement (K. Nnadi), Legal (review only)
+2026-08-27
+
+**Requested change:** add a second re-audit cycle per contract year at the existing per-cycle rate, and extend the remediation window for findings from 90 to 180 days.
+
+**Rationale for the second cycle.** The current contract gives us one audit and one re-test. In practice our remediation lands unevenly — some findings close in a week, some sit behind another team's roadmap for two quarters — and a single re-test forces us to either re-test early (and pay for a partial read) or late (and carry unverified fixes for months). Two cycles lets us close the fast set and re-test it while the slow set is still moving.
+
+**Rationale for the window extension.** Three of this cycle's serious findings depend on changes owned outside our group. One of those is a design-system container policy change scheduled for a release that has not been committed yet. A 90-day window makes us formally out of compliance with our own contract on findings we cannot unilaterally fix, which is bad hygiene and also means the vendor's compliance summary reads worse than our actual posture.
+
+**Cost impact:** +$18k/yr at the existing rate card. Within Boateng's approved a11y line, no new approval needed.
+
+**Vendor position:** Thornbury's account lead has verbally agreed to both, subject to paper.
+
+**Legal review needed on:** whether the 180-day window changes anything in the indemnity language. I do not think it does. Please confirm rather than assume.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**#cs-team**
+
+**P. Raghunathan** (16:40)
+heads up, I'm out next Thurs–Fri. Tomas has escalations.
+
+**T. Weill** (16:41)
+noted
+
+**J. Kwiatkowski** (16:44)
+does that move design review or is Dagny running it
+
+**D. Oyelaran** (16:44)
+I'm running it, three items, same as always
+
+**N. Ferrante** (16:51)
+unrelated — the 320px thing came up again in the a11y sync, someone asked if we'd fixed it
+
+**D. Oyelaran** (16:52)
+we have not and will not until the container thing lands
+
+**N. Ferrante** (16:52)
+that's what I said, just wanted to make sure nothing changed
+
+**T. Weill** (16:55)
+nothing changed
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Mobile release retro — Android 5.4/5.4.1**
+S. Bhandari, 2026-08-12
+Attending: Okafor, Weill, Oyelaran, Ferrante, Nkemdirim
+
+**Timeline.** 5.4 cut 7/21, no-go 7/28, 5.4.1 cut 8/4, shipped 8/6. Eight working days of slip.
+
+**What caused it.** A cold-start crash on low-memory Android 13 devices, ~1 in 40 repro. Not introduced by this cycle's changes; surfaced by them. Second consecutive slip with that shape.
+
+**The real finding.** Our CI device matrix has one low-memory device and it is a 2022 model with 4GB. The devices where this class of bug lives are 3GB handsets that are still 8% of our Android installed base. We are not testing the segment where the failures are.
+
+**What we did about it.** The device lab expansion was already in the Q3 budget and cleared in July, weighted toward exactly this segment. Procurement lead time is six to eight weeks, so realistically the matrix improves in October, not now. Between now and then we are exposed and everyone should know that.
+
+**Interim mitigation.** Bhandari to expand the canary cohort weighting toward low-memory devices, which we can do today at zero cost and which would have caught this at canary rather than at RC.
+
+**Also discussed.** Nkemdirim asked whether Support could get earlier canary access to reproduce layout reports — currently they get builds at GA. Agreed: Support joins the canary ring from 5.5. Trivially cheap, should have happened a year ago.
+
+**Not discussed for time:** whether two consecutive slips warrants revisiting the cut cadence. Bhandari's view is no — the cadence is fine, the matrix is the problem. Parking it.
+
+**Actions:** canary weighting (Bhandari, 8/18); Support in canary ring (Bhandari, before 5.5 cut); device list finalised for PO (Bhandari + Okafor, 8/15).
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Team charter — Conversation Surfaces**
+*Last reviewed 2026-05-02 by P. Raghunathan. Reviewed annually.*
+
+**Mission.** We build the affordances that make an assistant response legible: where the information came from, how confident the system is, and how the answer was arrived at. Four surfaces today, a fifth in design.
+
+**Scope — ours.**
+Rendering, layout, streaming behaviour, responsive breakpoints, accessibility semantics, copy standards, and the client-side experiment surface for all four components. The Loom dependency for the containers these components sit in. The client side of the SSE contract with serving.
+
+**Scope — not ours.**
+Answer correctness, model capability, benchmark movement, reasoning quality. These belong to the Meridian Evaluation Program and the Model Quality Council. This line gets tested about once a month, usually by a ticket arriving mis-tagged, and the answer is always the same: bounce it to MEP intake. Doing this feels unhelpful and is correct. See the surface ownership page for the escalation paths.
+
+**How we work.**
+Two-week sprints. Design review Thursdays, three items maximum, bring the artefact not slides. Every PR touching the renderer goes through Tomas until we have a second reviewer, which is a stated Q3 goal. On-call is a weekly rotation across the group, with a support-triage half-hour attached as of Q3.
+
+**How we decide.**
+Layout and disclosure questions get decided by experiment where an experiment is affordable, and by the design lead where it isn't. Copy standards are owned by content design and approved by EM, design and director. Anything that changes a data-classification boundary goes up, not sideways.
+
+**Composition.** EM, staff FE, FE, product designer, content designer, 0.4 PM. Two open asks in 27H1 planning.
+
+**Who to ask.**
+Priya — anything blocking a release, roadmap, escalation.
+Tomas — renderer, segmenter, streaming, SSE contract.
+Dagny — visual and interaction design, experiment design.
+Marcus — copy standards, lint, panel verbatims.
+Jen — metrics, experiment registry, support intake.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Conversational AI Interface Consortium**
+**Assistant Surface Pattern Catalog, 4th edition**
+**Part 3 — Explanatory Affordances**
+
+---
+
+### AS-114 — Progressive Reasoning Disclosure
+
+*Status: Stable. Revised 4th ed. (2025-11). Previous revisions: 3rd ed. (2024-06), 2nd ed. (2023-09, as "Intermediate Output Display").*
+
+**Intent.** Render an assistant's step-by-step working to the user during or after response generation, in a container distinct from the answer body, with a disclosure control.
+
+**Also known as.** Reasoning panel, thinking view, working view, trace panel. Vendor names vary; the pattern does not.
+
+**Context of use.** Appropriate where responses are long-running, where the user has no independent basis for calibrating trust in a technical answer, or where perceived latency is a known complaint. Consistently under-used in short-form and conversational traffic, where implementers report negligible or negative effect.
+
+**Structure.** Three parts: a container with disclosure chrome, a stream of segmented text, and a state indicator for in-progress rendering. The container is a sibling of the answer body, not a child.
+
+**Related patterns.** AS-112 (Inline Citation Footer), AS-116 (Confidence Indicator), AS-121 (Source Card). These four are frequently owned by a single team in implementing organisations and are commonly specified together; see the note on surface families in Part 3's introduction.
+
+**Consequences.**
+
+*Positive.* Reported improvements in perceived latency, comprehension self-report, and trust calibration on technical response types. Several members report reduced defect-report volume on mathematical and code responses.
+
+*Negative.* Panel content displaces the answer below the fold when expanded by default (see Disclosure Default, below). Long panels correlate with skimming rather than engagement. Every implementation reporting into the working group has independently arrived at a length ceiling; the ceilings cluster between 600 and 1,200 rendered words.
+
+**Disclosure default.** Collapsed-by-default is the majority implementation as of the 4th edition (5 of 7 members reporting). Members who have tested the alternative report the same mechanism for its failure: users seeking the answer read an expanded panel as an obstruction. One member ships expanded-by-default on desktop and collapsed on mobile.
+
+**Truncation.** No member reports a satisfactory solution. Hard-stop with an ellipsis is the most common implementation and is acknowledged by those who ship it as inadequate. See AS-114-N2 for the working group's survey of attempted approaches.
+
+**Placement.** Above the answer body is standard (6 of 7). One member renders below; see their published rationale, which the working group considers the strongest single artefact on this question.
+
+**Accessibility.** Streaming panel content constitutes a live region. See CAIIC-AN-09.
+
+**Governance note.** Members are reminded that this catalog specifies presentation only. Questions of how assistants produce their working, and of the quality of that working, are outside the consortium's scope and are addressed by member organisations' own evaluation programmes.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**CAIIC Surfaces Working Group — minutes**
+**Session 41, 2026-06-11, remote**
+
+**Chair:** Ingrid Solvaag (Antenna Research)
+**Secretary:** Paulo Mensah (CAIIC staff)
+**Attending:** representatives from Antenna, Corveille, Halcyon Compute, Kestrel, Nyx Labs, Tessellate, Vantobel Systems. Two observers.
+
+**1. Minutes of session 40** — approved.
+
+**2. AS-114-N2, truncation survey — second draft (Mensah).**
+
+Draft circulated 5/28. Four member responses received; two outstanding, chair to chase.
+
+Discussion focused on whether the survey should recommend an approach or merely catalogue them. Solvaag's position, which carried: catalogue only. Every member who has attempted a graceful truncation has abandoned or shelved it, and a recommendation the catalogue cannot support would be worse than silence. Corveille's representative noted their soft-stop at block boundaries regressed badly on single-large-block payloads; Kestrel reported the identical failure, which the group found more interesting than either result alone.
+
+Action: Mensah to revise to catalogue-only framing, recirculate by 7/2.
+
+**3. Panel placement — request to reopen (Halcyon).**
+
+Halcyon asked whether the catalogue's "above the answer is standard" language could be softened, on the grounds that it reads as normative and their below-answer implementation now has two years of data behind it. Discussion was brief and sympathetic. The group's view is that the catalogue describes majority practice and should say so plainly; the fix is to state the count rather than the norm.
+
+Action: editorial change in the next revision. "Above the answer body is standard (6 of 7)" becomes a plain tally with Halcyon's rationale linked.
+
+**4. New pattern proposal — AS-127, "Response Summary Card" (Tessellate).**
+
+Tessellate presented a card rendered above long responses summarising the answer in two lines. Discussion on whether this is genuinely distinct from AS-118 (Response Preamble) or a variant of it. No consensus. Proposer to return with a comparative artefact.
+
+**5. AOB.**
+
+Kestrel's representative (Oyelaran) asked whether other members had converged on a rendered-word ceiling and whether anyone had tested raising theirs. Three members confirmed ceilings in the 700–1,000 range, all arrived at independently, none tested upward. Vantobel noted they set theirs by container height rather than word count, which nobody else does. Brief discussion; no action, but the chair suggested it as a candidate for an informal survey.
+
+Nyx Labs reiterated that they ship reasoning display in the developer console only and will continue to abstain from consumer-facing votes on this pattern.
+
+**Next session:** 2026-07-09.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Corveille — internal wiki**
+
+# Working (reasoning panel)
+
+**Owner:** Response Surfaces (design-led)
+**Design lead:** Renata Kohl · **Eng lead:** Aurélien Bassett · **Content:** Sofia Marchetti
+**Status:** current · **Component:** `ashlar/working`
+
+---
+
+**What it is.** "Working" is the panel that displays the assistant's step-by-step reasoning above the response body. It is an Ashlar component. Response Surfaces owns it alongside the citation strip and the source tile.
+
+**Defaults.** Expanded on desktop, collapsed on mobile ≤ 768px. This split is unusual in the field and is deliberate — see EXP-2024-11 and the follow-up EXP-2025-03. On mobile the fold is unforgiving and expanded-by-default cost us the same thing it costs everyone. On desktop, at our layout width, the answer stays visible and the panel is additive.
+
+**Length.** Ceiling is 750 rendered words, enforced renderer-side. Truncation is a hard stop; we know it is bad; WRK-812 is open and has been for a while.
+
+**Content spec.** The Working Voice Guide (Marchetti) governs structure, length, register and formatting. Compiled to a prompt fragment on the standard fragment train, pinned per client release. If you have a question about how the text *reads*, that is Sofia. If you have a question about whether an answer is *right*, that is Model Evaluation and there is an intake form.
+
+**Retention.** Panel content is session-scoped. It lives in the response cache for the duration of the session plus a short grace window and is not written to conversation history. Reloading an old conversation shows an empty panel; this is expected and is the single most-reported "bug" against this surface.
+
+**Known issues.**
+- WRK-812 — truncation mid-sentence
+- WRK-1044 — panel and answer disagree on typographic scale at 1440+
+- WRK-1190 — register in casual domains drifts chattier than the guide specifies
+
+**Not owned here.** Reasoning quality, benchmark performance, answer correctness. Ashlar container behaviour (see Platform).
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Modelwatch — Quarterly Product Roundup, 26Q2**
+*Interface*
+
+**Reasoning panels.** A quiet quarter. Corveille shipped a block-count chip in the collapsed state, following Kestrel, who shipped the same thing in February; both report expand-rate gains in the low single digits. Tessellate added a copy-to-clipboard control that excludes panel content from the copied text, which resolves a complaint we have heard from users of three different products.
+
+Halcyon continues to render below the answer and continues to be the only major shipping that way.
+
+**Citation affordances.** Antenna's citation strip now supports per-claim hover previews on desktop. Nyx Labs shipped nothing here and has shipped nothing here for a year.
+
+**Confidence indicators.** Vantobel retired theirs, citing low engagement and persistent misinterpretation. This is the second confidence indicator to be retired in eighteen months and we would treat the pattern as in decline if Corveille were not reportedly building one.
+
+**Composers.** Attachment handling improvements at four vendors, none notable.
+
+**Mobile.** Two vendors shipped tablet layout work in the quarter, both apparently prompted by the same accessibility guidance cycle.
+
+*Filed under Interface. Model capability and evaluation coverage appears in our Systems section.*
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Below the fold: why our reasoning panel goes under the answer**
+*Halcyon Compute design blog · Tomás Iriarte, Principal Designer · March 2025*
+
+We get asked about this at every conference, in every working-group session, and in our own hiring loops. Here is the long version so I can stop giving the short one.
+
+**The convention.** Almost everyone renders the reasoning panel above the answer body. The logic is chronological: the working happened first, so it goes first. It is an intuitive layout and it is not obviously wrong.
+
+**The problem with it.** A reading surface is not a timeline. The user arrived with a question and the answer is the thing they came for. Putting anything above it — however useful, however collapsed — makes the answer something they scroll to rather than something they land on. Collapsing mitigates this. It does not eliminate it, because a collapsed container still occupies vertical space and still requires a saccade to skip.
+
+**What we did.** We render the panel beneath the answer, collapsed, with a control that reads as an invitation rather than an obligation. The answer is at the top of the viewport. The working is available.
+
+**What we measured.** Against an above-answer control, over 34 days:
+
+- Time to answer-first-fixation: **−1.9s**
+- Expand rate: **−6.1pt** (fewer people open it)
+- Thumbs-up rate: **+0.04**
+- Comprehension self-report: **flat**
+- Panel dwell, given expansion: **+2.4s**
+
+The expand-rate drop is the headline objection and I want to address it directly rather than bury it. Yes, fewer users open the panel. We do not think expand rate is the metric. Expand rate measures how many people encountered the container, not how many people were helped. What changed in our numbers is that the people who open it are people who wanted it — they dwell longer, and comprehension held flat on a smaller expanding population, which means the marginal expander we lost was not getting much.
+
+**The counterargument I find hardest.** If the panel is below the answer, a user who is uncertain about the answer has already read it before they can check the working. Order affects credence; there is a real literature on this. My answer is that we would rather a reader arrive at the working as a check on a conclusion than as a preamble to one, but I hold this less firmly than the rest.
+
+**What I would tell someone considering it.** The layout is not free. It works for us because our answers are short relative to the field average and our panel is long relative to it. If your answers run long, the panel ends up somewhere nobody will ever scroll to and you have shipped a feature into a basement. Measure your own answer-length distribution before you copy us.
+
+**What this post is not.** It is not a claim about reasoning displays in general, and it is not a position on any question about model behaviour. It is a layout decision, measured as layout decisions are measured.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**CAIIC-AN-09 (rev. B) — Announcement guidance for high-frequency streaming live regions**
+*Advisory note. Supplements AS-114, AS-118. Rev. B issued 2026-02, incorporating implementer feedback on rev. A.*
+
+**Problem.** Reasoning panels and other streaming explanatory surfaces update at token or block frequency. Marked as `aria-live="polite"`, they produce continuous announcement for the duration of generation. Every implementer who has tested this with screen-reader users has received the same feedback in the same words: it is unusable.
+
+**Guidance.**
+
+1. **Do not announce during streaming.** Set the streaming container to `aria-live="off"` or omit the live region entirely while content is in flight.
+
+2. **Announce once on completion.** On stream end, either move focus-adjacent announcement to a discrete status region ("Reasoning available, 7 steps") or make the completed content available via the disclosure control without announcement.
+
+3. **Do not announce the answer and the panel in the same utterance.** Rev. A did not say this explicitly and two implementers reported users unable to tell where one ended and the other began.
+
+4. **The disclosure control must be reachable before the answer in DOM order regardless of visual placement.** This applies equally to below-answer layouts; visual order and DOM order diverging is acceptable, silent divergence is not.
+
+5. **Provide a progress affordance that is not the content itself.** A status message ("Working…") at stream start, announced once.
+
+**Rev. B changes.** Item 3 added. Item 5 clarified to specify once-only announcement — rev. A's language was read by one implementer as licensing periodic progress announcements, which reintroduces the original problem in a slower form.
+
+**Scope.** This note addresses announcement behaviour only. Panel content structure, length and register are implementer concerns and are not addressed here.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Surface / 2026 — Session listing**
+*Track 2: Explanatory Interfaces · Thursday 14:00–14:45 · Hall C*
+
+### Nobody reads the panel: designing for the 30%
+
+**Renata Kohl** (Head of Design, Response Surfaces, Corveille)
+
+Across the industry, roughly a third of users expand the reasoning panel. That number has been stable for two years at every company that publishes it, and it is stable across radically different defaults, layouts and content styles. We have collectively spent a great deal of design effort moving it by two or three points.
+
+This talk argues that we have been optimising the wrong quantity. The panel's value is not in being read; it is in being *available* to be read, and in what its availability does to how the answer beside it is received. Corveille's expanded-on-desktop / collapsed-on-mobile split — an outlier in the field — came out of taking this seriously.
+
+Covered: what happened when we ran the panel with no content behind it (briefly, by accident, for four hours); why our comprehension scores are insensitive to almost everything we do to panel copy; what the 30% are actually doing when they expand, from eleven hours of session recordings; and the one intervention that moved the number more than any layout change we have shipped.
+
+Attendees will leave with a framework for deciding which panel metrics are worth defending in a roadmap conversation and which are vanity.
+
+*Level: intermediate. Assumes familiarity with AS-114. Not a talk about model capability.*
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Comparative review: reasoning panels across five assistants**
+*Deneb Loughty, independent UX research · commissioned by the Surface/ conference programme committee · April 2026*
+
+**Method.** Fourteen participants, moderated, remote, 75-minute sessions. Each participant used three of five products (Antenna "Trace", Corveille "Working", Halcyon unnamed, Kestrel "Worklight", Vantobel "Steps") on a fixed set of six tasks: two mathematical, two procedural, one factual-with-sources, one open-ended advice. Products rotated to control order effects. Small n, qualitative, not generalisable — read this as hypothesis-generating.
+
+**Finding 1 — participants do not distinguish between products' panels.** Asked afterward to describe differences, eleven of fourteen could not recall which product had which layout. The two who could were both designers. The panel is, experientially, one thing that all these products have.
+
+**Finding 2 — expansion is triggered by doubt, not by curiosity.** Every observed expansion followed either a surprising number in the answer or a task the participant felt unable to check themselves. Nobody expanded a panel on a task they were confident about. Two participants said explicitly they would not have opened it if the answer had "looked normal."
+
+**Finding 3 — length is the dominant complaint and it is not close.** Eight of fourteen mentioned it unprompted. The characteristic behaviour: expand, read the first two blocks, scroll rapidly, close. Mean time-to-close on panels over ~500 words was under nine seconds. The products with shorter panels did not attract this complaint, and the participant response to short panels was noticeably warmer than the length difference alone would predict.
+
+**Finding 4 — the empty historical panel is a shared defect.** Three products showed an empty or absent panel on a returned-to conversation. All three participants who encountered it described it as broken. None of them had any model of why it might be empty, and one asked whether the assistant had "forgotten."
+
+**Finding 5 — placement is invisible until it isn't.** Halcyon's below-answer layout drew no comment from anyone during the tasks. Two participants, on a long answer, never discovered the panel existed. Both, when shown it, said they preferred having the answer first anyway.
+
+**Finding 6 — nobody read the panel to check the answer.** Related to finding 2 but distinct. Participants who expanded out of doubt did not then verify the working step by step; they skimmed it, formed an impression, and returned to the answer. The impression was formed on how the panel *looked* — density, formatting, the presence of notation — more than on what it said. Two participants formed a positive impression of a panel they had demonstrably not read.
+
+**What I would tell a design team.** Optimise for the skim. Your reader is forming an impression in seconds and is doing it on structure, not on argument. Length is your biggest lever and you almost certainly have too much of it.
+
+**Limitations.** Fourteen participants, one locale, English only, all self-described comfortable with technology. Task set skews technical. No longitudinal component; every session was a first encounter.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Design review — Account Settings information architecture, v3**
+2026-07-16, 14:00–15:00, Kilburn 2
+Present: D. Oyelaran (chair), H. Vestergaard (Acct & Billing design), R. Palakkal, T. Okonjo, N. Ferrante
+Reviewing: Vestergaard
+
+**Item.** Proposed restructure of the settings tree from eleven top-level sections to six, with a search field.
+
+**Discussion.**
+
+The consolidation is right and the room agreed quickly. Most of the hour went to the search field, which Hanne is proposing as the primary navigation affordance with the tree as a fallback. Dagny's objection: settings search only works if users know the name of the thing they want, and the evidence from support tickets is that they mostly don't — they know the symptom, not the setting. A search field that returns nothing for "stop the emails" is worse than no search field, because it consumes the attempt.
+
+Hanne's counter: the synonym mapping handles that case, and she has a list of eighty symptom phrases from Support. Dagny asked who maintains the list in a year. No good answer. This is the actual risk and both parties agreed on it.
+
+Palakkal raised that the console has its own settings surface and this restructure will make the two diverge further. Noted; out of scope for this review; someone should own it and currently nobody does.
+
+Okonjo asked about the migration for deep links. Existing settings URLs are in help centre articles, support macros, and at least two external blog posts. Hanne has a redirect map for the eleven sections but not for the roughly forty individual settings anchors.
+
+**Outcome: approved with conditions.**
+
+1. Search ships behind a flag, not as primary nav, until the synonym list has a named owner and a review cadence.
+2. Redirect map extended to setting-level anchors before ship. Okonjo to pull the anchor list from help centre.
+3. Console divergence documented and escalated; not blocking.
+
+**Back for review:** not required, unless condition 1 changes shape. Hanne to send the flagged plan to Dagny by 7/24.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Postmortem — Web client 7.5.2 deploy, partial outage**
+**2026-08-05, 13:22–14:09 UTC (47 min)**
+Author: N. Ferrante · Severity: SEV-2 · Status: final
+
+**Impact.** Approximately 9% of web sessions received a white screen on load for 47 minutes. Affected users were those whose browsers had a cached copy of the 7.5.1 entry chunk. Refresh did not resolve it for most; a hard refresh did.
+
+**Timeline (UTC).**
+- 13:15 — 7.5.2 deploy begins, standard staged rollout
+- 13:22 — error rate alert fires, client-side uncaught exception
+- 13:26 — Ferrante ack, begins investigating
+- 13:31 — pattern identified: all errors from clients on the previous chunk hash
+- 13:38 — rollback initiated
+- 13:52 — rollback complete, error rate falling
+- 14:09 — error rate at baseline
+
+**Root cause.** 7.5.2 changed the chunk-splitting configuration in the bundler. The entry chunk's hash changed but the CDN cache-control header on the HTML shell was still set to a 10-minute max-age from a change made in June. Clients holding a cached shell requested chunk names that no longer existed, got 404s, and failed to boot. The 10-minute window was long enough to catch a meaningful slice of returning users.
+
+**Why the staged rollout didn't catch it.** Staging is by user cohort, not by cache state. The first 5% cohort was disproportionately new sessions with empty caches, which booted fine. The failure mode only appears at the intersection of "returning user" and "shell cached in the last ten minutes," which our canary population under-represents by construction.
+
+**What went well.** Time to detection 7 minutes. Time to rollback decision 16 minutes. Ferrante did not attempt to fix forward, which was correct and which I want to name because the instinct to fix forward under pressure is strong and has cost us before. — *P.R.*
+
+**Actions.**
+1. Shell `max-age` to 0 with `must-revalidate`. Owner Ferrante, done 8/6.
+2. Add a returning-user-with-warm-cache case to the canary population. Owner Bhandari, due 9/1.
+3. Bundler config changes flagged as requiring a cache-behaviour review in the PR template. Owner Weill, done 8/12.
+
+**Not doing.** Reverting the chunk-splitting change. It was a real improvement and the problem was the header, not the split.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Promotion packet — Naima Ferrante, L4 → L5, Frontend Engineering**
+Submitted by: P. Raghunathan
+Cycle: 26H2
+Calibration date: 2026-10-09
+
+**Summary of recommendation.** Naima joined in October 2025 at L4 and is performing at L5 on scope, independence and influence. The gap I would have flagged six months ago — depth on the streaming and rendering internals — has closed. Recommending promotion this cycle rather than next.
+
+**Scope.** Owns two of the four surfaces our team ships outright, including all client-side accessibility work across the group's remediation plan. Took over the onboarding documentation from a departing engineer and rewrote it rather than inheriting it, which was not asked for and was needed.
+
+**Technical judgement.** The clearest evidence is the deploy postmortem in August: correct diagnosis in nine minutes on a failure mode nobody on the team had seen, and — more importantly — she rolled back rather than fixing forward while under active pressure from two directions to fix forward. She was right and the reasoning she gave at the time was the reasoning we'd have wanted after the fact.
+
+**Influence beyond own work.** The coverage-gate negotiation in May. She opened with a position the senior engineers on the thread disagreed with, absorbed the counterargument without defensiveness, and landed a compromise (70% gate, error-branch exemption, visual-regression funding) that was better than her opening position and better than the status quo. She then wrote the annotation tooling herself. An L4 wins that argument or loses it; an L5 changes it into a different argument.
+
+**Where she is not yet L5.** She is not a reviewer of record on the renderer, which is our single-point-of-failure risk and a stated goal for her. I do not consider this disqualifying — it is a ramp gated on Tomas's availability, not on her capability, and she has been shadowing reviews since June. I'd rather promote and finish the ramp than hold the promotion for a dependency she doesn't control.
+
+**Peer feedback (4 collected).** Consistent themes: writes things down, asks the question everyone else is avoiding, does the unglamorous work. One reviewer noted she is sometimes slow to escalate when blocked, which matches my own observation and is the coaching item.
+
+**Risk of not promoting.** Moderate. She has not signalled flight risk. But she is doing L5 work visibly, and a second cycle at L4 would be difficult to explain to her.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Vendor evaluation — visual regression tooling**
+K. Nnadi (Procurement) with S. Bhandari, N. Ferrante
+2026-09-02 · Decision requested by 9/30
+
+**Context.** Current vendor (Percy) renewal is due. Snapshot cap has become a live constraint; teams are excluding surfaces from the diff to stay under it. Evaluated three alternatives plus the incumbent's higher tier.
+
+| | Incumbent (higher tier) | Skiagram | Frontstop | Selfhosted (Bellwether OSS) |
+|---|---|---|---|---|
+| Annual cost | $115k | $88k | $134k | ~$40k + 0.5 FTE |
+| Snapshot cap | 20k/mo | unmetered | 25k/mo | n/a |
+| CI integration | existing | 2–3 wks | 1 wk | 6–8 wks |
+| Baseline approval UX | good | poor | good | poor |
+| Cross-browser | 4 | 2 | 6 | configurable |
+| Migration cost | none | ~3 wks | ~2 wks | ~8 wks |
+
+**Notes from the trials.**
+
+*Skiagram* is the cheapest metered option and unmetered snapshots would genuinely solve our problem. The baseline approval flow is bad enough that Ferrante's trial team stopped using it after four days and reverted. Unmetered snapshots nobody approves is not a working harness.
+
+*Frontstop* is good and expensive. The six-browser matrix is more than we need; we support four and have no plans to add two.
+
+*Self-hosting Bellwether* pencils out cheapest on licence and is not cheapest. The half-FTE is real and we do not have a half-FTE.
+
+**Recommendation: incumbent, higher tier.** Not exciting. It is the only option where the migration cost is zero and the approval flow is one our engineers already use, and the price delta against Skiagram buys us both of those.
+
+**Caveat from Bhandari.** He would revisit in two years if Skiagram fixes the approval UX, which they have on their roadmap. Worth a 12-month term rather than 24 to keep that option open.
+
+**Next:** Nnadi to request a 12-month quote at the higher tier by 9/12.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Deprecation notice — `kestrel-fetch` v2**
+
+**Effective:** v2 enters maintenance 2026-10-01. Security fixes only.
+**Removal:** 2027-04-01.
+**Owner:** Platform Client Libraries (R. Kettleborough)
+
+**What.** `kestrel-fetch` v2, the internal HTTP client wrapper used by the web client, the console, and eleven internal tools.
+
+**Replacement.** v3, released 2026-03. Same surface for the common cases. Breaking changes are documented in the migration guide; there are four, and three of them affect nobody.
+
+**The one that affects people:** v3 no longer retries on 5xx by default. v2 retried three times with a fixed delay, which was a bad default that hid upstream problems and occasionally amplified them. If you were relying on it, you were relying on it accidentally. Opt back in with `retry: { attempts: 3 }` if you must, but read the guide first.
+
+**Timeline.**
+- Now → 10/1: v3 available, v2 fully supported. Migrate at your convenience.
+- 10/1 → 4/1: v2 maintenance. Security patches only. No bug fixes, no dependency bumps.
+- 4/1: package unpublished from the internal registry. Builds pinning v2 will break.
+
+**Consumers we know about:** web client, console, admin tools, five internal dashboards, the deploy tooling, three things Composer owns that nobody has claimed. If you own something not on that list, you have until 4/1 and I will not be chasing you.
+
+**Help:** #platform-client-libs. Migration guide linked in the repo README. Average reported migration time is under two hours.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Assistant Experience offsite — agenda**
+**23–24 September, Fenwick House**
+Organiser: A. Boateng · 34 attendees
+
+---
+
+**Tuesday 23**
+
+09:30 — Arrival, coffee
+10:00 — **Group state of play** (Boateng, 30 min). Where we ended H1, what H2 looks like, headcount reality. Slides will be short.
+10:30 — **Team lightning rounds** (5 min each, 4 teams). What you shipped, what you learned, one thing you want from another team in the room. Strict timing; Kwiatkowski has the clock and has been instructed to be unpleasant about it.
+11:00 — Break
+11:15 — **Working session: the fifth surface.** (Oyelaran facilitating, 90 min.) We keep adding explanatory affordances one at a time and each one costs more than the last. This session is about whether that's a strategy or an accumulation. Bring opinions, not decks.
+12:45 — Lunch
+14:00 — **Working session: release train.** (Bhandari, 90 min.) Two Android slips, a web incident, and a mobile cadence nobody loves. Scoped question: do we change the cadence, the matrix, or nothing.
+15:30 — Break
+15:45 — **Open space.** Four rooms, topics proposed on the day, 45 min each. Propose at breakfast.
+17:00 — Close
+19:00 — Dinner, Fenwick dining room
+
+---
+
+**Wednesday 24**
+
+09:30 — **Craft session** (rotating, pick one):
+ A. Writing a postmortem people read (Ferrante)
+ B. Editing for reader attention (Feld)
+ C. Estimating work that crosses team boundaries (Weill & Lindqvist)
+11:00 — **Planning: H2 commitments.** (Boateng + EMs, 90 min.) The list is already drafted. This session is for cutting from it, not adding.
+12:30 — Lunch
+13:30 — **Retro on the offsite itself**, 30 min, then departures
+
+---
+
+**Notes.** No laptops in working sessions. Vestergaard is dialling in for Tuesday afternoon only. Dietary requirements to Nnadi by 9/12. There is no dress code and there was never a dress code, please stop asking.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**#eng-frontend — code review policy**
+
+**F. Ozturk** (10:14)
+proposing we drop the two-approver requirement on non-critical paths. it's costing us a day per PR on Composer and the second approval is almost always a rubber stamp
+
+**N. Ferrante** (10:17)
+"almost always" is doing a lot of work there. what's the base rate of second reviewers catching something
+
+**F. Ozturk** (10:19)
+i pulled it. 340 PRs last quarter, second reviewer left a substantive comment on 22. so ~6%
+
+**T. Weill** (10:22)
+6% is not nothing. what's the cost side
+
+**F. Ozturk** (10:23)
+median time-to-merge 19h with two approvers, 6h with one on the PRs where the second approval came fast. so call it 13h of latency to catch 6%
+
+**N. Ferrante** (10:26)
+the 6% aren't randomly distributed though. i'd bet they cluster on the PRs that were already risky, which are exactly the ones you'd want to keep two on
+
+**F. Ozturk** (10:27)
+that's my proposal — keep two on critical paths, drop to one elsewhere
+
+**T. Weill** (10:29)
+who defines critical path and how often does that definition get revisited. that's the whole question and it's not a technical one
+
+**F. Ozturk** (10:31)
+codeowners file, revisited quarterly at team level
+
+**T. Weill** (10:34)
+then i'm fine with it for Composer. i'm not adopting it on our renderer paths, which are one-reviewer already for bus-factor reasons and would go to zero, which is obviously worse
+
+**R. Palakkal** (10:40)
+console will take it. our second approvals are 100% rubber stamps and i can say that because i'm usually the stamp
+
+**F. Ozturk** (10:41)
+i'll write it up as an opt-in per team rather than a policy change. easier to land
+
+**N. Ferrante** (10:42)
+that's better anyway
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Onboarding — Content Design at Kestrel**
+*Maintained by M. Feld. Last touched 2026-06-30.*
+
+Welcome. This is the practical version; HR has the other one.
+
+**What content design is here.** We own the words the product produces that aren't the model's answer: interface copy, error states, empty states, help text, and the standards documents that govern generated text on the surfaces that have them. Four of us across the company. We are a craft function embedded in product teams, not a central pool.
+
+**Week one.**
+- Read the four surface standards docs, in this order: Composer, Account, Notifications, then whichever surface you're embedded in. The first three are short.
+- Get access to the verbatim corpora. Ask Research Ops, not your EM; they gatekeep and they're fast.
+- Sit in on one design review before you speak in one.
+
+**The thing that will take you longest to learn.** Cutting. Everyone arrives good at writing and nobody arrives good at deciding what doesn't earn its space. The question is never "is this sentence good," it's "is this sentence worth the attention it costs the reader." Most of what you'll cut in your first year will be sentences that were fine.
+
+**How we work with engineering.** Copy that ships in the interface goes through the normal PR flow and you will be expected to open PRs yourself. Copy that governs generated text goes through a compilation and release process specific to that surface; your embedded team will walk you through it, and the short version is that you are further from the output than you're used to and you find out slower.
+
+**How we work with research.** The free-text corpus from the quarterly panels is the single best input we have. Read all of it. Not the topline, not the summary — all of it. It is tedious and it is where every good revision I've written came from.
+
+**Reviews and levels.** Content design ladders against scope and judgement, not volume. Nobody has ever been promoted here for shipping more words.
+
+**Who to ask.** Me, for anything. Sofia at Composer for interface copy conventions. Dagny for anything where the copy and the layout are arguing.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Incident review — metrics pipeline gap, 2026-08-24**
+Owner: S. Dhar (Infra) · Contributors: M. Okafor, J. Kwiatkowski
+Severity: SEV-3 · No customer impact
+
+**What happened.** The event ingestion pipeline stalled for 3h14m starting 02:40 UTC. No events were lost — the upstream queue buffered — but nothing landed in the warehouse until 05:54, and the backfill completed at 07:20.
+
+**Consequence.** Every daily dashboard reading the previous day's partition was wrong or empty during EU morning. Three teams noticed independently and two of them filed tickets before checking #infra-status, which had a note up at 03:10.
+
+**Cause.** A schema evolution on one event type introduced a field with an incompatible type against the existing partition. The consumer halted rather than dropping the malformed batch. Halting is the correct behaviour and I am not proposing we change it.
+
+**Why the schema change got through.** The schema registry has a compatibility check. It was passing because the check runs against the *latest* schema version, not against the partition's actual historical types, and this field had been changed once before in the opposite direction. Genuinely subtle. Not anyone's fault.
+
+**What made it worse.** Three teams debugged a data problem for an hour each because the dashboards showed empty rather than stale. An empty chart looks like a metric going to zero. Kwiatkowski's note: her team spent forty minutes trying to work out why an engagement metric had collapsed overnight before someone checked infra.
+
+**Actions.**
+1. Registry compatibility check to validate against partition history, not latest. Dhar, due 9/15. This is the real fix and it is a week of work.
+2. Dashboards to render a "data unavailable" state distinct from zero. Dhar to file against the dashboard platform; not our team, will need chasing.
+3. Post to #eng-announce when the pipeline halts, not just #infra-status. Done.
+
+**Not doing.** Alerting every consumer team automatically. We tried a version of this in 2025 and it produced noise nobody read.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**#cs-team**
+
+**J. Kwiatkowski** (09:12)
+Calliope came back on the three-wave reduction — they'll do it but they want a 14-month term instead of 12 to keep the per-wave rate
+
+**P. Raghunathan** (09:15)
+does 14 months line up badly with anything
+
+**J. Kwiatkowski** (09:16)
+it puts the renewal decision in November instead of September, which is worse for budget planning but not fatal
+
+**P. Raghunathan** (09:18)
+take it. the rate matters more than the calendar
+
+**M. Feld** (09:31)
+just flagging that three waves means one read per major standards revision instead of comfortably more than one. i'm not objecting, i want it written down somewhere that isn't my head
+
+**J. Kwiatkowski** (09:33)
+it's in the memo, second-to-last paragraph
+
+**M. Feld** (09:33)
+good enough
+
+**P. Raghunathan** (09:40)
+Jen close it with Nnadi this week, Procurement's window is the 30th
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Sprint 44 retro — Conversation Surfaces**
+Notes: N. Ferrante (Jen at the offsite planning thing)
+2026-09-28
+
+Committed 21, delivered 16. First miss in four sprints, so worth ten minutes.
+
+**What we didn't finish.** The reconnect/regenerate path split (5pt, half done), the mobile-layout tag migration (2pt, not started), the empty-state work (3pt, moved again).
+
+**Why.** Two reasons and they're both boring. Tomas lost three days to the 9.0 GA fallout, which we knew was possible and didn't pad for. And the support triage rotation, which we added last quarter as a 30-minute thing, is not a 30-minute thing — Naima clocked it at 2h in her week. Nobody was measuring it and it wasn't in the sprint.
+
+**Discussion.** Tomas's view is that the GA days were unavoidable and the estimate was fine; the problem is that we commit at full capacity every sprint and then treat any external draw as an overrun. Priya agreed and pushed back on one thing: we've said this in three of the last five retros and the commit number hasn't moved.
+
+Agreed to commit 18 next sprint instead of 21 and see whether the delivery number actually changes or whether we just deliver 16 again.
+
+**Support triage.** Adding it to the sprint as a real 2pt line item rather than pretending it's free. Rotating owner.
+
+**The empty-state work.** Moved for the fifth time. Design has been done and approved since April. Priya's call: either it goes in sprint 45 with a named owner or we take it off the board entirely and stop pretending. Nobody wanted the second option, so it's in 45, Naima owns it.
+
+**Good.** GA landed clean on our side. Zero rollbacks this sprint. Two people said the new triage rotation is better than the old nothing even if it costs more than advertised.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**PROP-2026-104 — Retire the confidence chip**
+Author: D. Oyelaran
+Filed: 2026-09-09
+Decision requested by: 2026-10-15
+
+**Proposal.** Remove the confidence chip from all clients. Deprecate the component in Loom, remove the config keys, retire the associated metric set.
+
+**Case.**
+
+*Engagement is negligible.* Hover rate 1.4%, tap rate on mobile 0.6%. Both flat since launch. This is an affordance nobody uses.
+
+*Interpretation is wrong when it happens.* The Q1 comprehension panel included two items on the chip. Of respondents who recalled seeing it, a majority read it as a claim about factual correctness rather than as what it is. A misread affordance is worse than an absent one.
+
+*The field is moving.* Vantobel retired theirs in Q2, citing the same two reasons independently. We would not be first.
+
+*It costs us.* One accessibility finding open against it (colour-only state), a Loom component we carry through every major migration, and a config subtree in a namespace consolidation that would be simpler without it.
+
+**Case against, as best I can make it.** It was expensive to build, it took two quarters, and killing it is an admission. There's also a version of the argument that says low engagement is fine for a safety-adjacent affordance because its value is in availability, not use — I don't find this persuasive here, because unlike the panel the chip carries a specific claim and a specific claim that's misread is a liability rather than a neutral.
+
+**What I'm not proposing.** No change to the citation footer or the source card. This is not a general retreat from explanatory affordances.
+
+**Migration.** Two client releases with the component present but not rendered, then removal. No user-facing communication needed; nobody will notice, which is rather the point.
+
+**Approvers needed:** Raghunathan, Boateng. Lindqvist to confirm the Loom deprecation path.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**On-call handover — Assistant Experience, week of 2026-09-14 → 09-21**
+Out: N. Ferrante · In: M. Okafor
+
+One page, no real incidents.
+
+**Thu 22:41 — CDN origin 5xx spike, ap-south.** Provider-side, resolved by them in 12 minutes, we did nothing. Status page confirmed after the fact.
+
+**Sat 07:15 — false page, the write-latency thing again.** Metrics pipeline gap. This alert has now fired seven times this year and every single one was a pipeline hole. Okafor, you filed the replacement alert in July and it's still not deployed. This is your handover and your ticket. I'm being pointed about it because I lost a Saturday morning.
+
+**Open:**
+- 9.0 GA landed Tuesday. No fallout on our surfaces after Wednesday. Watch the error dashboards through the weekend anyway.
+- Two support escalations sitting in the queue, both mis-tagged answer-quality complaints, both need bouncing to MEP intake. I did not bounce them because I ran out of week.
+- Frag pin bumped Thursday. Nothing to watch, mentioning it so you don't wonder why the version string changed.
+
+**Runbooks:** all current as of the April rename except the CDN one, which still references a provider portal we migrated off.
+
+Pager yours 09:00 Monday.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Q4 planning intake — Loom platform**
+B. Lindqvist, 2026-09-25
+
+Nine asks came in for 9.1. Room for four, maybe five. Ranked below with my reasoning. Argue in the thread, not in my DMs.
+
+**1. Overflow token, explicit opt-in with audit gate.** Two consumer surfaces waiting, one with an open a11y finding riding on it, and a policy exception being requested roughly monthly which costs me more in conversation than the work costs in implementation. Committing this.
+
+**2. Focus management primitives.** Three teams have hand-rolled focus traps, two of which had findings against them in the last audit cycle. Centralising this removes a class of bug rather than an instance. Committing.
+
+**3. Density scale.** Requested by Console and Account & Billing independently, which is usually the signal that something is real. Two-week estimate that I believe. Committing.
+
+**4. Motion tokens with reduced-motion built in.** Currently every consumer implements the preference check themselves and one of them forgets. Probably committing.
+
+**5. Elevation cleanup.** Long overdue, low value, would make me happy. Not committing.
+
+**6–9.** Table primitives (no — too big, and the two requesters want different things), toast queue (belongs to Notifications, not to Loom), theming API v2 (9.2 at the earliest), and a request I genuinely cannot parse from Composer that I've asked Fatma to rewrite.
+
+**Estimating note.** Per the agreement out of the Conversation Surfaces retro, anything crossing a team boundary gets co-estimated with the consumer before it goes in. Items 1 and 2 both do. Weill and I are doing 1 next week; item 2 needs someone from Account & Billing and I don't yet know who.
+
+**Timeline.** 9.1 scoping locks 10/9. RC mid-November. GA before the December freeze or it slips to January, and I would rather slip than ship a design-system major into a freeze week.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Support Engineering — canary ring access, process note**
+A. Nkemdirim, 2026-08-20
+
+As of the 5.5 mobile cut, Support joins the canary ring. This is what that means and what we're expected to do with it.
+
+**What changes.** Three named agents per region get canary builds at cut, not at GA. Roughly a two-week lead.
+
+**Why we asked for it.** Layout and rendering reports are the largest category we cannot reproduce, and by the time a build reaches GA the report is already several days old and the reporter has usually stopped responding. Two weeks of lead means we can reproduce on the build the user is actually running.
+
+**What we're expected to do.** Reproduce, not triage. If a canary agent reproduces something, it goes to the owning team with the repro steps and the device. We are not being asked to test, and I want to be clear about that with the group before somebody's manager decides we are.
+
+**Devices.** The device lab expansion lands in October and Support gets three units from it — two low-memory Android, one narrow-viewport handset. Bhandari has confirmed. Until then we're on personal devices, which is fine for two weeks and not fine as a permanent state.
+
+**Risk.** Canary builds break. If your primary device is on canary and it breaks, you cannot do your job. Named agents run canary on a secondary device only. This is not negotiable and I will check.
+
+**Who:** Ojo (EMEA), Tanaka (APAC), Villalobos (AMER). Rotating quarterly.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**From:** R. Vinci
+**To:** A. Boateng
+**Date:** 2026-09-18
+**Subject:** 27H1 headcount — where I landed
+
+Anselm,
+
+One req, not two. It's the engineer. I know that's the one Priya said to take if it came to that, so at least nobody's surprised.
+
+The reasoning, so you can pass it on accurately: the group's total is capped at three across four teams and the other two are going to Account & Billing, who have been running with an EM covering IC work since March and are the only team in the group where I think we're at genuine delivery risk rather than sustainability risk. Conversation Surfaces is the second-worst position and I'm treating it that way.
+
+On the PM conversion — I'm not saying no, I'm saying not through headcount. The right move is for me to have the conversation with Composer about what a 40% allocation is actually buying either team, and I'll take that on rather than leaving Priya to negotiate sideways with a peer. Give me until the offsite.
+
+Two other things.
+
+The contract content-design support in the Q3 tooling line: I saw Dhar deferred the Percy upgrade and not that one, which was the right call. If Feld is a single point of failure on standards authoring and lint triage and he also personally reads six hundred free-text responses a wave, that's not a resourcing gap, it's a bus-factor problem wearing a resourcing gap's clothes. Make sure the contractor is scoped to reduce the dependency, not just the workload.
+
+And tell Priya the promotion packet for Ferrante was the clearest one I read this cycle. The part where she named what the candidate isn't yet, and then said why she'd promote anyway — more of that. Most packets read like advocacy and I stop believing them.
+
+Rhoda
+
+<<<END>>>
+
+<<<DOC>>>
+
+**#eng-help**
+
+**H. Vestergaard** (13:02)
+anyone else getting 401s on the staging proxy or is it me
+
+**N. Ferrante** (13:03)
+me too, started ~12:50
+
+**S. Bhandari** (13:05)
+looking. don't rerun your builds, you'll just queue
+
+**S. Bhandari** (13:11)
+it's the cert rotation, staging wasn't in the owner list. same shape as July. fix is 20 min
+
+**H. Vestergaard** (13:12)
+so the audit action from the CI postmortem didn't cover staging
+
+**S. Bhandari** (13:12)
+it did not. adding it to the action, reopening the ticket
+
+<<<END>>>
+
+<<<DOC>>>
+
+**AX-2044 — Reduced-motion preference ignored by streaming shimmer**
+
+| | |
+|---|---|
+| Type | Bug (a11y) |
+| Priority | P2 |
+| Reporter | D. Oyelaran |
+| Assignee | D. Oyelaran |
+| Component | web-client / surfaces |
+| Refs | TA-22 (Thornbury audit) |
+
+**Description**
+`prefers-reduced-motion: reduce` is not checked before the shimmer animation runs. Affects the panel and the source card, both of which shimmer during load. Straightforward local fix — media query guard, fall back to a static placeholder.
+
+**Comments**
+
+**B. Lindqvist** — 2026-07-02
+Before you fix this locally: motion tokens with the preference check built in are on my 9.1 shortlist. If they land you'd be reverting your fix in three months. Your call, but flagging it.
+
+**D. Oyelaran** — 2026-07-02
+Shortlist isn't committed and the finding has a 90-day clock on it. Fixing locally now, happy to move onto the token when it exists. I'll leave a comment in the code pointing at 9.1 so whoever removes it knows why it's there.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Calendar invite — Content Standards 4.3 review**
+
+**When:** Thu 10 Sept, 11:00–12:00
+**Where:** Kilburn 2
+**Organiser:** M. Feld
+**Required:** P. Raghunathan, D. Oyelaran, A. Boateng
+**Optional:** T. Weill (agenda item 3 only)
+
+**Agenda**
+
+1. Cohort read on rc1 — 20 min. One panel wave is in. Median block count down on math, no comprehension movement either direction. I'll present the numbers and my read, which is "ship it broadly, keep watching length."
+2. Approval decision — 10 min. This is the actual purpose of the meeting.
+3. Denylist: the "token" allowlist — 15 min, Tomas. Deferred from rc1 because it needs a lint rule change. Do we hold it further or ship it and accept false positives on auth and crypto questions.
+4. 4.4 scoping, 10 min. Register work. Not deciding anything today, just flagging what's coming so it isn't a surprise in November.
+5. AOB.
+
+**Pre-read:** cohort read summary (2 pages, linked), 4.3 diff. If you haven't read the diff please say so at the top rather than in minute forty.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Commit** `7be0d19`
+
+    perf(client): defer source-card image fetch until expand
+
+    Source cards were prefetching favicons and preview images at
+    render time for every card in the footer, including ones the
+    user never expands. On a response with nine sources that's
+    nine round trips for content behind a disclosure control.
+
+    Move the fetch into the expand handler. Adds ~120ms perceived
+    latency on first expand, removes 9 requests from the common
+    path.
+
+    Refs CS-1958
+
+**PR #4610 — Defer source-card image fetch until expand**
+
+**Review — D. Oyelaran:**
+Numbers are convincing. One design ask: put a placeholder at the correct dimensions rather than letting the card reflow when the image lands. A 120ms delay is invisible; a layout shift at 120ms is not, and we'll get tickets about it. Otherwise ship.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Standup — Conversation Surfaces, Tue 10/6**
+
+**Tomas** — Reconnect/regenerate split is done and merged, the backoff change is on top of it and in review. Co-estimating the overflow token with Bo Thursday.
+
+**Naima** — Empty state, finally. Design's been sitting since April so it's mostly implementation. Two days, maybe three. Support triage is mine this week, already 90 minutes in and it's Tuesday.
+
+**Dagny** — Confidence chip retirement proposal is with Priya and Anselm, decision due the 15th. Otherwise 9.1 intake and the tablet mocks that Account & Billing still haven't looked at.
+
+**Marcus** — 4.3 approved Thursday, broad rollout went out yesterday, watching length numbers. Nothing blocking.
+
+**Jen** — Calliope paper is signed, 14-month term. Experiment registry cleanup, and I need someone to tell me whether WL-EXP-144 is still running because the dashboard says yes and nobody's looked at it since July.
+
+**Dagny** — it's running, interim read hasn't changed, I'll write it up
+
+**Priya** — Sprint 45 commit is 18 not 21, that's deliberate, don't fill the gap.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Wiki stub — Support triage rotation: what to actually do**
+
+*TODO. Written after my first week on it because the handover was verbal. — N.F., 2026-09-30*
+
+**Weekly, ~2h (not the 30 min advertised).**
+
+1. Open the `surface:*` queue filtered to unassigned, last 7 days.
+2. **First pass: is it ours.** Anything where the complaint is about the answer being wrong, incomplete, or made up goes to MEP intake. Do not triage it. Do not "have a quick look." Bounce it.
+3. Second pass: assign by surface. Citation footer and source card → whoever's free. Rendering and layout → Tomas or me. Copy → Marcus.
+4. Anything that looks like a P1 goes to Priya directly, don't queue it.
+5. Close the empty-panel ones with the canned response.
+
+**TODO**
+- [ ] The canned response is from April and reads like it. Ask Marcus.
+- [ ] Document what "P1" means here, because I guessed
+- [ ] Ariel says Support has their own tagging review that changed the tree in July — find out if step 3 is still accurate
+- [ ] Nobody has written down what happens when the rotation owner is on PTO
+
+<<<END>>>
+
+<<<DOC>>>
+
+**From:** K. Nnadi (Procurement)
+**To:** D. Oyelaran
+**Date:** 2026-09-04
+**Subject:** Thornbury amendment — Legal came back
+
+Dagny,
+
+Legal cleared both changes. The 180-day window doesn't touch the indemnity language; their note was that the indemnity is scoped to the audit work product, not to remediation timelines, so extending one doesn't reach the other.
+
+One thing they did flag: the second re-audit cycle needs a defined scope in the amendment or Thornbury can bill it as a full audit. Their draft says "re-test." Get it to say "re-test of previously identified findings, no new discovery" and we're fine.
+
+I've asked Thornbury for revised paper. Expect it next week.
+
+Kemi
+
+---
+
+**From:** D. Oyelaran
+**To:** K. Nnadi
+**Date:** 2026-09-04
+**Subject:** Re: Thornbury amendment — Legal came back
+
+Perfect, thank you. The scope language matters more than I'd realised — good catch by Legal.
+
+For the October re-test the scope is the eleven serious findings from the May report. Nine will be closed by then. The two that won't are both waiting on a design-system change that isn't committed, so I'd like those explicitly listed as carried rather than re-tested, if the paper can accommodate that.
+
+Dagny
+
+<<<END>>>
+
+<<<DOC>>>
+
+**#loom-platform**
+
+**F. Ozturk** (15:20)
+density scale — is that landing as tokens or as a component prop
+
+**B. Lindqvist** (15:22)
+tokens. props would mean every consumer implements the mapping and we'd get four different mappings
+
+**F. Ozturk** (15:23)
+fine by me, just need to know before i scope Composer's side
+
+**R. Palakkal** (15:31)
+does it apply per-container or globally
+
+**B. Lindqvist** (15:32)
+per-container, inherited. global would be a theming change and that's 9.2
+
+**R. Palakkal** (15:33)
+ok that's what console needs
+
+**B. Lindqvist** (15:35)
+scoping locks the 9th, get your estimates to me before then or i'll make them up and you'll live with mine
+
+<<<END>>>
+
+<<<DOC>>>
+
+**`wl-style-frag` release notes — `wl-style-4.3.0`**
+
+**Cut:** 2026-09-11 (weekly train, Tuesday)
+**Pin status:** available; not yet pinned by any client release
+**Author:** M. Feld · **Pipeline review:** T. Weill · **Approver:** P. Raghunathan
+
+---
+
+**Changes from `4.2.1`**
+
+- **WL-7 rewrite.** Replaces the algebra-specific example with the load-bearing/mechanical distinction. Compiled fragment is 40 words longer than 4.2.1's WL-7 section.
+- **WL-41 additions:** `context window`, `the model`, `step-by-step`. The `token` addition is **not** in this release — see below.
+- Editorial: two typographical fixes in the WL-2 section, no semantic change.
+
+**Deferred**
+
+`token` remains off the denylist. It requires a domain-keyed allowlist in Worklight Lint so it doesn't fire on auth and cryptography questions where it is the field's own term (WL-6 outranks WL-41 in that case). The lint rule change is unwritten. Target: 4.3.1 or 4.4, whichever comes first after the rule lands.
+
+**Rollout**
+
+Single-cohort hold, one comprehension panel wave, before broad rollout. Requested by D. Oyelaran, agreed at the 9/10 review. Cohort is 4% of web traffic, math/physics/code weighted.
+
+**Pinning guidance**
+
+Do not pin 4.3.0 in a client release until the cohort read is in. Web 7.7 and mobile 5.5 should stay on 4.2.1. If you need a pin bump for an unrelated reason in that window, take 4.2.2 (typographical only, no behaviour change).
+
+**What to watch**
+
+Median rendered word count and block count on math/physics segments. Expect both down. The failure mode we cannot see at cohort size is over-compression of a genuinely load-bearing derivation — that would show as a comprehension drop a wave later, not as a lint failure. If comprehension moves down on this wave, roll back rather than investigate; investigate after.
+
+**Rollback**
+
+`wl-style-4.2.1`. Standard frag rollback, no client release required for cohort traffic.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**PR #4688 — chore(client): bump frag pin to wl-style-4.3.0**
+
+```
+ config/frag-pins.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+-  wl-style: wl-style-4.2.1
++  wl-style: wl-style-4.3.0
+```
+
+**Description**
+Cohort read came back clean, 4.3.0 approved for broad rollout at the 10/8 sync. Bumping for web 7.8. Mobile follows on 5.6.
+
+**Review — T. Weill:**
+Approved. One process note for the record: this is the first bump under the weekly train where we've held a version for a full panel wave before pinning, and it worked exactly as intended. Worth doing again for anything that changes a rule rather than fixing a typo.
+
+**Review — M. Feld:**
+Approved. Confirming the deferred `token` denylist entry is still deferred — it is not in 4.3.0 and nobody should read this bump as shipping it.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Worklight Lint — dashboard review, week of 2026-10-12**
+`wl-style-health` · reviewed at Thursday sync
+M. Feld / T. Weill
+
+Pass rate **95.4%**, up 1.3pt. First movement in five months. Attributable to 4.3.0 broad rollout on 10/9; this is the third full day of post-rollout data so treat it as directional.
+
+| Rule | Share | Δ vs 4.2.1 baseline |
+|---|---|---|
+| WL-2 block length | 2.1% | −1.1 |
+| WL-5 banned opener | 1.0% | −0.1 |
+| WL-41 denylist | 1.0% | +0.1 |
+| WL-10 formatting | 0.4% | — |
+| nesting depth | 0.1% | −0.2 |
+
+**WL-2.** The whole of the improvement. As predicted, the WL-7 rewrite eats WL-2 failures — the long-block tail was mostly derivations that should have been compressed, and compressing them removes the block rather than shortening it. Bimodal distribution has collapsed to unimodal; the >200-word tail is nearly gone.
+
+**WL-41 up 0.1.** Noise at this rate. `harness` still dominant.
+
+**Sampling note (Weill).** We are still reading a 2% sample of live buffer entries. At current volumes that is enough to move a rate by a tenth of a point with confidence and not enough to catch a rule that fires ten times a day. Manual review remains the only signal on WL-8, which has no structural rule and cannot easily get one.
+
+**What lint still cannot see.** Over-compression. A block that should have been three blocks passes every structural check we run. If 4.3.0 went too far the dashboard will look great and we will find out from the panel in January.
+
+**Action:** none. Re-review in two weeks with a fuller window.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Postmortem — `wl-style-4.0.0` register regression and rollback**
+**Incident window: 2026-02-11 → 2026-02-25 (14 days)**
+Author: M. Feld · Reviewed: P. Raghunathan, D. Oyelaran, T. Weill
+Severity: SEV-3 · Status: final (filed late, apologies)
+
+**Summary.** Content Standards 4.0 included a global register adjustment intended to bring the soft-cluster domains (cooking, travel, general advice) closer to the clipped register of math and code. The compiled fragment moved the math register instead, in the wrong direction. Rendered content on technical questions became terser than intended, dropping setup context that WL-7 explicitly protects. Detected in manual review, not by lint. Rolled back to `3.6.2` after 14 days; a corrected 4.0.1 shipped 3/4.
+
+**Impact.** No availability impact. Comprehension score for 26Q1 came in at 4.0 against 4.1 the prior wave; we attribute some but not all of that to this. Two support tickets described technical explanations as "abrupt."
+
+**Detection.** Marcus's routine sample read on 2/19, eight days in. Lint pass rate was *up* over the window — terser content passes WL-2 more easily. This is the central lesson: structural lint is insensitive to register and to over-compression, and both failure modes make the dashboard look better.
+
+**Cause.** The Standards text described the target register in prose ("a colleague at a whiteboard"). The compiled fragment applied it uniformly. The soft cluster moved a little; the hard cluster, already at the target, moved past it. The rule was written to describe a destination and compiled as a direction.
+
+**What went wrong in process.** No cohort hold. 4.0.0 went to broad rollout at cut. There was no mechanism at the time to hold a frag version against a panel wave.
+
+**What went right.** Rollback was a frag pin revert, no client release, complete in under an hour once decided.
+
+**Actions.**
+1. Cohort hold for any frag release changing a rule rather than fixing a typo. Owner Feld/Oyelaran. **Done** — first exercised on 4.3.0.
+2. One lever per revision. Owner Feld. **Done**, written into the Standards process appendix after the Q3 retro.
+3. Register audit on a fixed cadence with numeric axes rather than prose judgement. Owner Feld. **Partially done** — audits are running, the numeric-axes rewrite of WL-4 is queued for 4.4.
+
+**Still open.** We have no automated signal for register or for over-compression. Both remain manual. Recorded, not fixed.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**PR #4402 — feat(frag): WL-41 denylist additions**
+
+```
+ frags/wl-style/parts/41-denylist.md | 4 +++-
+```
+
+**Description**
+Three of the four additions from the June review: `context window`, `the model`, `step-by-step`. `token` held pending lint allowlist work.
+
+**Review — T. Weill:**
+The three are fine. On `the model` — I want to check we're happy with it in the frag rather than as a lint-only rule. It's a WL-12 concern and the frag section it lands in is titled "internal vocabulary," which it isn't really. Not blocking, just noting the file is now doing two jobs.
+
+**Review — M. Feld:**
+Agreed it's mis-filed. Enforcement lives in the denylist and I'd rather it be caught in the wrong section than correctly filed and unenforced. Will restructure the section headings in 4.4 when I'm touching that file anyway. Merging.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Runbook — `wl-style-frag` rollback**
+Owner: T. Weill · Last verified 2026-09-02 (verified quarterly)
+
+**When to use this.** A pinned frag version is producing content that fails review, moves a metric the wrong way, or breaks a formatting constraint. Rollback is cheap. Prefer rolling back and investigating afterwards.
+
+**When NOT to use this.** Answer-quality complaints. The frag governs presentation. If the reported problem is that an answer is wrong, this runbook will not help and the escalation path is MEP intake.
+
+**Procedure**
+
+1. Confirm the pinned version. `config/frag-pins.yaml` on the client release branch, or read the `frag_version` field on any recent `wl.render.v3` event.
+2. Identify the target version. Normally the previous pin. Release notes for every version are in `kestrel/prompt-frags/releases`.
+3. **Cohort traffic:** revert the cohort config. No client release. Effective within one minute of config propagation.
+4. **Broad traffic:** open a pin-bump PR against the release branch reverting to the target version. Requires one approval from Weill or Feld and one from the release manager on duty. Hotfix path exists if the release train is more than 24h out.
+5. Confirm via `wl-style-health`: the frag version distribution should shift within 10 minutes of deploy.
+6. Post in #cs-team. Note the version, the reason, and whether it was cohort or broad.
+
+**What rollback does not undo.** Sessions already rendered. Panel content is session-scoped and expires with the session buffer on its normal 90-minute TTL; there is nothing to purge and nothing to re-render. Users in-flight at the time of rollback see the old content for the remainder of their session.
+
+**Escalation.** Weill primary, Ferrante secondary. Feld for any question about whether the content is actually wrong as opposed to merely different.
+
+**Verification.** This runbook is exercised in the quarterly game day. Last real use: 2026-02-25 (4.0.0 register regression).
+
+<<<END>>>
+
+<<<DOC>>>
+
+**Alert config change — `frag-pipeline-cut-failure`**
+T. Weill, 2026-07-22
+
+**Current:** pages the frag pipeline on-call on any failed cut.
+**Proposed:** page on two consecutive failed cuts, or on a failed cut within 48h of a client release freeze. Otherwise ticket.
+
+**Why.** Since the move to weekly cuts in May we've had nine failed cuts. Eight were transient — registry flake, runner eviction, one case of a reviewer's approval not propagating before the freeze timer. All eight self-resolved on retry. One was real (a malformed fragment section that failed compilation) and was caught by the same alert, but would also have been caught by the second-consecutive rule twenty minutes later.
+
+Weekly cuts mean a missed cut costs a week at most and usually nothing, because consumers pin and are not obliged to take every version. The urgency that justified paging at biweekly cadence doesn't survive the cadence change.
+
+**The exception.** If a cut fails inside the 48h window before a client freeze, a consumer who was planning to bump is now stuck on the old pin with no time to react. That case keeps the page.
+
+**Objection anticipated.** Kettleborough may want to keep the page because the pipeline is his and a ticket queue is easier to ignore than a pager. Fair. My answer is that eight of nine pages this quarter were noise and noise degrades the response to the ninth.
+
+**Rollout:** change lands 8/1. Revisit in a quarter with the failure counts.
+
+<<<END>>>
+
+<<<DOC>>>
+
+**SBS capacity planning — 27H1 projection**
+M. Okafor, 2026-10-20
+
+Follows the 26H2 review. Same model, updated inputs.
+
+**Model.** `concurrent_sessions × mean_entry_bytes × retention_window × 1.3`.
+
+**Inputs.**
+
+| Term | 26H2 | 27H1 projected | Basis |
+|---|---|---|---|
+| Peak concurrent sessions | — | +19% | product growth curve, conservative |
+| Mean entry size | — | +9% | trailing 12mo, decelerating |
+| Retention window | 90 min | 90 min | unchanged |
+
+**Result.** us-east crosses the revised 82% alarm threshold in **late February**, three weeks earlier than the 26H2 projection put it. Other regions clear through H1.
+
+**Recommendation.** Provision one additional us-east shard in January. Lead time on the reservation is four weeks so the decision needs making by mid-December, not February.
+
+**On mean entry size.** Growth is decelerating and I want to note why, because it affects the projection more than the headline. Entry size is answer body plus panel content. Panel content is bounded by the 900-word ceiling and has been at that bound often enough that it contributes a near-constant rather than a growth term — truncation rate has been climbing, which from a capacity standpoint is the ceiling doing its job. Body length is where the growth is. If the ceiling ever moved, the model would need rebuilding, not adjusting; flagging that here so it isn't discovered late.
+
+**On the retention window.** Unchanged and assumed unchanged. It multiplies through the whole model. Any proposal touching it is a reprovisioning exercise. Route it here before anyone estimates it.
+
+**Not recommending.** Cross-region replication. Same answer as last time.
+
+<<<END>>>
+
